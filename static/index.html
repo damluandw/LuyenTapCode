@@ -44,20 +44,8 @@
               <option value="java">Java</option>
               <option value="csharp">C#</option>
             </select>
-            <button id="run-btn" class="primary-btn">Chạy Code</button>
-            <label
-              class="manual-input-label"
-              style="
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 0.85rem;
-                color: var(--text-secondary);
-                cursor: pointer;
-              "
-            >
-              <input type="checkbox" id="manual-input-check" /> Nhập tay
-            </label>
+            <button id="run-btn" class="primary-btn">Kiểm tra</button>
+            <button id="console-run-btn" class="secondary-btn">Chạy console</button>
           </div>
         </header>
 
@@ -90,7 +78,6 @@
                 <div
                   id="manual-input-area"
                   style="
-                    display: none;
                     padding: 10px;
                     border-bottom: 1px solid var(--glass-border);
                     background: rgba(0, 0, 0, 0.2);

@@ -128,62 +128,65 @@ function setupEventListeners() {
         if (currentProblem) updateHintTab(currentProblem, lang);
     });
 
-    document.getElementById('manual-input-check').addEventListener('change', (e) => {
-        const area = document.getElementById('manual-input-area');
-        area.style.display = e.target.checked ? 'block' : 'none';
-        if (e.target.checked) switchTab('console');
-    });
-
     document.getElementById("run-btn").addEventListener("click", handleRunClick);
+    document.getElementById("console-run-btn").addEventListener("click", handleConsoleRunClick);
 }
 
-async function handleRunClick() {
-    const btn = document.getElementById("run-btn");
-    const resultsPanel = document.getElementById("results-list");
-    const isManual = document.getElementById('manual-input-check').checked;
+async function handleConsoleRunClick() {
+    const btn = document.getElementById("console-run-btn");
     const manualInput = document.getElementById('custom-stdin').value;
 
     if (!currentProblem) return;
 
     btn.disabled = true;
+    const originalText = btn.textContent;
     btn.textContent = "Đang chạy...";
 
-    if (isManual) {
-        switchTab('console');
-        if (terminal) {
-            terminal.clear();
-            terminal.print("Đang chạy với dữ liệu nhập tay...", "status");
-            await terminal.execute_with_input(editor.getValue(), manualInput);
-        }
-        btn.disabled = false;
-        btn.textContent = "Chạy Code";
-    } else {
-        switchTab("results");
-        resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case...</div>';
-        if (terminal) {
-            terminal.clear();
-            terminal.print("Đang chạy toàn bộ code với test cases...", "status");
-        }
+    switchTab('console');
+    if (terminal) {
+        terminal.clear();
+        terminal.print("Đang chạy với dữ liệu nhập tay...", "status");
+        await terminal.execute_with_input(editor.getValue(), manualInput);
+    }
+    btn.disabled = false;
+    btn.textContent = originalText;
+}
 
-        try {
-            const response = await fetch("/execute", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    language: document.getElementById("language-select").value,
-                    code: editor.getValue(),
-                    test_cases: currentProblem.test_cases,
-                }),
-            });
-            const data = await response.json();
-            renderResults(data.results);
-        } catch (err) {
-            if (terminal) terminal.print("Lỗi kết nối server: " + err.message, "error");
-            switchTab("console");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Chạy Code";
-        }
+async function handleRunClick() {
+    const btn = document.getElementById("run-btn");
+    const resultsPanel = document.getElementById("results-list");
+
+    if (!currentProblem) return;
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Đang chạy...";
+
+    switchTab("results");
+    resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case...</div>';
+    if (terminal) {
+        terminal.clear();
+        terminal.print("Đang chạy toàn bộ code với test cases...", "status");
+    }
+
+    try {
+        const response = await fetch("/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                language: document.getElementById("language-select").value,
+                code: editor.getValue(),
+                test_cases: currentProblem.test_cases,
+            }),
+        });
+        const data = await response.json();
+        renderResults(data.results);
+    } catch (err) {
+        if (terminal) terminal.print("Lỗi kết nối server: " + err.message, "error");
+        switchTab("console");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 }
 
