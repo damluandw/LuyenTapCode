@@ -1,171 +1,50 @@
 [
-    {
-        "id": 1,
-        "title": "A + B Problem",
-        "description": "Viết chương trình nhập vào hai số nguyên a và b, in ra tổng của chúng.\n\n**Ví dụ:**\n- Input: `3 5` -> Output: `8`\n- Input: `10 -2` -> Output: `8`",
-        "difficulty": "Easy",
-        "hint": "Sử dụng hàm input() hoặc scanf() để đọc dữ liệu. Đừng quên chuyển kiểu dữ liệu sang số nguyên.",
-        "language_hints": {
-            "python": "Sử dụng `int(input())` hoặc `sys.stdin.read().split()` để đọc dữ liệu. Python xử lý số nguyên lớn tự động.",
-            "c": "Sử dụng `scanf(\"%d\", &var)` để đọc. Nhớ bao gồm thư viện `<stdio.h>`.",
-            "cpp": "Sử dụng `cin >> a >> b` để đọc dữ liệu nhanh chóng. Nhớ `using namespace std;`.",
-            "java": "Sử dụng lớp `Scanner` với `sc.nextInt()`. Đặt code trong `public class Main`.",
-            "csharp": "Sử dụng `Console.ReadLine()` và `int.Parse()` để xử lý đầu vào."
-        },
-        "test_cases": [
-            {
-                "input": "3 5",
-                "output": "8"
-            },
-            {
-                "input": "10 -2",
-                "output": "8"
-            },
-            {
-                "input": "0 0",
-                "output": "0"
-            }
-        ],
-        "starter_code": {
-            "python": "import sys\nline = sys.stdin.read().split()\na = int(line[0])\nb = int(line[1])\nprint(a + b)",
-            "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    if (scanf(\"%d %d\", &a, &b) == 2) printf(\"%d\", a + b);\n    return 0;\n}",
-            "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    if (cin >> a >> b) cout << a + b;\n    return 0;\n}",
-            "java": "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (sc.hasNextInt()) {\n            int a = sc.nextInt();\n            int b = sc.nextInt();\n            System.out.print(a + b);\n        }\n    }\n}",
-            "csharp": "using System;\nclass Program {\n    static void Main() {\n        string input = Console.ReadLine();\n        if (string.IsNullOrEmpty(input)) return;\n        string[] parts = input.Split(' ');\n        Console.Write(int.Parse(parts[0]) + int.Parse(parts[1]));\n    }\n}"
-        }
+  {
+    "id": 1,
+    "title": "A + B Problem",
+    "difficulty": "Easy",
+    "description": "Viết chương trình nhập vào hai số nguyên `a` và `b`, sau đó in ra tổng của chúng.\n\n**Input:**\n- Dòng 1: Số nguyên `a`\n- Dòng 2: Số nguyên `b`\n\n**Output:**\n- In ra tổng `a + b`\n\n**Ví dụ:**\n```\nInput:\n5\n3\n\nOutput:\n8\n```",
+    "hint": "Sử dụng hàm nhập liệu phù hợp với ngôn ngữ bạn chọn.",
+    "language_hints": {
+      "python": "Dùng `input()` để nhập và `int()` để chuyển sang số nguyên.",
+      "c": "Dùng `scanf(\"%d\", &a)` để nhập số nguyên.",
+      "cpp": "Dùng `cin >> a` để nhập số nguyên.",
+      "java": "Dùng `Scanner` để nhập số nguyên.",
+      "csharp": "Dùng `Console.ReadLine()` và `int.Parse()` để nhập số nguyên."
     },
-    {
-        "id": 2,
-        "title": "Tìm số lớn nhất",
-        "description": "Nhập vào 3 số nguyên, in ra số lớn nhất trong 3 số đó.\n\n**Ví dụ:**\n- Input: `1 5 3` -> Output: `5`\n- Input: `-5 -1 -10` -> Output: `-1`",
-        "difficulty": "Easy",
-        "hint": "Sử dụng cấu trúc điều kiện hoặc hàm so sánh để tìm số lớn nhất.",
-        "language_hints": {
-            "python": "Bạn có thể dùng hàm `max(a, b, c)` rất tiện lợi.",
-            "c": "Dùng `if (b > max) max = b;` để cập nhật biến max lần lượt qua từng số.",
-            "cpp": "Sử dụng `std::max({a, b, c})` (C++11) để tìm max của một danh sách.",
-            "java": "Sử dụng `Math.max(a, Math.max(b, c))`.",
-            "csharp": "Sử dụng `Math.Max()` hoặc `nums.Max()` từ `System.Linq`."
-        },
-        "test_cases": [
-            {
-                "input": "1 5 3",
-                "output": "5"
-            },
-            {
-                "input": "10 2 8",
-                "output": "10"
-            },
-            {
-                "input": "-5 -1 -10",
-                "output": "-1"
-            }
-        ],
-        "starter_code": {
-            "python": "import sys\nnums = [int(x) for x in sys.stdin.read().split()]\nprint(max(nums))",
-            "c": "#include <stdio.h>\nint main() {\n    int a, b, c;\n    if (scanf(\"%d %d %d\", &a, &b, &c) == 3) {\n        int max = a;\n        if (b > max) max = b;\n        if (c > max) max = c;\n        printf(\"%d\", max);\n    }\n    return 0;\n}",
-            "cpp": "#include <iostream>\n#include <algorithm>\nusing namespace std;\nint main() {\n    int a, b, c;\n    if (cin >> a >> b >> c) cout << max({a, b, c});\n    return 0;\n}",
-            "java": "import java.util.Scanner;\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int a = sc.nextInt(), b = sc.nextInt(), c = sc.nextInt();\n        System.out.print(Math.max(a, Math.max(b, c)));\n    }\n}",
-            "csharp": "using System;\nusing System.Linq;\nclass Program {\n    static void Main() {\n        string[] input = Console.ReadLine().Split(' ');\n        int[] nums = Array.ConvertAll(input, int.Parse);\n        Console.Write(nums.Max());\n    }\n}"
-        }
+    "starter_code": {
+      "python": "a = int(input())\nb = int(input())\nprint(a + b)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d\", &a);\n    scanf(\"%d\", &b);\n    printf(\"%d\\n\", a + b);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >> a >> b;\n    cout << a + b << endl;\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int a = sc.nextInt();\n        int b = sc.nextInt();\n        System.out.println(a + b);\n    }\n}",
+      "csharp": "using System;\n\nclass Program {\n    static void Main() {\n        int a = int.Parse(Console.ReadLine());\n        int b = int.Parse(Console.ReadLine());\n        Console.WriteLine(a + b);\n    }\n}"
     },
-    {
-        "id": 3,
-        "title": "Số nguyên tố trong khoảng [A, B]",
-        "description": "Viết chương trình nhập hai số nguyên A và B, in ra tất cả các số nguyên tố nằm trong khoảng [A, B]. Mỗi số in trên một dòng.\n\n**Ví dụ:**\n- Input: `1 10` -> Output:\n```\n2\n3\n5\n7\n```",
-        "difficulty": "Medium",
-        "hint": "Viết hàm kiểm tra số nguyên tố và dùng vòng lặp để duyệt qua các số.",
-        "language_hints": {
-            "python": "Duyệt từ 2 đến `int(n**0.5) + 1` để tối ưu việc kiểm tra số nguyên tố.",
-            "c": "Dùng vòng lặp `for (int i = 2; i * i <= n; i++)` để kiểm tra.",
-            "cpp": "Sử dụng `bool` cho hàm kiểm tra và vòng lặp tương tự C.",
-            "java": "Nhớ rằng `Scanner.nextInt()` sẽ đọc từng số cách nhau bởi khoảng trắng.",
-            "csharp": "Có thể sử dụng `Enumerable.Range` hoặc vòng lặp `for` truyền thống."
-        },
-        "test_cases": [
-            {
-                "input": "1 10",
-                "output": "2\n3\n5\n7"
-            },
-            {
-                "input": "10 20",
-                "output": "11\n13\n17\n19"
-            },
-            {
-                "input": "50 60",
-                "output": "53\n59"
-            }
-        ],
-        "starter_code": {
-            "python": "import sys\ndef is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5) + 1): \n        if n % i == 0: return False\n    return True\nline = sys.stdin.read().split()\nif len(line) >= 2:\n    for i in range(int(line[0]), int(line[1]) + 1):\n        if is_prime(i): print(i)",
-            "c": "#include <stdio.h>\nint isPrime(int n) {\n    if (n < 2) return 0;\n    for (int i = 2; i * i <= n; i++) if (n % i == 0) return 0;\n    return 1;\n}\nint main() {\n    int A, B;\n    if (scanf(\"%d %d\", &A, &B) == 2) {\n        for (int i = A; i <= B; i++) if (isPrime(i)) printf(\"%d\\n\", i);\n    }\n    return 0;\n}",
-            "cpp": "#include <iostream>\nusing namespace std;\nbool isPrime(int n) {\n    if (n < 2) return false;\n    for (int i = 2; i * i <= n; i++) if (n % i == 0) return false;\n    return true;\n}\nint main() {\n    int A, B;\n    if (cin >> A >> B) {\n        for (int i = A; i <= B; i++) if (isPrime(i)) cout << i << endl;\n    }\n    return 0;\n}"
-        }
+    "test_cases": [
+      { "input": "5\n3", "output": "8" },
+      { "input": "10\n20", "output": "30" },
+      { "input": "-5\n5", "output": "0" }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Hello World",
+    "difficulty": "Easy",
+    "description": "Viết chương trình in ra dòng chữ \"Hello, World!\".\n\n**Output:**\n```\nHello, World!\n```",
+    "hint": "Đây là bài tập cơ bản nhất để làm quen với cú pháp in ra màn hình.",
+    "language_hints": {
+      "python": "Dùng `print(\"Hello, World!\")`",
+      "c": "Dùng `printf(\"Hello, World!\\n\")`",
+      "cpp": "Dùng `cout << \"Hello, World!\" << endl`",
+      "java": "Dùng `System.out.println(\"Hello, World!\")`",
+      "csharp": "Dùng `Console.WriteLine(\"Hello, World!\")`"
     },
-    {
-        "id": 4,
-        "title": "Tính giai thừa",
-        "description": "Nhập vào một số nguyên dương `n`, hãy tính giai thừa của `n` (`n!`).\n\n**Ví dụ:**\n- Input: `5` -> Output: `120` (Vì 1*2*3*4*5 = 120)\n- Input: `0` -> Output: `1`",
-        "difficulty": "Easy",
-        "hint": "Giai thừa của n là tích các số từ 1 đến n. 0! = 1.",
-        "language_hints": {
-            "python": "Có thể dùng đệ quy hoặc hàm `math.factorial(n)`.",
-            "c": "Sử dụng kiểu dữ liệu `long long` để tránh tràn số khi n lớn.",
-            "cpp": "Tương tự C, hãy dùng `long long` cho kết quả giai thừa.",
-            "java": "Sử dụng kiểu `long` để lưu trữ giá trị giai thừa lớn.",
-            "csharp": "Dùng `long` và vòng lặp `for` đơn giản."
-        },
-        "test_cases": [
-            {
-                "input": "5",
-                "output": "120"
-            },
-            {
-                "input": "0",
-                "output": "1"
-            },
-            {
-                "input": "10",
-                "output": "3628800"
-            }
-        ],
-        "starter_code": {
-            "python": "import sys\ndef factorial(n):\n    return 1 if n == 0 else n * factorial(n-1)\nline = sys.stdin.read().strip()\nif line: print(factorial(int(line)))",
-            "c": "#include <stdio.h>\nlong long fact(int n) {\n    return (n == 0) ? 1 : n * fact(n-1);\n}\nint main() {\n    int n;\n    if (scanf(\"%d\", &n) == 1) printf(\"%lld\", fact(n));\n    return 0;\n}",
-            "cpp": "#include <iostream>\nusing namespace std;\nlong long fact(int n) {\n    return (n == 0) ? 1 : n * fact(n-1);\n}\nint main() {\n    int n;\n    if (cin >> n) cout << fact(n);\n    return 0;\n}"
-        }
+    "starter_code": {
+      "python": "print(\"Hello, World!\")",
+      "c": "#include <stdio.h>\n\nint main() {\n    printf(\"Hello, World!\\n\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello, World!\" << endl;\n    return 0;\n}",
+      "java": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+      "csharp": "using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine(\"Hello, World!\");\n    }\n}"
     },
-    {
-        "id": 5,
-        "title": "Đảo ngược chuỗi",
-        "description": "Nhập vào một chuỗi ký tự, hãy in ra chuỗi đó theo thứ tự ngược lại.\n\n**Ví dụ:**\n- Input: `hello` -> Output: `olleh`\n- Input: `Code` -> Output: `edoC`",
-        "difficulty": "Easy",
-        "hint": "Duyệt chuỗi ngược hoặc sử dụng các hàm xử lý chuỗi có sẵn.",
-        "language_hints": {
-            "python": "Sử dụng kỹ thuật slicing: `s[::-1]` để đảo ngược cực nhanh.",
-            "c": "Dùng `strlen()` để lấy độ dài và vòng lặp `for` lùi từ `len-1` về 0.",
-            "cpp": "Sử dụng `std::reverse(s.begin(), s.end())` từ thư viện `<algorithm>`.",
-            "java": "Sử dụng `StringBuilder(s).reverse().toString()`.",
-            "csharp": "Sử dụng `Array.Reverse()` sau khi chuyển chuỗi sang mảng ký tự."
-        },
-        "test_cases": [
-            {
-                "input": "hello",
-                "output": "olleh"
-            },
-            {
-                "input": "LuyenTapCode",
-                "output": "edoCpaTneyuL"
-            },
-            {
-                "input": "12345",
-                "output": "54321"
-            }
-        ],
-        "starter_code": {
-            "python": "import sys\ns = sys.stdin.read().strip()\nprint(s[::-1])",
-            "c": "#include <stdio.h>\n#include <string.h>\nint main() {\n    char s[100];\n    if (scanf(\"%s\", s) == 1) {\n        for (int i = strlen(s)-1; i >= 0; i--) putchar(s[i]);\n    }\n    return 0;\n}",
-            "cpp": "#include <iostream>\n#include <string>\n#include <algorithm>\nusing namespace std;\nint main() {\n    string s;\n    if (cin >> s) {\n        reverse(s.begin(), s.end());\n        cout << s;\n    }\n    return 0;\n}"
-        }
-    }
+    "test_cases": [{ "input": "", "output": "Hello, World!" }]
+  }
 ]

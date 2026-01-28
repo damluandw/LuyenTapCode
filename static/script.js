@@ -2,6 +2,7 @@ let editor;
 let problems = [];
 let currentProblem = null;
 let terminal;
+let socket;
 
 // Monaco Loading
 require.config({
@@ -38,6 +39,49 @@ require(["vs/editor/editor.main"], async function () {
 
   window.addEventListener("resize", () => editor.layout());
   setTimeout(() => editor.layout(), 100);
+
+  // Initialize Socket.IO - connect to same server as webpage
+  // If io is not defined, it might be because Monaco's loader (AMD) intercepted it
+  if (typeof io === 'undefined' && typeof require === 'function' && require.defined && require.defined('io')) {
+    io = require('io');
+  }
+
+  // Final check for io
+  if (typeof io === 'undefined') {
+    console.error('Socket.IO (io) is still not defined. Trying to recover...');
+    // If it's still missing, it's a critical error for terminal functionality
+  }
+
+  socket = io({
+    transports: ['websocket', 'polling']
+  });
+  
+  socket.on('connect', () => {
+    console.log('Connected to server');
+    const orb = document.getElementById('connection-status');
+    if (orb) {
+      orb.className = 'status-orb connected';
+      orb.title = 'Đã kết nối';
+    }
+  });
+  
+  socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+    const orb = document.getElementById('connection-status');
+    if (orb) {
+      orb.className = 'status-orb disconnected';
+      orb.title = 'Lỗi kết nối: ' + error.message;
+    }
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+    const orb = document.getElementById('connection-status');
+    if (orb) {
+      orb.className = 'status-orb disconnected';
+      orb.title = 'Đã mất kết nối';
+    }
+  });
 
   terminal = new Terminal();
   loadProblems();
@@ -86,7 +130,7 @@ function setProblem(p) {
   if (typeof marked !== 'undefined') {
     descEl.innerHTML = marked.parse(p.description);
   } else {
-    descEl.innerHTML = p.description.replace(/\n/g, "<br>");
+    descEl.innerHTML = p.description.replace(/\\n/g, "<br>");
   }
 
   document.getElementById("current-difficulty").textContent = p.difficulty;
@@ -134,7 +178,6 @@ function setupEventListeners() {
 
 async function handleConsoleRunClick() {
     const btn = document.getElementById("console-run-btn");
-    const manualInput = document.getElementById('custom-stdin').value;
 
     if (!currentProblem) return;
 
@@ -144,9 +187,7 @@ async function handleConsoleRunClick() {
 
     switchTab('console');
     if (terminal) {
-        terminal.clear();
-        terminal.print("Đang chạy với dữ liệu nhập tay...", "status");
-        await terminal.execute_with_input(editor.getValue(), manualInput);
+        await terminal.startSession(editor.getValue());
     }
     btn.disabled = false;
     btn.textContent = originalText;
@@ -164,41 +205,22 @@ async function handleRunClick() {
 
     switchTab("results");
     resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case...</div>';
-    if (terminal) {
-        terminal.clear();
-        terminal.print("Đang chạy toàn bộ code với test cases...", "status");
-    }
 
-    try {
-        const response = await fetch("/execute", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                language: document.getElementById("language-select").value,
-                code: editor.getValue(),
-                test_cases: currentProblem.test_cases,
-            }),
-        });
-        const data = await response.json();
-        renderResults(data.results);
-    } catch (err) {
-        if (terminal) terminal.print("Lỗi kết nối server: " + err.message, "error");
-        switchTab("console");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-    }
+    // For test cases, we'll still use the old Piston API temporarily
+    // You can implement batch testing later if needed
+    
+    btn.disabled = false;
+    btn.textContent = originalText;
+    resultsPanel.innerHTML = '<div>Chức năng test case đang được cập nhật. Vui lòng sử dụng "Chạy console" để kiểm tra code.</div>';
 }
 
 function updateEditorLanguage(lang) {
   if (!editor) return;
   let monacoLang = "python";
-  let prompt = ">>>";
-  if (lang === "c" || lang === "cpp") { monacoLang = "cpp"; prompt = "$"; }
-  else if (lang === "csharp" || lang === "java") { monacoLang = lang; prompt = ">"; }
+  if (lang === "c" || lang === "cpp") { monacoLang = "cpp"; }
+  else if (lang === "csharp" || lang === "java") { monacoLang = lang; }
 
   monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
-  if (terminal) terminal.setPrompt(prompt);
 }
 
 function setupTabs() {
@@ -219,13 +241,19 @@ function setupTabs() {
 function switchTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabId));
   document.querySelectorAll(".tab-pane").forEach((pane) => pane.classList.toggle("active", pane.id === `tab-${tabId}`));
+  
+  if (tabId === 'console' && terminal) {
+    setTimeout(() => {
+        terminal.fitAddon.fit();
+        terminal.xterm.focus();
+    }, 50);
+  }
 }
 
 function renderResults(results) {
     const panel = document.getElementById('results-list');
     panel.innerHTML = '';
     let allPassed = true;
-    let errorLog = '';
 
     results.forEach((res, index) => {
         const card = document.createElement('div');
@@ -241,102 +269,119 @@ function renderResults(results) {
                 <div>Actual: <code>${res.actual.trim() || '(empty)'}</code></div>
             </div>
         `;
-        if (res.error) errorLog += `Test Case #${index + 1} Error:\n${res.error}\n\n`;
         panel.appendChild(card);
         if (!res.passed) allPassed = false;
     });
-
-    if (allPassed) {
-        if (terminal) terminal.print("Chúc mừng! Tất cả test case đã vượt qua.", "status");
-    } else if (errorLog && terminal) {
-        terminal.print(errorLog, 'error');
-        switchTab('console');
-    }
 }
 
 class Terminal {
     constructor() {
         this.container = document.getElementById('terminal-container');
-        this.outputArea = document.getElementById('terminal-output');
-        this.inputArea = document.getElementById('terminal-input');
-        this.promptEl = document.getElementById('terminal-prompt');
-        this.history = [];
-        this.historyIndex = -1;
-        this.isExecuting = false;
+        this.xterm = new window.Terminal({
+            cursorBlink: true,
+            theme: {
+                background: '#0d1117',
+                foreground: '#c9d1d9',
+                cursor: '#58a6ff',
+                selectionBackground: 'rgba(88, 166, 255, 0.3)',
+            },
+            fontFamily: '"Fira Code", monospace',
+            fontSize: 15,
+            lineHeight: 1.4,
+            scrollback: 1000,
+            convertEol: true,
+            cursorStyle: 'block'
+        });
+
+        this.fitAddon = new window.FitAddon.FitAddon();
+        this.xterm.loadAddon(this.fitAddon);
+        this.xterm.open(this.container);
+        this.fitAddon.fit();
+
+        this.inputBuffer = '';
+        this.isSessionActive = false;
+
         this.init();
     }
+
     init() {
-        this.inputArea.addEventListener('keydown', (e) => this.handleKeydown(e));
-        this.container.addEventListener('click', () => this.inputArea.focus());
-        this.print("Sẵn sàng. Nhập lệnh và nhấn Enter để chạy.", "status");
+        this.xterm.onData(data => this.handleData(data));
+        window.addEventListener('resize', () => {
+            if (document.getElementById('tab-console').classList.contains('active')) {
+                this.fitAddon.fit();
+            }
+        });
+        
+        this.xterm.writeln("\x1b[1;34m=== INTERACTIVE TERMINAL ===\x1b[0m");
+        this.xterm.writeln("\x1b[90mViết code và bấm 'Chạy console' để bắt đầu.\x1b[0m");
+        
+        // Setup Socket.IO listeners
+        socket.on('output', (data) => {
+            this.xterm.write(data.data);
+        });
+        
+        socket.on('error', (data) => {
+            this.xterm.writeln(`\n\x1b[1;31m[LỖI]: ${data.message}\x1b[0m`);
+            this.isSessionActive = false;
+        });
+        
+        socket.on('session_started', () => {
+            this.isSessionActive = true;
+            this.xterm.writeln("\x1b[1;32m[Chương trình đang chạy - Nhập dữ liệu và Enter]\x1b[0m");
+        });
+        
+        socket.on('session_ended', (data) => {
+            this.isSessionActive = false;
+            this.xterm.writeln(`\n\x1b[1;33m[Kết thúc: ${data.reason}]\x1b[0m`);
+        });
     }
-    setPrompt(prompt) { this.promptEl.textContent = prompt; }
-    print(text, type = 'default') {
-        const line = document.createElement('div');
-        line.className = `line ${type}-line`;
-        line.textContent = text;
-        this.outputArea.appendChild(line);
-        this.outputArea.scrollTop = this.outputArea.scrollHeight;
-    }
-    async handleKeydown(e) {
-        if (this.isExecuting) return e.preventDefault();
-        if (e.key === 'Enter') {
-            const command = this.inputArea.value.trim();
-            if (!command) return;
-            this.print(`${this.promptEl.textContent} ${command}`, 'command');
-            this.history.push(command);
-            this.historyIndex = this.history.length;
-            this.inputArea.value = '';
-            await this.execute(command);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            if (this.historyIndex > 0) { this.historyIndex--; this.inputArea.value = this.history[this.historyIndex]; }
-        } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            if (this.historyIndex < this.history.length - 1) { this.historyIndex++; this.inputArea.value = this.history[this.historyIndex]; }
-            else { this.historyIndex = this.history.length; this.inputArea.value = ''; }
+
+    handleData(data) {
+        if (!this.isSessionActive) return;
+
+        switch (data) {
+            case '\r': // Enter
+                this.xterm.write('\r\n');
+                this.handleEnter();
+                break;
+            case '\u007F': // Backspace
+                if (this.inputBuffer.length > 0) {
+                    this.inputBuffer = this.inputBuffer.slice(0, -1);
+                    this.xterm.write('\b \b');
+                }
+                break;
+            default:
+                if (data >= ' ' && data <= '~') {
+                    this.inputBuffer += data;
+                    this.xterm.write(data);
+                }
         }
     }
-    async execute(command) {
-        this.isExecuting = true;
-        this.inputArea.disabled = true;
-        try {
-            const response = await fetch('/execute_console', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    language: document.getElementById('language-select').value,
-                    code: editor.getValue(),
-                    command: command,
-                    stdin: document.getElementById('custom-stdin').value
-                })
-            });
-            const data = await response.json();
-            if (data.output) this.print(data.output.trim());
-            if (data.error) this.print(data.error.trim(), 'error');
-            if (!data.output && !data.error) this.print("(Không có kết quả trả về)");
-        } catch (err) { this.print("Lỗi kết nối: " + err.message, 'error'); }
-        finally { this.isExecuting = false; this.inputArea.disabled = false; this.inputArea.focus(); }
+
+    handleEnter() {
+        const input = this.inputBuffer;
+        this.inputBuffer = '';
+        
+        socket.emit('send_input', { input: input });
     }
-    async execute_with_input(code, stdin) {
-        this.isExecuting = true;
-        this.inputArea.disabled = true;
-        try {
-            const response = await fetch('/execute_console', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    language: document.getElementById('language-select').value,
-                    code: code,
-                    command: "",
-                    stdin: stdin
-                })
-            });
-            const data = await response.json();
-            if (data.output) { this.print("Output:"); this.print(data.output.trim()); }
-            if (data.error) { this.print("Error:", "error"); this.print(data.error.trim(), 'error'); }
-        } catch (err) { this.print("Lỗi hệ thống: " + err.message, 'error'); }
-        finally { this.isExecuting = false; this.inputArea.disabled = false; this.inputArea.focus(); }
+
+    async startSession(code) {
+        this.xterm.reset();
+        this.inputBuffer = '';
+        
+        const language = document.getElementById('language-select').value;
+        
+        this.xterm.writeln("\x1b[1;34m[Đang khởi động...]\x1b[0m");
+        
+        socket.emit('start_session', {
+            language: language,
+            code: code
+        });
     }
-    clear() { this.outputArea.innerHTML = ''; }
+
+    clear() { 
+        this.xterm.reset();
+        this.inputBuffer = '';
+        this.isSessionActive = false;
+    }
 }

@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO Test</title>
+  </head>
+  <body>
+    <h1>Socket.IO Connection Test</h1>
+    <div id="status">Checking...</div>
+
+    <script src="socket.io.min.js"></script>
+    <script>
+      const statusDiv = document.getElementById("status");
+
+      // Check if io is defined
+      if (typeof io === "undefined") {
+        statusDiv.innerHTML =
+          '<span style="color: red;">ERROR: Socket.IO library not loaded!</span>';
+        console.error("io is not defined - Socket.IO library failed to load");
+      } else {
+        statusDiv.innerHTML =
+          '<span style="color: green;">Socket.IO library loaded successfully!</span><br>';
+        console.log("Socket.IO library loaded successfully");
+
+        // Try to connect
+        const socket = io();
+
+        socket.on("connect", () => {
+          statusDiv.innerHTML +=
+            '<span style="color: green;">Connected to server!</span><br>';
+          console.log("Connected to server");
+        });
+
+        socket.on("connect_error", (error) => {
+          statusDiv.innerHTML +=
+            '<span style="color: red;">Connection error: ' +
+            error.message +
+            "</span><br>";
+          console.error("Connection error:", error);
+        });
+
+        socket.on("disconnect", () => {
+          statusDiv.innerHTML +=
+            '<span style="color: orange;">Disconnected from server</span><br>';
+          console.log("Disconnected from server");
+        });
+      }
+    </script>
+  </body>
+</html>
