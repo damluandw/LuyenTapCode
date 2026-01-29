@@ -55,7 +55,7 @@ require(["vs/editor/editor.main"], async function () {
   socket = io({
     transports: ['websocket', 'polling']
   });
-  
+
   socket.on('connect', () => {
     console.log('Connected to server');
     const orb = document.getElementById('connection-status');
@@ -64,7 +64,7 @@ require(["vs/editor/editor.main"], async function () {
       orb.title = 'Đã kết nối';
     }
   });
-  
+
   socket.on('connect_error', (error) => {
     console.error('Connection error:', error);
     const orb = document.getElementById('connection-status');
@@ -73,7 +73,7 @@ require(["vs/editor/editor.main"], async function () {
       orb.title = 'Lỗi kết nối: ' + error.message;
     }
   });
-  
+
   socket.on('disconnect', () => {
     console.log('Disconnected from server');
     const orb = document.getElementById('connection-status');
@@ -165,53 +165,99 @@ function updateHintTab(p, lang) {
   hintEl.innerHTML = hintHtml;
 }
 
-function setupEventListeners() {
-    document.getElementById("language-select").addEventListener("change", (e) => {
-        const lang = e.target.value;
-        updateEditorLanguage(lang);
-        if (currentProblem) updateHintTab(currentProblem, lang);
-    });
 
-    document.getElementById("run-btn").addEventListener("click", handleRunClick);
-    document.getElementById("console-run-btn").addEventListener("click", handleConsoleRunClick);
+
+function setupEventListeners() {
+  document.getElementById("language-select").addEventListener("change", (e) => {
+    const lang = e.target.value;
+    updateEditorLanguage(lang);
+    if (currentProblem) updateHintTab(currentProblem, lang);
+  });
+
+  document.getElementById("run-btn").addEventListener("click", handleRunClick);
+  document.getElementById("console-run-btn").addEventListener("click", handleConsoleRunClick);
+
+  // Add listener for test results
+  socket.on('test_results', (data) => {
+    const btn = document.getElementById("run-btn");
+    btn.disabled = false;
+    btn.textContent = "Kiểm tra";
+
+    const resultsPanel = document.getElementById("results-list");
+    if (data.error) {
+      resultsPanel.innerHTML = `<div class="result-card failed"><div style="color: #f85149; font-weight: bold; margin-bottom: 5px;">Lỗi thực thi:</div><pre style="white-space: pre-wrap; margin: 0; font-family: 'Fira Code', monospace; font-size: 0.85rem;">${escapeHtml(data.error)}</pre></div>`;
+      return;
+    }
+
+    if (data.results) {
+      renderResults(data.results);
+    }
+  });
+}
+
+function escapeHtml(text) {
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 async function handleConsoleRunClick() {
-    const btn = document.getElementById("console-run-btn");
+  const btn = document.getElementById("console-run-btn");
 
-    if (!currentProblem) return;
+  if (!currentProblem) return;
 
-    btn.disabled = true;
-    const originalText = btn.textContent;
-    btn.textContent = "Đang chạy...";
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "Đang chạy...";
 
-    switchTab('console');
-    if (terminal) {
-        await terminal.startSession(editor.getValue());
-    }
-    btn.disabled = false;
-    btn.textContent = originalText;
+  switchTab('console');
+  if (terminal) {
+    await terminal.startSession(editor.getValue());
+  }
+  btn.disabled = false;
+  btn.textContent = originalText;
 }
 
 async function handleRunClick() {
-    const btn = document.getElementById("run-btn");
-    const resultsPanel = document.getElementById("results-list");
+  const btn = document.getElementById("run-btn");
+  const resultsPanel = document.getElementById("results-list");
 
-    if (!currentProblem) return;
+  if (!currentProblem) return;
 
-    btn.disabled = true;
-    const originalText = btn.textContent;
-    btn.textContent = "Đang chạy...";
+  // Stop any active console session first
+  if (terminal && terminal.isSessionActive) {
+    socket.emit('stop_session');
+    terminal.isSessionActive = false;
+  }
 
-    switchTab("results");
-    resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case...</div>';
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "Đang kiểm tra...";
 
-    // For test cases, we'll still use the old Piston API temporarily
-    // You can implement batch testing later if needed
-    
-    btn.disabled = false;
-    btn.textContent = originalText;
-    resultsPanel.innerHTML = '<div>Chức năng test case đang được cập nhật. Vui lòng sử dụng "Chạy console" để kiểm tra code.</div>';
+  switchTab("results");
+  resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case... <br><span style="font-size: 0.8em; color: gray">Đang biên dịch và chạy thử nghiệm</span></div>';
+
+  const code = editor.getValue();
+  const language = document.getElementById('language-select').value;
+  const testCases = currentProblem.test_cases || [];
+
+  socket.emit('run_test_cases', {
+    language: language,
+    code: code,
+    test_cases: testCases
+  });
+
+  // Safety timeout
+  setTimeout(() => {
+    if (btn.textContent === "Đang kiểm tra...") {
+      btn.disabled = false;
+      btn.textContent = "Kiểm tra";
+    }
+  }, 15000);
 }
 
 function updateEditorLanguage(lang) {
@@ -241,24 +287,24 @@ function setupTabs() {
 function switchTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabId));
   document.querySelectorAll(".tab-pane").forEach((pane) => pane.classList.toggle("active", pane.id === `tab-${tabId}`));
-  
+
   if (tabId === 'console' && terminal) {
     setTimeout(() => {
-        terminal.fitAddon.fit();
-        terminal.xterm.focus();
+      terminal.fitAddon.fit();
+      terminal.xterm.focus();
     }, 50);
   }
 }
 
 function renderResults(results) {
-    const panel = document.getElementById('results-list');
-    panel.innerHTML = '';
-    let allPassed = true;
+  const panel = document.getElementById('results-list');
+  panel.innerHTML = '';
+  let allPassed = true;
 
-    results.forEach((res, index) => {
-        const card = document.createElement('div');
-        card.className = `result-card ${res.passed ? 'passed' : 'failed'}`;
-        card.innerHTML = `
+  results.forEach((res, index) => {
+    const card = document.createElement('div');
+    card.className = `result-card ${res.passed ? 'passed' : 'failed'}`;
+    card.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                 <strong>Test Case #${index + 1}</strong>
                 <span style="color: ${res.passed ? '#3fb950' : '#f85149'}">${res.passed ? 'PASS' : 'FAIL'}</span>
@@ -269,119 +315,119 @@ function renderResults(results) {
                 <div>Actual: <code>${res.actual.trim() || '(empty)'}</code></div>
             </div>
         `;
-        panel.appendChild(card);
-        if (!res.passed) allPassed = false;
-    });
+    panel.appendChild(card);
+    if (!res.passed) allPassed = false;
+  });
 }
 
 class Terminal {
-    constructor() {
-        this.container = document.getElementById('terminal-container');
-        this.xterm = new window.Terminal({
-            cursorBlink: true,
-            theme: {
-                background: '#0d1117',
-                foreground: '#c9d1d9',
-                cursor: '#58a6ff',
-                selectionBackground: 'rgba(88, 166, 255, 0.3)',
-            },
-            fontFamily: '"Fira Code", monospace',
-            fontSize: 15,
-            lineHeight: 1.4,
-            scrollback: 1000,
-            convertEol: true,
-            cursorStyle: 'block'
-        });
+  constructor() {
+    this.container = document.getElementById('terminal-container');
+    this.xterm = new window.Terminal({
+      cursorBlink: true,
+      theme: {
+        background: '#0d1117',
+        foreground: '#c9d1d9',
+        cursor: '#58a6ff',
+        selectionBackground: 'rgba(88, 166, 255, 0.3)',
+      },
+      fontFamily: '"Fira Code", monospace',
+      fontSize: 15,
+      lineHeight: 1.4,
+      scrollback: 1000,
+      convertEol: true,
+      cursorStyle: 'block'
+    });
 
-        this.fitAddon = new window.FitAddon.FitAddon();
-        this.xterm.loadAddon(this.fitAddon);
-        this.xterm.open(this.container);
+    this.fitAddon = new window.FitAddon.FitAddon();
+    this.xterm.loadAddon(this.fitAddon);
+    this.xterm.open(this.container);
+    this.fitAddon.fit();
+
+    this.inputBuffer = '';
+    this.isSessionActive = false;
+
+    this.init();
+  }
+
+  init() {
+    this.xterm.onData(data => this.handleData(data));
+    window.addEventListener('resize', () => {
+      if (document.getElementById('tab-console').classList.contains('active')) {
         this.fitAddon.fit();
+      }
+    });
 
-        this.inputBuffer = '';
-        this.isSessionActive = false;
+    this.xterm.writeln("\x1b[1;34m=== INTERACTIVE TERMINAL ===\x1b[0m");
+    this.xterm.writeln("\x1b[90mViết code và bấm 'Chạy console' để bắt đầu.\x1b[0m");
 
-        this.init();
-    }
+    // Setup Socket.IO listeners
+    socket.on('output', (data) => {
+      this.xterm.write(data.data);
+    });
 
-    init() {
-        this.xterm.onData(data => this.handleData(data));
-        window.addEventListener('resize', () => {
-            if (document.getElementById('tab-console').classList.contains('active')) {
-                this.fitAddon.fit();
-            }
-        });
-        
-        this.xterm.writeln("\x1b[1;34m=== INTERACTIVE TERMINAL ===\x1b[0m");
-        this.xterm.writeln("\x1b[90mViết code và bấm 'Chạy console' để bắt đầu.\x1b[0m");
-        
-        // Setup Socket.IO listeners
-        socket.on('output', (data) => {
-            this.xterm.write(data.data);
-        });
-        
-        socket.on('error', (data) => {
-            this.xterm.writeln(`\n\x1b[1;31m[LỖI]: ${data.message}\x1b[0m`);
-            this.isSessionActive = false;
-        });
-        
-        socket.on('session_started', () => {
-            this.isSessionActive = true;
-            this.xterm.writeln("\x1b[1;32m[Chương trình đang chạy - Nhập dữ liệu và Enter]\x1b[0m");
-        });
-        
-        socket.on('session_ended', (data) => {
-            this.isSessionActive = false;
-            this.xterm.writeln(`\n\x1b[1;33m[Kết thúc: ${data.reason}]\x1b[0m`);
-        });
-    }
+    socket.on('error', (data) => {
+      this.xterm.writeln(`\n\x1b[1;31m[LỖI]: ${data.message}\x1b[0m`);
+      this.isSessionActive = false;
+    });
 
-    handleData(data) {
-        if (!this.isSessionActive) return;
+    socket.on('session_started', () => {
+      this.isSessionActive = true;
+      this.xterm.writeln("\x1b[1;32m[Chương trình đang chạy - Nhập dữ liệu và Enter]\x1b[0m");
+    });
 
-        switch (data) {
-            case '\r': // Enter
-                this.xterm.write('\r\n');
-                this.handleEnter();
-                break;
-            case '\u007F': // Backspace
-                if (this.inputBuffer.length > 0) {
-                    this.inputBuffer = this.inputBuffer.slice(0, -1);
-                    this.xterm.write('\b \b');
-                }
-                break;
-            default:
-                if (data >= ' ' && data <= '~') {
-                    this.inputBuffer += data;
-                    this.xterm.write(data);
-                }
+    socket.on('session_ended', (data) => {
+      this.isSessionActive = false;
+      this.xterm.writeln(`\n\x1b[1;33m[Kết thúc: ${data.reason}]\x1b[0m`);
+    });
+  }
+
+  handleData(data) {
+    if (!this.isSessionActive) return;
+
+    switch (data) {
+      case '\r': // Enter
+        this.xterm.write('\r\n');
+        this.handleEnter();
+        break;
+      case '\u007F': // Backspace
+        if (this.inputBuffer.length > 0) {
+          this.inputBuffer = this.inputBuffer.slice(0, -1);
+          this.xterm.write('\b \b');
+        }
+        break;
+      default:
+        if (data >= ' ' && data <= '~') {
+          this.inputBuffer += data;
+          this.xterm.write(data);
         }
     }
+  }
 
-    handleEnter() {
-        const input = this.inputBuffer;
-        this.inputBuffer = '';
-        
-        socket.emit('send_input', { input: input });
-    }
+  handleEnter() {
+    const input = this.inputBuffer;
+    this.inputBuffer = '';
 
-    async startSession(code) {
-        this.xterm.reset();
-        this.inputBuffer = '';
-        
-        const language = document.getElementById('language-select').value;
-        
-        this.xterm.writeln("\x1b[1;34m[Đang khởi động...]\x1b[0m");
-        
-        socket.emit('start_session', {
-            language: language,
-            code: code
-        });
-    }
+    socket.emit('send_input', { input: input });
+  }
 
-    clear() { 
-        this.xterm.reset();
-        this.inputBuffer = '';
-        this.isSessionActive = false;
-    }
+  async startSession(code) {
+    this.xterm.reset();
+    this.inputBuffer = '';
+
+    const language = document.getElementById('language-select').value;
+
+    this.xterm.writeln("\x1b[1;34m[Đang khởi động...]\x1b[0m");
+
+    socket.emit('start_session', {
+      language: language,
+      code: code
+    });
+  }
+
+  clear() {
+    this.xterm.reset();
+    this.inputBuffer = '';
+    this.isSessionActive = false;
+  }
 }

@@ -131,8 +131,6 @@ def handle_start_session(data):
     
     try:
         # Create temp directory for this session
-        temp_dir = f"temp_{session_id}"
-        os.makedirs(temp_dir, exist_ok=True)
         config = LANGUAGE_CONFIG.get(language)
         if not config:
             emit('error', {'message': f'Unsupported language: {language}'})
@@ -281,6 +279,170 @@ def handle_input(data):
         print(f'Error sending input: {e}')
         emit('error', {'message': f'Error sending input: {str(e)}'})
 
+@socketio.on('run_test_cases')
+def handle_run_test_cases(data):
+    session_id = request.sid
+    language = data.get('language')
+    code = data.get('code')
+    test_cases = data.get('test_cases', [])
+    
+    print(f'Running test cases for session {session_id}, language {language}')
+    
+    # Create temp directory
+    # Use a local temp directory to avoid path/permission issues on Windows
+    # We use a new temp dir per test run to keep things clean
+    base_temp = os.path.join(os.getcwd(), "temp_sessions")
+    if not os.path.exists(base_temp):
+        os.makedirs(base_temp)
+    temp_dir = tempfile.mkdtemp(dir=base_temp)
+    
+    try:
+        config = LANGUAGE_CONFIG.get(language)
+        if not config:
+            emit('error', {'message': f'Unsupported language: {language}'})
+            return
+
+        ext = config['ext']
+        filename = config.get('main_file', f"code{ext}")
+        code_file = os.path.join(temp_dir, filename)
+        
+        with open(code_file, 'w', encoding='utf-8') as f:
+            f.write(code)
+            
+        # Compile ONCE
+        exe_path = None
+        run_cmd_template = config['run']
+        
+        if config['compile']:
+            output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
+            
+            # Re-use the compilation logic from start_session (checking for injection)
+            compile_cmd_template = config['compile']
+            compile_files = [code_file]
+            
+            if language == 'c':
+                flush_file = os.path.join(temp_dir, "flush_init.c")
+                with open(flush_file, 'w', encoding='utf-8') as f:
+                    f.write(FLUSH_INIT_C)
+                compile_files.append(flush_file)
+            elif language == 'cpp':
+                flush_file = os.path.join(temp_dir, "flush_init.cpp")
+                with open(flush_file, 'w', encoding='utf-8') as f:
+                    f.write(FLUSH_INIT_CPP)
+                compile_files.append(flush_file)
+            
+            final_compile_cmd = []
+            for arg in compile_cmd_template:
+                if "{file}" in arg:
+                    final_compile_cmd.append(arg.format(file=code_file, output=output_file))
+                elif "{output}" in arg:
+                    final_compile_cmd.append(arg.format(output=output_file))
+                else:
+                    final_compile_cmd.append(arg)
+            for extra_file in compile_files[1:]:
+                final_compile_cmd.append(extra_file)
+
+            try:
+                compile_result = subprocess.run(
+                    final_compile_cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if compile_result.returncode != 0:
+                    emit('test_results', {'error': f'Compilation error:\n{compile_result.stderr}'})
+                    return
+                exe_path = output_file
+            except Exception as e:
+                emit('test_results', {'error': f'Compilation failed: {str(e)}'})
+                return
+        
+        # Prepare run command
+        if exe_path:
+             # For compiled
+            classname = "Main" if language == "java" else None
+            run_cmd = [cmd.format(output=exe_path, classname=classname) for cmd in run_cmd_template]
+        else:
+             # For interpreted
+            run_cmd = [cmd.format(file=code_file, project_dir=temp_dir) for cmd in run_cmd_template]
+
+        results = []
+        
+        for i, case in enumerate(test_cases):
+            case_input = case.get('input', '')
+            case_expected = case.get('output', '')
+            
+            try:
+                # Use binary mode (text=False) for consistent behavior with our fix
+                process = subprocess.Popen(
+                    run_cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=False,
+                    bufsize=0,
+                    cwd=temp_dir
+                )
+                
+                try:
+                    stdout_data, _ = process.communicate(input=(case_input + '\n').encode('utf-8'), timeout=5)
+                    actual_output = stdout_data.decode('utf-8', errors='replace')
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    actual_output = "Error: Timeout (5s)"
+                
+                # Normalize text for comparison (ignore trailing whitespace/newlines differences)
+                passed = normalize_text(actual_output) == normalize_text(case_expected)
+                
+                # Check if actual output merely CONTAINS the expected output (sometimes prompts are included)
+                # But for competitive programming style, typically we want clean output.
+                # However, since we forced prompts to appear immediateley, they are part of stdout.
+                # If the problem asks for "Sum: 8", but user prints "Input a: Input b: Sum: 8", we might need smarter matching.
+                # For now, let's try strict normalization, but maybe strip prompts if we could identify them?
+                # Actually, standard CP problems usually don't print prompts like "Input a:". 
+                # But this is a learning app. Users write prompts.
+                # Let's trust the logic: existing test cases in problems.json for "A+B" only show numbers.
+                # If the user code prints prompts, it will fail current test cases. 
+                # We should probably modify the usage instructions or the test cases to include prompts?
+                # Or invalid solution?
+                # Let's stick to standard strict comparison for now.
+                
+                results.append({
+                    'input': case_input,
+                    'expected': case_expected,
+                    'actual': actual_output,
+                    'passed': passed
+                })
+                
+            except Exception as e:
+                 results.append({
+                    'input': case_input,
+                    'expected': case_expected,
+                    'actual': f"Error: {str(e)}",
+                    'passed': False
+                })
+
+        emit('test_results', {'results': results})
+
+    except Exception as e:
+        print(f"Error in run_test_cases: {e}")
+        emit('test_results', {'error': str(e)})
+        
+    finally:
+        # Cleanup
+        try:
+            import shutil
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+        except:
+            pass
+
+def normalize_text(text):
+    """Normalize text for comparison: strip whitespace, unify newlines"""
+    if not text: return ""
+    return "\n".join([line.rstrip() for line in text.strip().splitlines() if line.strip()])
+
+
 @socketio.on('stop_session')
 def handle_stop_session():
     session_id = request.sid
@@ -375,11 +537,43 @@ def cleanup_session(session_id):
         print(f'Error cleaning up temp dir: {e}')
 
 
+def cleanup_dangling_temps():
+    """Clean up any dangling temporary directories from previous runs"""
+    try:
+        current_dir = os.getcwd()
+        # Clean up temp_sessions directory content but keep the directory
+        temp_sessions = os.path.join(current_dir, "temp_sessions")
+        if os.path.exists(temp_sessions):
+            try:
+                import shutil
+                shutil.rmtree(temp_sessions)
+                os.makedirs(temp_sessions)
+                print("Cleaned up temp_sessions directory")
+            except Exception as e:
+                print(f"Warning: Could not clean temp_sessions: {e}")
+
+        # Clean up legacy temp_* directories in root
+        for name in os.listdir(current_dir):
+            if name.startswith("temp_") and os.path.isdir(os.path.join(current_dir, name)):
+                if name == "temp_sessions": continue
+                try:
+                    import shutil
+                    shutil.rmtree(os.path.join(current_dir, name))
+                    print(f"Removed dangling temp dir: {name}")
+                except Exception as e:
+                    print(f"Warning: Could not remove {name}: {e}")
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+
 if __name__ == "__main__":
     print("=" * 50)
     print("Server starting on http://localhost:5001")
     print("Python version:", os.sys.version)
     print("Async mode: threading")
+    
+    # Clean up temp files on startup
+    cleanup_dangling_temps()
+    
     print("=" * 50)
     
     socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False)
