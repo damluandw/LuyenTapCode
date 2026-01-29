@@ -84,42 +84,60 @@ require(["vs/editor/editor.main"], async function () {
   });
 
   terminal = new Terminal();
-  loadProblems();
+  fetchProblems();
   setupTabs();
   setupEventListeners();
+
+  // Add filter listener
+  const filterEl = document.getElementById('level-filter');
+  if (filterEl) {
+    filterEl.addEventListener('change', (e) => {
+      renderProblems(e.target.value);
+    });
+  }
 });
 
 // Sidebar & Problem Loading
-async function loadProblems() {
+async function fetchProblems() {
   try {
-    const response = await fetch("/problems");
-    const data = await response.json();
-    if (data.error) return console.error("Server error:", data.error);
+    const res = await fetch("/problems"); // Changed from /api/problems to /problems to match original
+    allProblems = await res.json();
+    renderProblems();
 
-    problems = Array.isArray(data) ? data : [];
-    const listContainer = document.getElementById("problem-list");
-    listContainer.innerHTML = "";
+    // Select first problem if available
+    if (allProblems.length > 0) {
+      setProblem(allProblems[0]); // Changed from loadProblem(allProblems[0].id) to setProblem(allProblems[0])
+    }
+  } catch (err) {
+    console.error("Failed to load problems:", err);
+  }
+}
 
-    problems.forEach((p) => {
-      const item = document.createElement("div");
-      item.className = "problem-item";
-      item.dataset.id = p.id;
-      item.innerHTML = `
+function renderProblems(filterCategory = "all") {
+  const listContainer = document.getElementById("problem-list"); // Changed from list to listContainer
+  listContainer.innerHTML = "";
+
+  const filtered = filterCategory === "all"
+    ? allProblems
+    : allProblems.filter(p => p.category && p.category.startsWith(filterCategory.split(':')[0]));
+  // Simple matching logic, or exact match: p.category === filterCategory
+
+  filtered.forEach((p) => {
+    const item = document.createElement("div");
+    item.className = `problem-item ${currentProblem && currentProblem.id === p.id ? "active" : ""
+      }`;
+    item.dataset.id = p.id; // Added dataset.id
+    item.innerHTML = `
                 <div class="p-title">${p.title}</div>
                 <div class="p-diff" style="font-size: 0.7rem; color: #8b949e">${p.difficulty}</div>
-            `;
-      item.addEventListener("click", () => {
-        document.querySelectorAll(".problem-item").forEach((el) => el.classList.remove("active"));
-        item.classList.add("active");
-        setProblem(p);
-      });
-      listContainer.appendChild(item);
+            `; // Reverted to original innerHTML structure
+    item.addEventListener("click", () => { // Reverted to original event listener structure
+      document.querySelectorAll(".problem-item").forEach((el) => el.classList.remove("active"));
+      item.classList.add("active");
+      setProblem(p);
     });
-
-    if (problems.length > 0) listContainer.firstChild.click();
-  } catch (err) {
-    console.error("Lỗi tải bài tập:", err);
-  }
+    listContainer.appendChild(item);
+  });
 }
 
 function setProblem(p) {
@@ -134,7 +152,14 @@ function setProblem(p) {
   }
 
   document.getElementById("current-difficulty").textContent = p.difficulty;
-  if (editor) editor.setValue("");
+  if (editor) {
+    // Default to empty or specific comment
+    let startCode = "";
+    if (p.starter_code && p.starter_code[document.getElementById("language-select").value]) {
+      startCode = p.starter_code[document.getElementById("language-select").value];
+    }
+    editor.setValue(startCode);
+  }
   switchTab("desc");
 
   const lang = document.getElementById("language-select").value;
@@ -143,10 +168,14 @@ function setProblem(p) {
 }
 
 function updateHintTab(p, lang) {
-  if (!p) return;
   const hintEl = document.getElementById("problem-hint");
+  if (!p) {
+    hintEl.innerHTML = "Chọn bài tập để xem gợi ý.";
+    return;
+  }
+
+  // Syntax tips
   const syntaxTips = {
-    python: "<strong>Cú pháp Python:</strong> <code>print()</code>, <code>input()</code>",
     c: "<strong>Cú pháp C:</strong> <code>printf()</code>, <code>scanf()</code>",
     cpp: "<strong>Cú pháp C++:</strong> <code>cout <<</code>, <code>cin >></code>",
     java: "<strong>Cú pháp Java:</strong> <code>System.out.println()</code>",
@@ -159,10 +188,34 @@ function updateHintTab(p, lang) {
   let hintHtml = typeof marked !== 'undefined' ? marked.parse(hintText || "Không có gợi ý.") : (hintText || "Không có gợi ý.");
   hintHtml = `<div class="syntax-tip" style="margin-bottom: 15px; padding: 10px; background: rgba(88, 166, 255, 0.1); border-radius: 6px; font-size: 0.9rem; border: 1px solid rgba(88, 166, 255, 0.2);">${syntaxTips[lang] || ""}</div>` + hintHtml;
 
-  if (p.starter_code && p.starter_code[lang]) {
-    hintHtml += `<br><strong>Code mẫu (${lang}):</strong><pre class="console-box" style="margin-top: 10px; background: #1c2128; border: 1px solid #30363d; padding: 10px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.85rem;">${p.starter_code[lang]}</pre>`;
+  // Use SOLUTION CODE for hints if available, otherwise template
+  const codeToShow = (p.solution_code && p.solution_code[lang]) ? p.solution_code[lang] : (p.starter_code && p.starter_code[lang] ? p.starter_code[lang] : "");
+
+  if (codeToShow) {
+    hintHtml += `<br><strong>Bài giải mẫu (${lang}):</strong>
+    <div style="position: relative;">
+        <pre class="console-box" style="margin-top: 10px; background: #1c2128; border: 1px solid #30363d; padding: 10px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.85rem; user-select: text;">${escapeHtml(codeToShow)}</pre>
+        <button id="use-sample-btn" style="margin-top: 5px; padding: 5px 10px; background: #238636; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Sử dụng code này</button>
+    </div>`;
   }
   hintEl.innerHTML = hintHtml;
+
+  if (document.getElementById("use-sample-btn")) {
+    document.getElementById("use-sample-btn").addEventListener("click", () => {
+      if (editor) {
+        editor.setValue(codeToShow);
+        // Switch back to code tab if needed, but current layout shows editor always.
+        // If there's a specific 'code' tab processing (like hiding/showing), we might need it.
+        // But standard layout usually has Editor always visible or in a split. 
+        // Assuming this app layout has tabs for "Description/Hint/Result" separate from Editor? 
+        // Looking at index.html, yes, tabs control the right panel (Desc/Hint). Editor is Left (or center)?
+        // Wait, index.html structure: Sidebar (Left) - Main (Editor + Terminal) - Right Panel (Desc/Hint)?
+        // Let's check tab names. "console" is a tab. "desc", "hint", "results".
+        // So Editor is always visible? No, let's assume it updates the editor content is enough.
+        // User sees code change immediately.
+      }
+    });
+  }
 }
 
 
@@ -354,7 +407,7 @@ class Terminal {
     this.xterm.onData(data => this.handleData(data));
     window.addEventListener('resize', () => {
       if (document.getElementById('tab-console').classList.contains('active')) {
-        this.fitAddon.fit();
+        setTimeout(() => this.fitAddon.fit(), 100);
       }
     });
 

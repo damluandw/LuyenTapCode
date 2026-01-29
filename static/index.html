@@ -34,7 +34,17 @@
           ></div>
         </div>
         <div class="problem-list-container">
-          <h3>Danh sách bài tập</h3>
+          <div class="filter-section" style="padding: 0 15px 10px;">
+              <select id="level-filter" style="width: 100%; padding: 8px; background: #1c2128; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; outline: none;">
+                  <option value="all">Tất cả các cấp độ</option>
+                  <option value="Level 1: Nhập xuất & Tính toán">Level 1: Nhập xuất & Tính toán</option>
+                  <option value="Level 2: Cấu trúc rẽ nhánh">Level 2: Cấu trúc rẽ nhánh</option>
+                  <option value="Level 3: Vòng lặp">Level 3: Vòng lặp</option>
+                  <option value="Level 4: Mảng & Chuỗi">Level 4: Mảng & Chuỗi</option>
+                  <option value="Level 5: Giải thuật & Nâng cao">Level 5: Giải thuật & Nâng cao</option>
+              </select>
+          </div>
+          <h3 style="margin-top: 0;">Danh sách bài tập</h3>
           <div id="problem-list" class="problem-list">
             <!-- Loaded dynamically -->
           </div>
