@@ -85,6 +85,39 @@ def handle_disconnect():
     print(f'Client disconnected: {request.sid}')
     cleanup_session(request.sid)
 
+# C code to disable buffering
+FLUSH_INIT_C = r"""
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+void __attribute__((constructor)) flush_init() {
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
+}
+"""
+
+# C++ code to disable buffering
+FLUSH_INIT_CPP = r"""
+#include <iostream>
+#include <stdio.h>
+
+class FlushInit {
+public:
+    FlushInit() {
+        std::setvbuf(stdout, NULL, _IONBF, 0);
+        std::setvbuf(stderr, NULL, _IONBF, 0);
+        std::cout.setf(std::ios::unitbuf);
+        std::cerr.setf(std::ios::unitbuf);
+    }
+};
+
+static FlushInit flush_init_obj;
+"""
+
 @socketio.on('start_session')
 def handle_start_session(data):
     session_id = request.sid
@@ -123,11 +156,50 @@ def handle_start_session(data):
         # Compile if needed
         if config['compile']:
             output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
-            compile_cmd = [cmd.format(file=code_file, output=output_file) for cmd in config['compile']]
             
+            # Prepare compilation command
+            compile_cmd_template = config['compile']
+            compile_files = [code_file]
+            
+            # Inject flushing code for C/C++
+            if language == 'c':
+                flush_file = os.path.join(temp_dir, "flush_init.c")
+                with open(flush_file, 'w', encoding='utf-8') as f:
+                    f.write(FLUSH_INIT_C)
+                compile_files.append(flush_file)
+            elif language == 'cpp':
+                flush_file = os.path.join(temp_dir, "flush_init.cpp")
+                with open(flush_file, 'w', encoding='utf-8') as f:
+                    f.write(FLUSH_INIT_CPP)
+                compile_files.append(flush_file)
+            
+            # Construct the compile command
+            # The template usually looks like ["gcc", "-o", "{output}", "{file}"]
+            # We need to replace "{file}" with all source files
+            
+            # Simplistic approach: replace "{file}" in the template with the primary file,
+            # and append the extra files to the end of the command (before -o if possible, or just append)
+            # GCC/G++ allows input files anywhere.
+            
+            final_compile_cmd = []
+            for arg in compile_cmd_template:
+                if "{file}" in arg:
+                    # Replace {file} with the main code file
+                    final_compile_cmd.append(arg.format(file=code_file, output=output_file))
+                elif "{output}" in arg:
+                    final_compile_cmd.append(arg.format(output=output_file))
+                else:
+                    final_compile_cmd.append(arg)
+            
+            # Append extra source files (flushing logic)
+            # We skip the first file in compile_files because it was likely handled by {file} replacement
+            # actually we should be careful. let's just append the extra files to the command list.
+            for extra_file in compile_files[1:]:
+                final_compile_cmd.append(extra_file)
+
             try:
                 compile_result = subprocess.run(
-                    compile_cmd,
+                    final_compile_cmd,
                     capture_output=True,
                     text=True,
                     timeout=10
@@ -159,8 +231,8 @@ def handle_start_session(data):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=0,
+            text=False, # Use binary mode for unbuffered I/O
+            bufsize=0,  # Unbuffered
             cwd=temp_dir
         )
         
@@ -172,8 +244,13 @@ def handle_start_session(data):
         }
         
         # Start threads to read output
-        threading.Thread(target=read_output, args=(session_id, process.stdout, 'stdout'), daemon=True).start()
-        threading.Thread(target=read_output, args=(session_id, process.stderr, 'stderr'), daemon=True).start()
+        stdout_thread = threading.Thread(target=read_output, args=(session_id, process.stdout, 'stdout'), daemon=True)
+        stdout_thread.start()
+        
+        # Store thread in session so we can join it later
+        active_sessions[session_id]['stdout_thread'] = stdout_thread
+        
+        # threading.Thread(target=read_output, args=(session_id, process.stderr, 'stderr'), daemon=True).start() # Stderr is redirected to stdout
         threading.Thread(target=monitor_process, args=(session_id,), daemon=True).start()
         
         emit('session_started', {'status': 'running'})
@@ -197,7 +274,8 @@ def handle_input(data):
     
     try:
         if process.poll() is None:  # Process still running
-            process.stdin.write(user_input + '\n')
+            # Encode input for binary mode
+            process.stdin.write((user_input + '\n').encode('utf-8'))
             process.stdin.flush()
     except Exception as e:
         print(f'Error sending input: {e}')
@@ -214,11 +292,21 @@ def read_output(session_id, stream, stream_type):
     try:
         # Read character by character for a more interactive feel
         while True:
-            char = stream.read(1)
-            if not char:
+            # Read bytes in binary mode
+            byte = stream.read(1)
+            if not byte:
                 break
-            if session_id not in active_sessions:
-                break
+            
+            # Note: We removed the check 'if session_id not in active_sessions'
+            # to ensure we finish reading the stream even if cleanup has started,
+            # provided the stream is still open and yielding data.
+            
+            # Decode byte to string
+            try:
+                char = byte.decode('utf-8', errors='replace')
+            except:
+                char = '?'
+                
             socketio.emit('output', {
                 'data': char,
                 'type': stream_type
@@ -235,10 +323,16 @@ def monitor_process(session_id):
         return
     
     process = session['process']
+    stdout_thread = session.get('stdout_thread')
     
     try:
         # Wait for process to complete (with timeout)
         process.wait(timeout=60)
+        
+        # After process finishes, wait for the output reader to finish flushing
+        if stdout_thread and stdout_thread.is_alive():
+            stdout_thread.join(timeout=2)
+            
     except subprocess.TimeoutExpired:
         print(f'Process timeout for session {session_id}')
         process.kill()
