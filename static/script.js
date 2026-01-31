@@ -145,10 +145,34 @@ function setProblem(p) {
   document.getElementById("current-problem-title").textContent = p.title;
 
   const descEl = document.getElementById("problem-desc");
-  if (typeof marked !== 'undefined') {
-    descEl.innerHTML = marked.parse(p.description);
+
+  // Robustly handle marked being potentially intercepted by Monaco's AMD loader
+  let markedObj;
+  if (typeof window.marked !== 'undefined') {
+    markedObj = window.marked;
+  } else if (typeof require === 'function' && require.defined && require.defined('marked')) {
+    markedObj = require('marked');
+  }
+
+  if (markedObj) {
+    if (markedObj.setOptions) {
+      markedObj.setOptions({
+        breaks: true,
+        gfm: true,
+        headerIds: false,
+        mangle: false
+      });
+    }
+    const htmlContent = markedObj.parse ? markedObj.parse(p.description) : markedObj(p.description);
+    descEl.innerHTML = htmlContent;
   } else {
-    descEl.innerHTML = p.description.replace(/\\n/g, "<br>");
+    // Better fallback if marked is totally unavailable
+    descEl.innerHTML = p.description
+      .replace(/### (.*)/g, '<h3 class="fallback-h3">$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\n\n/g, '<p></p>')
+      .replace(/\n/g, '');
   }
 
   document.getElementById("current-difficulty").textContent = p.difficulty;

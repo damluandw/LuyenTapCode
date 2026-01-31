@@ -1,7 +1,7 @@
 [
   {
     "title": "Tính diện tích hình chữ nhật",
-    "description": "Viết chương trình nhập vào chiều dài `a` và chiều rộng `b` của hình chữ nhật. Tính và in ra diện tích.\n\n**Input:**\n- Hai số nguyên `a`, `b` trên 2 dòng.\n\n**Output:**\n- Diện tích hình chữ nhật.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n3\n```\n**Đầu ra:**\n```text\n15\n```",
+    "description": "Viết chương trình nhập vào chiều dài `a` và chiều rộng `b` của hình chữ nhật. Tính và in ra diện tích.\n\n### Dữ liệu vào\n- Hai số nguyên `a`, `b` trên 2 dòng.\n\n### Kết quả ra\n- Diện tích hình chữ nhật.\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5\n3</div>\n**Đầu ra:**\n<div class='example-box'>15</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -45,7 +45,7 @@
   },
   {
     "title": "Chu vi hình tròn",
-    "description": "Viết chương trình nhập vào bán kính `r` (số thực). Tính chu vi hình tròn (lấy PI = 3.14). In kết quả làm tròn 2 chữ số thập phân.\n\n**Input:**\n- Số thực `r`\n\n**Output:**\n- Chu vi (formatted 2 decimal places)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n```\n**Đầu ra:**\n```text\n6.28\n```",
+    "description": "Viết chương trình nhập vào bán kính `r` (số thực). Tính chu vi hình tròn (lấy PI = 3.14). In kết quả làm tròn 2 chữ số thập phân.\n\n### Dữ liệu vào\n- Số thực `r`\n\n### Kết quả ra\n- Chu vi (formatted 2 decimal places)\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>1</div>\n**Đầu ra:**\n<div class='example-box'>6.28</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -89,7 +89,7 @@
   },
   {
     "title": "Đổi đơn vị độ dài",
-    "description": "Nhập vào số km. Đổi sang mét.\n\n**Input:**\n- Số thực `km`\n\n**Output:**\n- Số mét (số thực)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1.5\n```\n**Đầu ra:**\n```text\n1500\n```",
+    "description": "Nhập vào số km. Đổi sang mét.\n\n### Dữ liệu vào\n- Số thực `km`\n\n### Kết quả ra\n- Số mét (số thực)\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>1.5</div>\n**Đầu ra:**\n<div class='example-box'>1500</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -133,7 +133,7 @@
   },
   {
     "title": "Trung bình cộng 3 số",
-    "description": "Nhập 3 số nguyên a, b, c. Tính trung bình cộng của chúng (kết quả lấy phần nguyên).\n\n**Input:**\n- 3 số nguyên trên 3 dòng\n\n**Output:**\n- Trung bình cộng (số nguyên)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n4\n6\n```\n**Đầu ra:**\n```text\n4\n```",
+    "description": "Nhập 3 số nguyên a, b, c. Tính trung bình cộng của chúng (kết quả lấy phần nguyên).\n\n### Dữ liệu vào\n- 3 số nguyên trên 3 dòng\n\n### Kết quả ra\n- Trung bình cộng (số nguyên)\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2\n4\n6</div>\n**Đầu ra:**\n<div class='example-box'>4</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -177,7 +177,7 @@
   },
   {
     "title": "Tìm phần dư",
-    "description": "Nhập hai số nguyên `a` và `b`. In ra phần dư của phép chia `a` cho `b`.\n\n**Input:**\n- Hai số a, b\n\n**Output:**\n- Phần dư\n\n### Ví dụ:\n**Đầu vào:**\n```text\n7\n3\n```\n**Đầu ra:**\n```text\n1\n```",
+    "description": "Nhập hai số nguyên `a` và `b`. In ra phần dư của phép chia `a` cho `b`.\n\n### Dữ liệu vào\n- Hai số a, b\n\n### Kết quả ra\n- Phần dư\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>7\n3</div>\n**Đầu ra:**\n<div class='example-box'>1</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -221,7 +221,7 @@
   },
   {
     "title": "Bình phương số",
-    "description": "Nhập một số nguyên n. In ra bình phương của nó.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- n*n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n25\n```",
+    "description": "Nhập một số nguyên n. In ra bình phương của nó.\n\n### Dữ liệu vào\n- Số nguyên n\n\n### Kết quả ra\n- n*n\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>25</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -265,7 +265,7 @@
   },
   {
     "title": "Chuyển giờ sang phút",
-    "description": "Nhập vào số giờ (số nguyên). In ra số phút tương ứng.\n\n**Input:**\n- Số giờ `h`\n\n**Output:**\n- Số phút\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n```\n**Đầu ra:**\n```text\n120\n```",
+    "description": "Nhập vào số giờ (số nguyên). In ra số phút tương ứng.\n\n### Dữ liệu vào\n- Số giờ `h`\n\n### Kết quả ra\n- Số phút\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2</div>\n**Đầu ra:**\n<div class='example-box'>120</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -309,7 +309,7 @@
   },
   {
     "title": "Tính tuổi",
-    "description": "Nhập năm sinh. Tính tuổi hiện tại (giả sử năm hiện tại là 2025).\n\n**Input:**\n- Năm sinh\n\n**Output:**\n- Tuổi\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2000\n```\n**Đầu ra:**\n```text\n25\n```",
+    "description": "Nhập năm sinh. Tính tuổi hiện tại (giả sử năm hiện tại là 2025).\n\n### Dữ liệu vào\n- Năm sinh\n\n### Kết quả ra\n- Tuổi\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2000</div>\n**Đầu ra:**\n<div class='example-box'>25</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -353,7 +353,7 @@
   },
   {
     "title": "Gấp đôi số",
-    "description": "Nhập vào 1 số. In ra số đó nhân 2.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- 2*n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n15\n```\n**Đầu ra:**\n```text\n30\n```",
+    "description": "Nhập vào 1 số. In ra số đó nhân 2.\n\n### Dữ liệu vào\n- Số nguyên n\n\n### Kết quả ra\n- 2*n\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>15</div>\n**Đầu ra:**\n<div class='example-box'>30</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -397,7 +397,7 @@
   },
   {
     "title": "Hiệu hai số",
-    "description": "Nhập a, b. Tính a - b.\n\n**Input:**\n- a, b\n\n**Output:**\n- a - b\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n3\n```\n**Đầu ra:**\n```text\n7\n```",
+    "description": "Nhập a, b. Tính a - b.\n\n### Dữ liệu vào\n- a, b\n\n### Kết quả ra\n- a - b\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>10\n3</div>\n**Đầu ra:**\n<div class='example-box'>7</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -441,7 +441,7 @@
   },
   {
     "title": "Kiểm tra chẵn lẻ",
-    "description": "Nhập số nguyên n. Nếu chẵn in \"Chan\", lẻ in \"Le\".\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- \"Chan\" hoặc \"Le\"\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n```\n**Đầu ra:**\n```text\nChan\n```",
+    "description": "Nhập số nguyên n. Nếu chẵn in \"Chan\", lẻ in \"Le\".\n\n### Dữ liệu vào\n- Số nguyên n\n\n### Kết quả ra\n- \"Chan\" hoặc \"Le\"\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>4</div>\n**Đầu ra:**\n<div class='example-box'>Chan</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -485,7 +485,7 @@
   },
   {
     "title": "Tìm số lớn nhất",
-    "description": "Nhập 2 số nguyên a, b. In ra số lớn hơn.\n\n**Input:**\n- a, b\n\n**Output:**\n- max(a, b)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n10\n```\n**Đầu ra:**\n```text\n10\n```",
+    "description": "Nhập 2 số nguyên a, b. In ra số lớn hơn.\n\n### Dữ liệu vào\n- a, b\n\n### Kết quả ra\n- max(a, b)\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5\n10</div>\n**Đầu ra:**\n<div class='example-box'>10</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -529,7 +529,7 @@
   },
   {
     "title": "Tìm max 3 số",
-    "description": "Nhập 3 số nguyên a, b, c. In ra số lớn nhất.\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Max value\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n5\n3\n```\n**Đầu ra:**\n```text\n5\n```",
+    "description": "Nhập 3 số nguyên a, b, c. In ra số lớn nhất.\n\n### Dữ liệu vào\n- a, b, c\n\n### Kết quả ra\n- Max value\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>1\n5\n3</div>\n**Đầu ra:**\n<div class='example-box'>5</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -573,7 +573,7 @@
   },
   {
     "title": "Kiểm tra số dương",
-    "description": "Nhập số n. Nếu n > 0 in \"Duong\", n < 0 in \"Am\", n = 0 in \"Khong\".\n\n**Input:**\n- n\n\n**Output:**\n- Duong | Am | Khong\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\nDuong\n```",
+    "description": "Nhập số n. Nếu n > 0 in \"Duong\", n < 0 in \"Am\", n = 0 in \"Khong\".\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- Duong | Am | Khong\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>Duong</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -617,7 +617,7 @@
   },
   {
     "title": "Năm nhuận",
-    "description": "Nhập năm (year). Kiểm tra có phải năm nhuận không. (Năm nhuận chia hết cho 400 HOẶC (chia hết cho 4 và KHÔNG chia hết cho 100)). Nếu có in \"Yes\", không in \"No\".\n\n**Input:**\n- year\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2000\n```\n**Đầu ra:**\n```text\nYes\n```",
+    "description": "Nhập năm (year). Kiểm tra có phải năm nhuận không. (Năm nhuận chia hết cho 400 HOẶC (chia hết cho 4 và KHÔNG chia hết cho 100)). Nếu có in \"Yes\", không in \"No\".\n\n### Dữ liệu vào\n- year\n\n### Kết quả ra\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2000</div>\n**Đầu ra:**\n<div class='example-box'>Yes</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -661,7 +661,7 @@
   },
   {
     "title": "Xếp loại học lực",
-    "description": "Nhập điểm trung bình (0-10). Nếu >= 8: \"Gioi\", >= 6.5: \"Kha\", >= 5: \"Trung binh\", < 5: \"Yeu\".\n\n**Input:**\n- score\n\n**Output:**\n- Xếp loại\n\n### Ví dụ:\n**Đầu vào:**\n```text\n9\n```\n**Đầu ra:**\n```text\nGioi\n```",
+    "description": "Nhập điểm trung bình (0-10). Nếu >= 8: \"Gioi\", >= 6.5: \"Kha\", >= 5: \"Trung binh\", < 5: \"Yeu\".\n\n### Dữ liệu vào\n- score\n\n### Kết quả ra\n- Xếp loại\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>9</div>\n**Đầu ra:**\n<div class='example-box'>Gioi</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -705,7 +705,7 @@
   },
   {
     "title": "Kiểm tra chia hết",
-    "description": "Nhập a, b. Nếu a chia hết cho b in \"Yes\", ngược lại \"No\".\n\n**Input:**\n- a, b\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n5\n```\n**Đầu ra:**\n```text\nYes\n```",
+    "description": "Nhập a, b. Nếu a chia hết cho b in \"Yes\", ngược lại \"No\".\n\n### Dữ liệu vào\n- a, b\n\n### Kết quả ra\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>10\n5</div>\n**Đầu ra:**\n<div class='example-box'>Yes</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -749,7 +749,7 @@
   },
   {
     "title": "Kiểm tra tam giác",
-    "description": "Nhập 3 cạnh a, b, c. Kiểm tra xem có tạo thành tam giác không (Tổng 2 cạnh bất kỳ > cạnh còn lại). In \"Yes\" hoặc \"No\".\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n4\n5\n```\n**Đầu ra:**\n```text\nYes\n```",
+    "description": "Nhập 3 cạnh a, b, c. Kiểm tra xem có tạo thành tam giác không (Tổng 2 cạnh bất kỳ > cạnh còn lại). In \"Yes\" hoặc \"No\".\n\n### Dữ liệu vào\n- a, b, c\n\n### Kết quả ra\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n4\n5</div>\n**Đầu ra:**\n<div class='example-box'>Yes</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -793,7 +793,7 @@
   },
   {
     "title": "Giải phương trình bậc 1",
-    "description": "Giải pt: ax + b = 0. Nhập a, b. In ra x (lấy 2 số thập phân). Nếu a=0, b!=0 in \"Vo nghiem\", a=0, b=0 in \"Vo so nghiem\".\n\n**Input:**\n- a, b\n\n**Output:**\n- x hoặc message\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n-4\n```\n**Đầu ra:**\n```text\n2.00\n```",
+    "description": "Giải pt: ax + b = 0. Nhập a, b. In ra x (lấy 2 số thập phân). Nếu a=0, b!=0 in \"Vo nghiem\", a=0, b=0 in \"Vo so nghiem\".\n\n### Dữ liệu vào\n- a, b\n\n### Kết quả ra\n- x hoặc message\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2\n-4</div>\n**Đầu ra:**\n<div class='example-box'>2.00</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -837,7 +837,7 @@
   },
   {
     "title": "Tính cước taxi",
-    "description": "Nhập số km đi được. 1km đầu: 10000. Từ km thứ 2 đến 30: 12000/km. Từ km 31 trở đi: 11000/km. Tính tổng tiền.\n\n**Input:**\n- km\n\n**Output:**\n- Tổng tiền\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n```\n**Đầu ra:**\n```text\n10000\n```",
+    "description": "Nhập số km đi được. 1km đầu: 10000. Từ km thứ 2 đến 30: 12000/km. Từ km 31 trở đi: 11000/km. Tính tổng tiền.\n\n### Dữ liệu vào\n- km\n\n### Kết quả ra\n- Tổng tiền\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>1</div>\n**Đầu ra:**\n<div class='example-box'>10000</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -881,7 +881,7 @@
   },
   {
     "title": "In từ 1 đến N",
-    "description": "Nhập n. In các số từ 1 đến n trên cùng 1 dòng, cách nhau bởi khoảng trắng.\n\n**Input:**\n- n\n\n**Output:**\n- 1 2 ... n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n1 2 3 4 5\n```",
+    "description": "Nhập n. In các số từ 1 đến n trên cùng 1 dòng, cách nhau bởi khoảng trắng.\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- 1 2 ... n\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>1 2 3 4 5</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -925,7 +925,7 @@
   },
   {
     "title": "Tổng 1 đến N",
-    "description": "Nhập n. Tính tổng S = 1 + 2 + ... + n.\n\n**Input:**\n- n\n\n**Output:**\n- Tổng S\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n15\n```",
+    "description": "Nhập n. Tính tổng S = 1 + 2 + ... + n.\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- Tổng S\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>15</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -969,7 +969,7 @@
   },
   {
     "title": "Giai thừa",
-    "description": "Nhập n. Tính n!.\n\n**Input:**\n- n\n\n**Output:**\n- n!\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n120\n```",
+    "description": "Nhập n. Tính n!.\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- n!\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>120</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1013,7 +1013,7 @@
   },
   {
     "title": "Bảng cửu chương",
-    "description": "Nhập n (1-9). In bảng cửu chương n. Mỗi dòng: \"n x i = result\".\n\n**Input:**\n- n\n\n**Output:**\n- 10 dòng\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n```\n**Đầu ra:**\n```text\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20\n```",
+    "description": "Nhập n (1-9). In bảng cửu chương n. Mỗi dòng: \"n x i = result\".\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- 10 dòng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2</div>\n**Đầu ra:**\n<div class='example-box'>2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1057,7 +1057,7 @@
   },
   {
     "title": "Đếm ước số",
-    "description": "Nhập n. Đếm xem n có bao nhiêu ước số dương.\n\n**Input:**\n- n\n\n**Output:**\n- Số lượng ước\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n```\n**Đầu ra:**\n```text\n4\n```",
+    "description": "Nhập n. Đếm xem n có bao nhiêu ước số dương.\n\n### Dữ liệu vào\n- n\n\n### Kết quả ra\n- Số lượng ước\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>10</div>\n**Đầu ra:**\n<div class='example-box'>4</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1101,7 +1101,7 @@
   },
   {
     "title": "Tổng số chẵn",
-    "description": "Tổng các số chẵn từ 1 đến N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n6\n```",
+    "description": "Tính tổng các số chẵn từ 1 đến N.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- Tổng các số chẵn\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>6</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1145,7 +1145,7 @@
   },
   {
     "title": "Số nguyên tố",
-    "description": "Kiểm tra N có phải số nguyên tố. In Yes/No.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n7\n```\n**Đầu ra:**\n```text\nYes\n```",
+    "description": "Kiểm tra N có phải số nguyên tố hay không.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- In \"Yes\" nếu là số nguyên tố, ngược lại \"No\"\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>7</div>\n**Đầu ra:**\n<div class='example-box'>Yes</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1189,7 +1189,7 @@
   },
   {
     "title": "Tổng chữ số",
-    "description": "Nhập N. Tính tổng các chữ số của N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n123\n```\n**Đầu ra:**\n```text\n6\n```",
+    "description": "Nhập N. Tính tổng các chữ số của N.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- Tổng các chữ số\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>123</div>\n**Đầu ra:**\n<div class='example-box'>6</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1233,7 +1233,7 @@
   },
   {
     "title": "Số đảo ngược",
-    "description": "In số đảo ngược của N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n123\n```\n**Đầu ra:**\n```text\n321\n```",
+    "description": "Nhập N. In ra số đảo ngược của N.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- Số đảo ngược\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>123</div>\n**Đầu ra:**\n<div class='example-box'>321</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1260,7 +1260,7 @@
     "hint": "While...",
     "category": "Level 3: Vòng lặp",
     "starter_code": {
-      "python": "# Viết code của bạn ở đây\n",
+      "python": "# Viết code của bạn ở đây\n# import sys\n# input = sys.stdin.read\n",
       "c": "// Số đảo ngược\n#include <stdio.h>\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "cpp": "// Số đảo ngược\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Số đảo ngược\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
@@ -1277,7 +1277,7 @@
   },
   {
     "title": "Dãy Fibonacci",
-    "description": "In N số Fibonacci đầu tiên.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n0 1 1 2 3\n```",
+    "description": "In N số Fibonacci đầu tiên bắt đầu từ 0 và 1.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- N số Fibonacci cách nhau bởi khoảng trắng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>0 1 1 2 3</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1321,7 +1321,7 @@
   },
   {
     "title": "Nhập xuất mảng",
-    "description": "Nhập N và mảng N phần tử. In mảng ra.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n1 2 3\n```",
+    "description": "Nhập N và mảng N phần tử. In các phần tử của mảng ra trên một dòng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên cách nhau bởi khoảng trắng\n\n### Kết quả ra\n- N số nguyên đã nhập\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 2 3</div>\n**Đầu ra:**\n<div class='example-box'>1 2 3</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1365,7 +1365,7 @@
   },
   {
     "title": "Tổng mảng",
-    "description": "Nhập N và mảng A. Tính tổng các phần tử.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n6\n```",
+    "description": "Nhập N và mảng A. Tính tổng các phần tử trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Tổng các phần tử\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 2 3</div>\n**Đầu ra:**\n<div class='example-box'>6</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1409,7 +1409,7 @@
   },
   {
     "title": "Max min mảng",
-    "description": "Tìm max và min trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 5 2\n```\n**Đầu ra:**\n```text\n5 1\n```",
+    "description": "Tìm giá trị lớn nhất (max) và nhỏ nhất (min) trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Hai số Max và Min cách nhau bởi khoảng trắng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 5 2</div>\n**Đầu ra:**\n<div class='example-box'>5 1</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1453,7 +1453,7 @@
   },
   {
     "title": "Đếm số chẵn mảng",
-    "description": "Đếm số phần tử chẵn trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n1 2 3 4\n```\n**Đầu ra:**\n```text\n2\n```",
+    "description": "Đếm số lượng các số chẵn có trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Số lượng số chẵn\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>4\n1 2 3 4</div>\n**Đầu ra:**\n<div class='example-box'>2</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1497,7 +1497,7 @@
   },
   {
     "title": "Tìm k trong mảng",
-    "description": "Nhập N, mảng A và số k. Tìm vị trí đầu tiên của k. Nếu không có in -1.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 5 2\n5\n```\n**Đầu ra:**\n```text\n2\n```",
+    "description": "Nhập N, mảng A và số k. Tìm vị trí đầu tiên của k trong mảng (vị trí tính từ 1). Nếu không có in -1.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n- Dòng 3: Số nguyên k cần tìm\n\n### Kết quả ra\n- Vị trí tìm thấy hoặc -1\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 5 2\n5</div>\n**Đầu ra:**\n<div class='example-box'>2</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1541,7 +1541,7 @@
   },
   {
     "title": "Mảng đảo ngược",
-    "description": "In mảng theo thứ tự ngược lại.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n3 2 1\n```",
+    "description": "Nhập mảng N phần tử và in ra theo thứ tự ngược lại.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Mảng đảo ngược\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 2 3</div>\n**Đầu ra:**\n<div class='example-box'>3 2 1</div>",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -1568,7 +1568,7 @@
     "hint": "Loop N-1 to 0",
     "category": "Level 4: Mảng & Chuỗi",
     "starter_code": {
-      "python": "# Viết code của bạn ở đây\n",
+      "python": "# Viết code của bạn ở đây\n# import sys\n# input = sys.stdin.read\n",
       "c": "// Mảng đảo ngược\n#include <stdio.h>\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "cpp": "// Mảng đảo ngược\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Mảng đảo ngược\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
@@ -1585,7 +1585,7 @@
   },
   {
     "title": "Sắp xếp tăng dần",
-    "description": "Sắp xếp mảng tăng dần.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n3 1 2\n```\n**Đầu ra:**\n```text\n1 2 3\n```",
+    "description": "Sắp xếp các phần tử trong mảng theo thứ tự tăng dần.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Mảng đã sắp xếp\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n3 1 2</div>\n**Đầu ra:**\n<div class='example-box'>1 2 3</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1629,7 +1629,7 @@
   },
   {
     "title": "Trung bình cộng mảng",
-    "description": "Tính TBC các giá trị trong mảng (2 số lẻ).\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 4\n```\n**Đầu ra:**\n```text\n2.33\n```",
+    "description": "Tính trung bình cộng các giá trị trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Trung bình cộng (lấy 2 chữ số thập phân)\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 2 4</div>\n**Đầu ra:**\n<div class='example-box'>2.33</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1673,7 +1673,7 @@
   },
   {
     "title": "Số lớn thứ 2",
-    "description": "Tìm số lớn thứ 2 trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n1 5 2 5\n```\n**Đầu ra:**\n```text\n2\n```",
+    "description": "Tìm số lớn thứ 2 trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n\n### Kết quả ra\n- Số lớn thứ 2\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>4\n1 5 2 5</div>\n**Đầu ra:**\n<div class='example-box'>2</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1717,7 +1717,7 @@
   },
   {
     "title": "Chèn phần tử",
-    "description": "Chèn x vào vị trí k trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n5 1\n```\n**Đầu ra:**\n```text\n1 5 2 3\n```",
+    "description": "Chèn một giá trị x vào vị trí k trong mảng.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Dòng 2: N số nguyên\n- Dòng 3: Giá trị x và vị trí k (cách nhau bởi khoảng trắng)\n\n### Kết quả ra\n- Mảng sau khi chèn\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3\n1 2 3\n5 1</div>\n**Đầu ra:**\n<div class='example-box'>1 5 2 3</div>",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1761,7 +1761,7 @@
   },
   {
     "title": "UCLN và BCNN",
-    "description": "Tìm UCLN và BCNN của 2 số.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2 4\n```\n**Đầu ra:**\n```text\n2 4\n```",
+    "description": "Tìm ước chung lớn nhất (UCLN) và bội chung nhỏ nhất (BCNN) của 2 số nguyên dương.\n\n### Dữ liệu vào\n- Hai số nguyên dương a, b cách nhau bởi khoảng trắng\n\n### Kết quả ra\n- UCLN và BCNN cách nhau bởi khoảng trắng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2 4</div>\n**Đầu ra:**\n<div class='example-box'>2 4</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1805,7 +1805,7 @@
   },
   {
     "title": "Kiểm tra đối xứng",
-    "description": "Chuỗi/Mảng đối xứng (Palindrome).\n\n### Ví dụ:\n**Đầu vào:**\n```text\nmadam\n```\n**Đầu ra:**\n```text\nYes\n```",
+    "description": "Kiểm tra xem một chuỗi hoặc một số nhập vào có phải là đối xứng (Palindrome) hay không.\n\n### Dữ liệu vào\n- Một chuỗi k tự hoặc chữ số\n\n### Kết quả ra\n- In \"Yes\" nếu đối xứng, ngược lại \"No\"\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>madam</div>\n**Đầu ra:**\n<div class='example-box'>Yes</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1849,7 +1849,7 @@
   },
   {
     "title": "Tháp hình sao",
-    "description": "In tam giác sao cân chiều cao h.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n```\n**Đầu ra:**\n```text\n  *\n ***\n*****\n```",
+    "description": "Vẽ tam giác sao cân đối xứng có chiều cao h.\n\n### Dữ liệu vào\n- Số nguyên h\n\n### Kết quả ra\n- Tam giác sao với chiều cao h\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>3</div>\n**Đầu ra:**\n<div class='example-box'>  *\n ***\n*****</div>",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1893,7 +1893,7 @@
   },
   {
     "title": "Ma trận chuyển vị",
-    "description": "Nhập ma trận NxM. In chuyển vị.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2 2\n1 2\n3 4\n```\n**Đầu ra:**\n```text\n1 3\n2 4\n```",
+    "description": "Nhập ma trận kích thước NxM. In ra ma trận chuyển vị MxN tương ứng.\n\n### Dữ liệu vào\n- Dòng 1: Hai số N và M\n- Các dòng tiếp theo: Ma trận NxM\n\n### Kết quả ra\n- Ma trận chuyển vị MxN\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2 2\n1 2\n3 4</div>\n**Đầu ra:**\n<div class='example-box'>1 3\n2 4</div>",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1937,7 +1937,7 @@
   },
   {
     "title": "Tính tổ hợp chập k của n",
-    "description": "Tính nCk.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5 2\n```\n**Đầu ra:**\n```text\n10\n```",
+    "description": "Tính giá trị của tổ hợp chập k của n (nCk).\n\n### Dữ liệu vào\n- Hai số nguyên n và k\n\n### Kết quả ra\n- Giá trị tổ hợp\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5 2</div>\n**Đầu ra:**\n<div class='example-box'>10</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1981,7 +1981,7 @@
   },
   {
     "title": "Liệt kê số nguyên tố < N",
-    "description": "Sàng Eratosthenes hoặc in hết.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n```\n**Đầu ra:**\n```text\n2 3 5 7\n```",
+    "description": "Liệt kê tất cả các số nguyên tố nhỏ hơn N.\n\n### Dữ liệu vào\n- Số nguyên N\n\n### Kết quả ra\n- Các số nguyên tố cách nhau bởi khoảng trắng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>10</div>\n**Đầu ra:**\n<div class='example-box'>2 3 5 7</div>",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -2025,7 +2025,7 @@
   },
   {
     "title": "Chuyển nhị phân",
-    "description": "Đổi số thập phân sang nhị phân.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n101\n```",
+    "description": "Chuyển đổi một số nguyên dương từ hệ thập phân sang hệ nhị phân.\n\n### Dữ liệu vào\n- Số nguyên dương N\n\n### Kết quả ra\n- Chuỗi nhị phân tương ứng\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>5</div>\n**Đầu ra:**\n<div class='example-box'>101</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -2069,7 +2069,7 @@
   },
   {
     "title": "Đếm từ trong chuỗi",
-    "description": "Đếm số từ trong câu.\n\n### Ví dụ:\n**Đầu vào:**\n```text\nHello World\n```\n**Đầu ra:**\n```text\n2\n```",
+    "description": "Đếm số lượng từ có trong một chuỗi ký tự nhập vào.\n\n### Dữ liệu vào\n- Một dòng văn bản\n\n### Kết quả ra\n- Số lượng từ\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>Hello World</div>\n**Đầu ra:**\n<div class='example-box'>2</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -2113,7 +2113,7 @@
   },
   {
     "title": "Tổng đường chéo chính",
-    "description": "Tổng đường chéo ma trận vuông.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n1 2\n3 4\n```\n**Đầu ra:**\n```text\n5\n```",
+    "description": "Tính tổng các phần tử trên đường chéo chính của một ma trận vuông kích thước NxN.\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- Các dòng tiếp theo: Ma trận vuông NxN\n\n### Kết quả ra\n- Tổng đường chéo chính\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2\n1 2\n3 4</div>\n**Đầu ra:**\n<div class='example-box'>5</div>",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -2157,7 +2157,7 @@
   },
   {
     "title": "Sắp xếp tên",
-    "description": "Sắp xếp danh sách tên theo alphabet.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\nB\nA\n```\n**Đầu ra:**\n```text\nA\nB\n```",
+    "description": "Nhập danh sách N tên người và sắp xếp chúng theo thứ tự bảng chữ cái (A-Z).\n\n### Dữ liệu vào\n- Dòng 1: Số nguyên N\n- N dòng tiếp theo: Mỗi dòng là 1 tên\n\n### Kết quả ra\n- Danh sách tên đã sắp xếp\n\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>2\nB\nA</div>\n**Đầu ra:**\n<div class='example-box'>A\nB</div>",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -2184,7 +2184,7 @@
     "hint": "String compare",
     "category": "Level 5: Giải thuật & Nâng cao",
     "starter_code": {
-      "python": "# Viết code của bạn ở đây\n",
+      "python": "# Viết code của bạn ở đây\n# import sys\n# input = sys.stdin.read\n",
       "c": "// Sắp xếp tên\n#include <stdio.h>\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "cpp": "// Sắp xếp tên\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Sắp xếp tên\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
