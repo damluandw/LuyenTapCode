@@ -2198,5 +2198,33 @@
       "csharp": "using System;\nusing System.Linq;\nusing System.Collections.Generic;\n\nclass Program {\n    static void Main() {\n        int n = int.Parse(Console.ReadLine());\n        string[] a = new string[n];\n        for(int i=0; i<n; i++) a[i] = Console.ReadLine();\n        Array.Sort(a);\n        foreach(var s in a) Console.WriteLine(s);\n    }\n}"
     },
     "id": 50
+  },
+  {
+    "title": "Tính diện tích hình chữ nhật 2",
+    "difficulty": "Easy",
+    "category": "Level 1: Nhập xuất & Tính toán",
+    "description": "lkjfksdlfkls",
+    "hint": "printf(\"a\")",
+    "test_cases": [
+      {
+        "input": "a: 3\nb: 4",
+        "output": "12"
+      }
+    ],
+    "starter_code": {
+      "python": "# Viết code của bạn ở đây\nprintf(\"a\")",
+      "c": "// Tính toán...\n#include <stdio.h>\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
+      "cpp": "// Tính toán...\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
+      "java": "// Tính toán...\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
+      "csharp": "// Tính toán...\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "printf(\"a\")",
+      "c": "",
+      "cpp": "",
+      "java": "",
+      "csharp": ""
+    },
+    "id": 51
   }
 ]

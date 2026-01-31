@@ -85,42 +85,80 @@ require(["vs/editor/editor.main"], async function () {
 
   terminal = new Terminal();
   fetchProblems();
+  checkUser();
   setupTabs();
   setupEventListeners();
 
-  // Add filter listener
+  // Add filter/search listeners
   const filterEl = document.getElementById('level-filter');
   if (filterEl) {
-    filterEl.addEventListener('change', (e) => {
-      renderProblems(e.target.value);
-    });
+    filterEl.addEventListener('change', () => renderProblems());
+  }
+  const diffEl = document.getElementById('difficulty-filter');
+  if (diffEl) {
+    diffEl.addEventListener('change', () => renderProblems());
+  }
+  const searchEl = document.getElementById('problem-search');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => renderProblems());
   }
 });
 
 // Sidebar & Problem Loading
+// Auth
+async function checkUser() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) {
+      window.location.href = '/login';
+      return;
+    }
+    const data = await res.json();
+    document.getElementById('user-name').textContent = data.display_name;
+  } catch (e) {
+    window.location.href = '/login';
+  }
+}
+
+let allProblems = []; // Store basic problem list
+
 async function fetchProblems() {
   try {
-    const res = await fetch("/problems"); // Changed from /api/problems to /problems to match original
+    const res = await fetch("/problems");
     allProblems = await res.json();
     renderProblems();
 
     // Select first problem if available
     if (allProblems.length > 0) {
-      setProblem(allProblems[0]); // Changed from loadProblem(allProblems[0].id) to setProblem(allProblems[0])
+      loadProblemDetail(allProblems[0].id);
     }
   } catch (err) {
     console.error("Failed to load problems:", err);
   }
 }
 
-function renderProblems(filterCategory = "all") {
-  const listContainer = document.getElementById("problem-list"); // Changed from list to listContainer
+function renderProblems() {
+  const filterCategory = document.getElementById('level-filter').value;
+  const filterDifficulty = document.getElementById('difficulty-filter').value;
+  const searchQuery = document.getElementById('problem-search').value.toLowerCase();
+
+  const listContainer = document.getElementById("problem-list");
   listContainer.innerHTML = "";
 
-  const filtered = filterCategory === "all"
-    ? allProblems
-    : allProblems.filter(p => p.category && p.category.startsWith(filterCategory.split(':')[0]));
-  // Simple matching logic, or exact match: p.category === filterCategory
+  const filtered = allProblems.filter(p => {
+    // Level filter
+    const matchesLevel = filterCategory === "all" ||
+      (p.category && p.category.startsWith(filterCategory));
+
+    // Difficulty filter
+    const matchesDifficulty = filterDifficulty === "all" || p.difficulty === filterDifficulty;
+
+    // Search filter
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery) ||
+      p.id.toString().includes(searchQuery);
+
+    return matchesLevel && matchesDifficulty && matchesSearch;
+  });
 
   filtered.forEach((p) => {
     const item = document.createElement("div");
@@ -131,13 +169,23 @@ function renderProblems(filterCategory = "all") {
                 <div class="p-title">${p.title}</div>
                 <div class="p-diff" style="font-size: 0.7rem; color: #8b949e">${p.difficulty}</div>
             `; // Reverted to original innerHTML structure
-    item.addEventListener("click", () => { // Reverted to original event listener structure
+    item.addEventListener("click", () => {
       document.querySelectorAll(".problem-item").forEach((el) => el.classList.remove("active"));
       item.classList.add("active");
-      setProblem(p);
+      loadProblemDetail(p.id);
     });
     listContainer.appendChild(item);
   });
+}
+
+async function loadProblemDetail(id) {
+  try {
+    const res = await fetch(`/api/problems/${id}`);
+    const p = await res.json();
+    setProblem(p);
+  } catch (err) {
+    console.error("Error loading problem detail:", err);
+  }
 }
 
 function setProblem(p) {
@@ -395,6 +443,19 @@ function renderResults(results) {
     panel.appendChild(card);
     if (!res.passed) allPassed = false;
   });
+
+  if (allPassed && currentProblem) {
+    // Log success to server
+    fetch('/api/submissions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        problemId: currentProblem.id,
+        problemTitle: currentProblem.title,
+        language: document.getElementById('language-select').value
+      })
+    });
+  }
 }
 
 class Terminal {

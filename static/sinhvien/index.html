@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Luyện Tập Code - Cao đẳng Việt Mỹ Hà Nội</title>
     <!-- Load Socket.IO first to avoid AMD loader conflict -->
-    <script src="socket.io.min.js"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <script src="/sinhvien/js/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap"
       rel="stylesheet"
@@ -34,15 +34,24 @@
           ></div>
         </div>
         <div class="problem-list-container">
-          <div class="filter-section" style="padding: 0 15px 10px;">
-              <select id="level-filter" style="width: 100%; padding: 8px; background: #1c2128; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; outline: none;">
-                  <option value="all">Tất cả các cấp độ</option>
-                  <option value="Level 1: Nhập xuất & Tính toán">Level 1: Nhập xuất & Tính toán</option>
-                  <option value="Level 2: Cấu trúc rẽ nhánh">Level 2: Cấu trúc rẽ nhánh</option>
-                  <option value="Level 3: Vòng lặp">Level 3: Vòng lặp</option>
-                  <option value="Level 4: Mảng & Chuỗi">Level 4: Mảng & Chuỗi</option>
-                  <option value="Level 5: Giải thuật & Nâng cao">Level 5: Giải thuật & Nâng cao</option>
-              </select>
+          <div class="filter-section" style="padding: 0 15px 10px; display: flex; flex-direction: column; gap: 8px;">
+              <input type="text" id="problem-search" placeholder="Tìm kiếm bài tập..." style="width: 100%; padding: 8px; background: #1c2128; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; outline: none;">
+              <div style="display: flex; gap: 8px;">
+                  <select id="level-filter" style="flex: 1; padding: 8px; background: #1c2128; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; outline: none;">
+                      <option value="all">Chủ đề</option>
+                      <option value="Level 1">Level 1</option>
+                      <option value="Level 2">Level 2</option>
+                      <option value="Level 3">Level 3</option>
+                      <option value="Level 4">Level 4</option>
+                      <option value="Level 5">Level 5</option>
+                  </select>
+                  <select id="difficulty-filter" style="flex: 1; padding: 8px; background: #1c2128; color: #c9d1d9; border: 1px solid #30363d; border-radius: 6px; outline: none;">
+                      <option value="all">Độ khó</option>
+                      <option value="Dễ">Dễ</option>
+                      <option value="Trung bình">Normal</option>
+                      <option value="Khó">Khó</option>
+                  </select>
+              </div>
           </div>
           <h3 style="margin-top: 0;">Danh sách bài tập</h3>
           <div id="problem-list" class="problem-list">
@@ -61,6 +70,10 @@
             <span id="current-difficulty" class="difficulty-badge">--</span>
           </div>
           <div class="actions">
+            <div id="user-display" style="margin-right: 15px; font-size: 0.85rem; color: var(--text-secondary);">
+                Xin chào, <span id="user-name" style="color: var(--accent); font-weight: 600;"></span>
+                <a href="/api/auth/logout" style="margin-left: 10px; color: #ff7b72; text-decoration: none;">Đăng xuất</a>
+            </div>
             <button id="template-btn" class="secondary-btn">Code Mẫu</button>
             <select id="language-select">
               <option value="python">Python</option>
@@ -111,6 +124,6 @@
         </div>
       </main>
     </div>
-    <script src="script.js"></script>
+    <script src="/sinhvien/js/student.js"></script>
   </body>
 </html>

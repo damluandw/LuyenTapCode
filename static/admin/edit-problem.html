@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa bài tập - Admin Panel</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css">
+    <link rel="stylesheet" href="/admin/css/admin.css">
+    <link rel="stylesheet" href="/admin/css/edit-problem.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="admin-body">
+    <div class="editor-page-wrapper">
+        <header class="editor-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="/admin" class="back-link">← Quay lại</a>
+                <h1 id="page-title">Thêm bài tập mới</h1>
+            </div>
+            <div class="header-actions">
+                <button class="secondary-btn" onclick="location.href='/admin'">Hủy bỏ</button>
+                <button class="primary-btn" onclick="saveProblem()">Lưu bài tập</button>
+            </div>
+        </header>
+
+        <div class="editor-content-grid">
+            <nav class="editor-nav">
+                <div class="nav-section-title">CHUYỂN ĐẾN</div>
+                <a class="nav-item active" href="#sec-basic">Thông tin chung</a>
+                <a class="nav-item" href="#sec-description">Mô tả & Ví dụ</a>
+                <a class="nav-item" href="#sec-testcases">Bộ Test Cases</a>
+                <a class="nav-item" href="#sec-hints">Gợi ý bài giải</a>
+                
+                <div class="nav-section-title">NGÔN NGỮ</div>
+                <a class="nav-item" href="#sec-starter-python">Python</a>
+                <a class="nav-item" href="#sec-starter-c">C / C++</a>
+                <a class="nav-item" href="#sec-starter-java">Java / C#</a>
+            </nav>
+
+            <main class="editor-main">
+                <div class="main-scroll-container">
+                <!-- Basic Info Section -->
+                <section id="sec-basic" class="edit-section active">
+                    <h2>Thông tin chung</h2>
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label>Tiêu đề bài tập</label>
+                            <input type="text" id="p-title" placeholder="VD: Tính tổng hai số nguyên">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Mức độ</label>
+                                <select id="p-diff">
+                                    <option value="Easy">Dễ (Easy)</option>
+                                    <option value="Medium">Trung bình (Medium)</option>
+                                    <option value="Hard">Khó (Hard)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Chủ đề (Category)</label>
+                                <input type="text" id="p-cat" placeholder="VD: Level 1: Nhập xuất">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Description Section -->
+                <section id="sec-description" class="edit-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h2>Mô tả bài tập (Markdown)</h2>
+                        <button class="secondary-btn" style="font-size: 0.8rem; padding: 4px 8px;" onclick="generateDescriptionFromTests()">+ Chèn ví dụ từ Test Case #1</button>
+                    </div>
+                    <div class="form-card full-height">
+                        <textarea id="p-desc" class="md-editor" placeholder="Sử dụng Markdown để viết mô tả..."></textarea>
+                    </div>
+                </section>
+
+                <!-- Test Cases Section -->
+                <section id="sec-testcases" class="edit-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Bộ Test Cases</h2>
+                        <button class="secondary-btn" onclick="addTestCase()">+ Thêm Test Case</button>
+                    </div>
+                    <div id="testcase-list" class="testcase-container">
+                        <!-- Dynamic items -->
+                    </div>
+                </section>
+
+                <!-- Hints Section -->
+                <section id="sec-hints" class="edit-section">
+                    <h2>Gợi ý & Giải thuật</h2>
+                    <div class="form-card full-height">
+                        <textarea id="p-hint" class="md-editor" placeholder="Viết gợi ý hướng dẫn sinh viên..."></textarea>
+                    </div>
+                </section>
+
+                <!-- Code Template Sections -->
+                <section id="sec-starter-python" class="edit-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>Code mẫu (Python)</h2>
+                        <button class="secondary-btn" style="font-size: 0.75rem;" onclick="copyFromSolution('python')">Copy từ Lời giải</button>
+                    </div>
+                    <div class="monaco-wrapper" id="editor-python"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+                        <h2>Lời giải (Python)</h2>
+                        <button class="primary-btn" style="font-size: 0.75rem; background: #238636;" onclick="testSolution('python')">Kiểm tra bài giải</button>
+                    </div>
+                    <div class="monaco-wrapper" id="solution-python"></div>
+                </section>
+
+                <section id="sec-starter-c" class="edit-section">
+                    <div class="charts-row">
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Code mẫu (C)</h2>
+                                <button class="secondary-btn" style="font-size: 0.75rem;" onclick="copyFromSolution('c')">Copy L/giải</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="editor-c"></div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Code mẫu (C++)</h2>
+                                <button class="secondary-btn" style="font-size: 0.75rem;" onclick="copyFromSolution('cpp')">Copy L/giải</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="editor-cpp"></div>
+                        </div>
+                    </div>
+                    <div class="charts-row">
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Lời giải (C)</h2>
+                                <button class="primary-btn" style="font-size: 0.75rem; background: #238636;" onclick="testSolution('c')">K/tra</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="solution-c"></div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Lời giải (C++)</h2>
+                                <button class="primary-btn" style="font-size: 0.75rem; background: #238636;" onclick="testSolution('cpp')">K/tra</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="solution-cpp"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="sec-starter-java" class="edit-section">
+                    <div class="charts-row">
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Code mẫu (Java)</h2>
+                                <button class="secondary-btn" style="font-size: 0.75rem;" onclick="copyFromSolution('java')">Copy L/giải</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="editor-java"></div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Code mẫu (C#)</h2>
+                                <button class="secondary-btn" style="font-size: 0.75rem;" onclick="copyFromSolution('csharp')">Copy L/giải</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="editor-csharp"></div>
+                        </div>
+                    </div>
+                    <div class="charts-row">
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Lời giải (Java)</h2>
+                                <button class="primary-btn" style="font-size: 0.75rem; background: #238636;" onclick="testSolution('java')">K/tra</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="solution-java"></div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2>Lời giải (C#)</h2>
+                                <button class="primary-btn" style="font-size: 0.75rem; background: #238636;" onclick="testSolution('csharp')">K/tra</button>
+                            </div>
+                            <div class="monaco-wrapper mini" id="solution-csharp"></div>
+                        </div>
+                    </div>
+                </section>
+                </div>
+            </main>
+
+            <aside class="editor-preview-panel">
+                <div class="preview-header">
+                    <span>XEM TRƯỚC (STUDENT VIEW)</span>
+                    <div id="preview-lang-display" class="difficulty-badge">Python</div>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-card">
+                        <h2 id="pre-title">Tiêu đề bài tập</h2>
+                        <div id="pre-diff" class="difficulty-badge" style="margin-bottom: 1rem;">Easy</div>
+                        <div id="pre-desc" class="markdown-body">Mô tả sẽ hiển thị ở đây...</div>
+                        <hr style="border:0; border-top:1px solid #30363d; margin: 2rem 0;">
+                        <h4>Gợi ý hiện tại:</h4>
+                        <div id="pre-hint" class="markdown-body" style="font-size: 0.9rem; color: #8b949e;">Chưa có gợi ý.</div>
+                    </div>
+                    
+                    <div class="preview-results-panel" id="preview-results-panel" style="display:none">
+                        <h4>KẾT QUẢ KIỂM TRA</h4>
+                        <div id="test-results-list"></div>
+                    </div>
+                </div>
+            </aside>
+    </div>
+
+    <script src="/admin/js/edit-problem.js"></script>
+</body>
+</html>

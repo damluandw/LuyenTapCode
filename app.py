@@ -5,12 +5,14 @@ import subprocess
 import threading
 import time
 import tempfile
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+from functools import wraps
 
 app = Flask(__name__, static_folder='static', static_url_path='')
-CORS(app, resources={r"/*": {"origins": "*"}})
+app.secret_key = 'antigravity-secret-key' # Replace with a real secret for production
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 # Use threading mode for maximum compatibility on Python 3.13 / Windows
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading', logger=True, engineio_logger=True)
 
@@ -50,30 +52,431 @@ LANGUAGE_CONFIG = {
     }
 }
 
+# Helper functions for data management
+def load_json(filename):
+    if not os.path.exists(filename):
+        return []
+    with open(filename, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_json(filename, data):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+# Auth Decorators
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:
+            return redirect(url_for('login_page'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def instructor_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'role' not in session or session['role'] != 'instructor':
+            return jsonify({"error": "Admin access required"}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route("/")
+@login_required
 def index():
-    response = app.send_static_file("index.html")
+    if session.get('role') == 'instructor':
+        return redirect(url_for('admin_page'))
+    response = app.send_static_file("sinhvien/index.html")
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
     return response
 
-@app.route("/<path:path>")
-def serve_static(path):
-    response = app.send_static_file(path)
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
-    return response
+@app.route("/login")
+def login_page():
+    return app.send_static_file("login.html")
+
+@app.route("/admin")
+@login_required
+@instructor_required
+def admin_page():
+    return app.send_static_file("admin/admin.html")
+
+@app.route("/admin/edit-problem")
+@login_required
+@instructor_required
+def edit_problem_page():
+    return app.send_static_file("admin/edit-problem.html")
+
+@app.route("/api/auth/login", methods=["POST"])
+def api_login():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    
+    users = load_json("users.json")
+    user = next((u for u in users if u["username"] == username and u["password"] == password), None)
+    
+    if user:
+        session['username'] = user['username']
+        session['role'] = user['role']
+        session['display_name'] = user.get('display_name', user['username'])
+        return jsonify({"status": "success", "role": user['role']})
+    return jsonify({"status": "error", "message": "Sai tài khoản hoặc mật khẩu"}), 401
+
+@app.route("/api/auth/logout")
+def api_logout():
+    session.clear()
+    return redirect(url_for('login_page'))
+
+@app.route("/api/auth/me")
+def api_me():
+    if 'username' in session:
+        return jsonify({
+            "username": session['username'],
+            "role": session['role'],
+            "display_name": session.get('display_name')
+        })
+    return jsonify({"error": "Not logged in"}), 401
 
 @app.route("/problems")
+@login_required
 def get_problems():
     try:
-        with open("problems.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return jsonify(data)
+        data = load_json("problems.json")
+        # Return only basic info for the sidebar to save bandwidth
+        minimal_list = [
+            {"id": p["id"], "title": p["title"], "difficulty": p["difficulty"], "category": p.get("category", "")}
+            for p in data
+        ]
+        return jsonify(minimal_list)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/problems/<int:pid>")
+@login_required
+def get_problem_detail(pid):
+    problems = load_json("problems.json")
+    problem = next((p for p in problems if p["id"] == pid), None)
+    if not problem:
+        return jsonify({"error": "Problem not found"}), 404
+    return jsonify(problem)
+
+# Administrative APIs - Statistics
+@app.route("/api/admin/stats")
+@login_required
+@instructor_required
+def get_stats():
+    problems = load_json("problems.json")
+    users = load_json("users.json")
+    submissions = load_json("submissions.json")
+    hits = load_json("hits.json")
+    
+    # Language distribution
+    langs = {}
+    for s in submissions:
+        lang = s.get("language", "unknown")
+        langs[lang] = langs.get(lang, 0) + 1
+    
+    return jsonify({
+        "problem_count": len(problems),
+        "student_count": len([u for u in users if u["role"] == "student"]),
+        "submission_count": len(submissions),
+        "total_hits": hits.get("total_hits", 0),
+        "languages": langs,
+        "recent_activity": submissions[-10:] if submissions else []
+    })
+
+# Middleware-like function for traffic tracking
+@app.before_request
+def track_traffic():
+    if request.path.startswith('/static') or request.path.startswith('/api/auth/me'):
+        return
+    
+    try:
+        hits = load_json("hits.json")
+        hits["total_hits"] = hits.get("total_hits", 0) + 1
+        
+        today = time.strftime("%Y-%m-%d")
+        daily = hits.get("daily_hits", {})
+        daily[today] = daily.get(today, 0) + 1
+        hits["daily_hits"] = daily
+        
+        save_json("hits.json", hits)
+    except Exception as e:
+        print(f"Error tracking traffic: {e}")
+
+# Administrative APIs - Problems
+@app.route("/api/admin/problems", methods=["POST"])
+@login_required
+@instructor_required
+def add_problem():
+    new_prob = request.json
+    problems = load_json("problems.json")
+    # Generate ID
+    new_prob["id"] = max([p["id"] for p in problems], default=0) + 1
+    problems.append(new_prob)
+    save_json("problems.json", problems)
+    return jsonify({"status": "success", "id": new_prob["id"]})
+
+@app.route("/api/admin/problems/<int:pid>", methods=["PUT", "DELETE"])
+@login_required
+@instructor_required
+def manage_problem(pid):
+    problems = load_json("problems.json")
+    if request.method == "DELETE":
+        problems = [p for p in problems if p["id"] != pid]
+        save_json("problems.json", problems)
+        return jsonify({"status": "success"})
+    elif request.method == "PUT":
+        data = request.json
+        for p in problems:
+            if p["id"] == pid:
+                p.update(data)
+                break
+        save_json("problems.json", problems)
+        return jsonify({"status": "success"})
+def run_single_test(language, code, user_input):
+    """Run a single test case for a given language and code."""
+    config = LANGUAGE_CONFIG.get(language)
+    if not config:
+        return {"error": f"Unsupported language: {language}"}
+
+    # Create temp directory
+    base_temp = os.path.join(os.getcwd(), "temp_sessions")
+    if not os.path.exists(base_temp):
+        os.makedirs(base_temp)
+    temp_dir = tempfile.mkdtemp(dir=base_temp)
+
+    try:
+        ext = config['ext']
+        filename = config.get('main_file', f"code{ext}")
+        code_file = os.path.join(temp_dir, filename)
+        
+        with open(code_file, 'w', encoding='utf-8') as f:
+            f.write(code)
+            
+        exe_path = None
+        run_cmd_template = config['run']
+        
+        # Compilation Step
+        if config['compile']:
+            output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
+            compile_cmd_template = config['compile']
+            compile_files = [code_file]
+            
+            if language == 'c':
+                flush_file = os.path.join(temp_dir, "flush_init.c")
+                with open(flush_file, 'w', encoding='utf-8') as f: f.write(FLUSH_INIT_C)
+                compile_files.append(flush_file)
+            elif language == 'cpp':
+                flush_file = os.path.join(temp_dir, "flush_init.cpp")
+                with open(flush_file, 'w', encoding='utf-8') as f: f.write(FLUSH_INIT_CPP)
+                compile_files.append(flush_file)
+            
+            final_compile_cmd = []
+            for arg in compile_cmd_template:
+                if "{file}" in arg: final_compile_cmd.append(arg.format(file=code_file, output=output_file))
+                elif "{output}" in arg: final_compile_cmd.append(arg.format(output=output_file))
+                else: final_compile_cmd.append(arg)
+            for extra_file in compile_files[1:]: final_compile_cmd.append(extra_file)
+
+            compile_result = subprocess.run(final_compile_cmd, capture_output=True, text=True, encoding='utf-8', timeout=10)
+            if compile_result.returncode != 0:
+                return {"error": f"Compilation error:\n{compile_result.stderr}", "output": ""}
+            exe_path = output_file
+        
+        # Run Step
+        if exe_path:
+            classname = "Main" if language == "java" else None
+            run_cmd = [cmd.format(output=exe_path, classname=classname) for cmd in run_cmd_template]
+        else:
+            run_cmd = [cmd.format(file=code_file, project_dir=temp_dir) for cmd in run_cmd_template]
+
+        process = subprocess.run(
+            run_cmd,
+            input=user_input,
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            timeout=5,
+            cwd=temp_dir
+        )
+        return {"output": process.stdout, "error": process.stderr if process.returncode != 0 else None}
+
+    except subprocess.TimeoutExpired:
+        return {"error": "Time Limit Exceeded (5s)", "output": ""}
+    except Exception as e:
+        return {"error": str(e), "output": ""}
+    finally:
+        import shutil
+        try: shutil.rmtree(temp_dir)
+        except: pass
+
+@app.route("/api/admin/test-problem", methods=["POST"])
+@login_required
+@instructor_required
+def test_new_problem():
+    data = request.json
+    language = data.get("language")
+    code = data.get("code")
+    test_cases = data.get("test_cases", [])
+    
+    results = []
+    for tc in test_cases:
+        res = run_single_test(language, code, tc.get("input", ""))
+        actual = (res.get("output") or "").strip()
+        expected = (tc.get("output") or "").strip()
+        results.append({
+            "input": tc.get("input"),
+            "expected": expected,
+            "actual": actual,
+            "passed": actual == expected,
+            "error": res.get("error")
+        })
+    
+    return jsonify({"results": results})
+@app.route("/api/admin/students", methods=["GET", "POST", "PUT"])
+@login_required
+@instructor_required
+def manage_students():
+    users = load_json("users.json")
+    if request.method == "GET":
+        submissions = load_json("submissions.json")
+        students = [u for u in users if u["role"] == "student"]
+        
+        # Enrich students with stats
+        for s in students:
+            user_subs = [sub for sub in submissions if sub["username"] == s["username"]]
+            s["solved_count"] = len(set([sub["problemId"] for sub in user_subs]))
+            s["submission_count"] = len(user_subs)
+            
+            # Find main language
+            if user_subs:
+                langs = {}
+                for sub in user_subs:
+                    l = sub["language"]
+                    langs[l] = langs.get(l, 0) + 1
+                s["main_lang"] = max(langs, key=langs.get).upper()
+            else:
+                s["main_lang"] = "--"
+                
+        return jsonify(students)
+    elif request.method == "POST":
+        new_student = request.json
+        new_student["role"] = "student"
+        if any(u["username"] == new_student["username"] for u in users):
+            return jsonify({"status": "error", "message": "Tên đăng nhập đã tồn tại"}), 400
+        users.append(new_student)
+        save_json("users.json", users)
+        return jsonify({"status": "success"})
+    elif request.method == "PUT":
+        data = request.json
+        username = data.get("username")
+        for u in users:
+            if u["username"] == username:
+                u.update(data)
+                break
+        save_json("users.json", users)
+        return jsonify({"status": "success"})
+
+@app.route("/api/admin/students/<username>/stats")
+@login_required
+@instructor_required
+def get_student_stats(username):
+    users = load_json("users.json")
+    submissions = load_json("submissions.json")
+    
+    student = next((u for u in users if u["username"] == username), None)
+    if not student:
+        return jsonify({"status": "error", "message": "Sinh viên không tồn tại"}), 404
+    
+    user_subs = [s for s in submissions if s["username"] == username]
+    
+    # Aggregated stats
+    solved_problems = list(set([s["problemId"] for s in user_subs]))
+    langs = {}
+    for s in user_subs:
+        lang = s["language"]
+        langs[lang] = langs.get(lang, 0) + 1
+        
+    return jsonify({
+        "info": student,
+        "solved_count": len(solved_problems),
+        "total_submissions": len(user_subs),
+        "languages": langs,
+        "recent_activity": user_subs[-10:] if user_subs else []
+    })
+
+@app.route("/api/admin/reports")
+@login_required
+@instructor_required
+def get_reports():
+    users = load_json("users.json")
+    problems = load_json("problems.json")
+    submissions = load_json("submissions.json")
+    
+    # 1. Student Ranking
+    students = [u for u in users if u["role"] == "student"]
+    student_report = []
+    for s in students:
+        user_subs = [sub for sub in submissions if sub["username"] == s["username"]]
+        solved = set([sub["problemId"] for sub in user_subs])
+        student_report.append({
+            "username": s["username"],
+            "display_name": s["display_name"],
+            "solved_count": len(solved),
+            "submission_count": len(user_subs),
+            "success_rate": round(len(solved) / len(user_subs) * 100, 1) if user_subs else 0
+        })
+        
+    # 2. Problem Statistics
+    problem_report = []
+    for p in problems:
+        p_subs = [sub for sub in submissions if sub["problemId"] == p["id"]]
+        p_passers = set([sub["username"] for sub in p_subs]) 
+        
+        # Map English difficulty to Vietnamese for consistent UI
+        diff_map = {
+            "Easy": "Dễ",
+            "Medium": "Trung bình",
+            "Hard": "Khó"
+        }
+        raw_diff = p.get("difficulty", "Dễ")
+        
+        problem_report.append({
+            "id": p["id"],
+            "title": p["title"],
+            "difficulty": diff_map.get(raw_diff, raw_diff), # Use mapped value or fallback to original
+            "category": p.get("category", "Chung"),
+            "attempt_count": len(p_subs),
+            "pass_count": len(p_passers)
+        })
+        
+    return jsonify({
+        "students": sorted(student_report, key=lambda x: x["solved_count"], reverse=True),
+        "problems": sorted(problem_report, key=lambda x: x["attempt_count"], reverse=True)
+    })
+
+# Tracking & Submissions
+@app.route("/api/submissions", methods=["GET", "POST"])
+@login_required
+def handle_submissions():
+    if request.method == "POST":
+        data = request.json
+        data["username"] = session["username"]
+        data["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        submissions = load_json("submissions.json")
+        submissions.append(data)
+        save_json("submissions.json", submissions)
+        return jsonify({"status": "success"})
+    
+    # GET: Fetch tracking info
+    submissions = load_json("submissions.json")
+    if session["role"] == "instructor":
+        return jsonify(submissions)
+    else:
+        # Student only sees their own
+        user_subs = [s for s in submissions if s["username"] == session["username"]]
+        return jsonify(user_subs)
 
 @socketio.on('connect')
 def handle_connect():
@@ -200,6 +603,7 @@ def handle_start_session(data):
                     final_compile_cmd,
                     capture_output=True,
                     text=True,
+                    encoding='utf-8',
                     timeout=10
                 )
                 
@@ -347,6 +751,7 @@ def handle_run_test_cases(data):
                     final_compile_cmd,
                     capture_output=True,
                     text=True,
+                    encoding='utf-8',
                     timeout=10
                 )
                 if compile_result.returncode != 0:
