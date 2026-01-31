@@ -1,7 +1,7 @@
 [
   {
     "title": "Tính diện tích hình chữ nhật",
-    "description": "Viết chương trình nhập vào chiều dài `a` và chiều rộng `b` của hình chữ nhật. Tính và in ra diện tích.\n\n**Input:**\n- Hai số nguyên `a`, `b` trên 2 dòng.\n\n**Output:**\n- Diện tích hình chữ nhật.",
+    "description": "Viết chương trình nhập vào chiều dài `a` và chiều rộng `b` của hình chữ nhật. Tính và in ra diện tích.\n\n**Input:**\n- Hai số nguyên `a`, `b` trên 2 dòng.\n\n**Output:**\n- Diện tích hình chữ nhật.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n3\n```\n**Đầu ra:**\n```text\n15\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -22,11 +22,18 @@
       "cpp": "// Tính diện tích hình chữ nhật\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tính diện tích hình chữ nhật\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tính diện tích hình chữ nhật\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "a = int(input())\nb = int(input())\nprint(a * b)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\", a * b);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >>( , a, b);\n    cout <<(, a * b);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\na = sc.nextInt(\nb = sc.nextInt(\nSystem.out.println(a * b\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Chu vi hình tròn",
-    "description": "Viết chương trình nhập vào bán kính `r` (số thực). Tính chu vi hình tròn (lấy PI = 3.14). In kết quả làm tròn 2 chữ số thập phân.\n\n**Input:**\n- Số thực `r`\n\n**Output:**\n- Chu vi (formatted 2 decimal places)",
+    "description": "Viết chương trình nhập vào bán kính `r` (số thực). Tính chu vi hình tròn (lấy PI = 3.14). In kết quả làm tròn 2 chữ số thập phân.\n\n**Input:**\n- Số thực `r`\n\n**Output:**\n- Chu vi (formatted 2 decimal places)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n```\n**Đầu ra:**\n```text\n6.28\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -47,11 +54,18 @@
       "cpp": "// Chu vi hình tròn\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Chu vi hình tròn\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Chu vi hình tròn\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "r = float(input())\nprint(f'{2 * 3.14 * r:.2f}')",
+      "c": "#include <stdio.h>\n\nint main() {\n    float r;\n    scanf(\"%f\", &r);\n    printf(\"%.2f\", 2 * 3.14 * r);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    float r;\n    cin >>(%f, r);\n    cout <<(%.2f, 2 * 3.14 * r);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nr = float(sc.nextInt(\nSystem.out.println(f'{2 * 3.14 * r{.2f}'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Đổi đơn vị độ dài",
-    "description": "Nhập vào số km. Đổi sang mét.\n\n**Input:**\n- Số thực `km`\n\n**Output:**\n- Số mét (số thực)",
+    "description": "Nhập vào số km. Đổi sang mét.\n\n**Input:**\n- Số thực `km`\n\n**Output:**\n- Số mét (số thực)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1.5\n```\n**Đầu ra:**\n```text\n1500\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -72,11 +86,18 @@
       "cpp": "// Đổi đơn vị độ dài\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Đổi đơn vị độ dài\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Đổi đơn vị độ dài\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "km = float(input())\nprint(int(km * 1000))",
+      "c": "#include <stdio.h>\n\nint main() {\n    float km;\n    scanf(\"%f\", &km);\n    printf(\"%.0f\", km * 1000);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    float km;\n    cin >>(%f, km);\n    cout <<(%.0f, km * 1000);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nkm = float(sc.nextInt(\nSystem.out.println(km * 1000\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Trung bình cộng 3 số",
-    "description": "Nhập 3 số nguyên a, b, c. Tính trung bình cộng của chúng (kết quả lấy phần nguyên).\n\n**Input:**\n- 3 số nguyên trên 3 dòng\n\n**Output:**\n- Trung bình cộng (số nguyên)",
+    "description": "Nhập 3 số nguyên a, b, c. Tính trung bình cộng của chúng (kết quả lấy phần nguyên).\n\n**Input:**\n- 3 số nguyên trên 3 dòng\n\n**Output:**\n- Trung bình cộng (số nguyên)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n4\n6\n```\n**Đầu ra:**\n```text\n4\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -97,11 +118,18 @@
       "cpp": "// Trung bình cộng 3 số\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Trung bình cộng 3 số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Trung bình cộng 3 số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "a = int(input())\nb = int(input())\nc = int(input())\nprint((a+b+c)//3)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b, c;\n    scanf(\"%d %d %d\", &a, &b, &c);\n    printf(\"%d\", (a + b + c) / 3);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b, c;\n    cin >>(  , a, b, c);\n    cout <<(, (a + b + c) / 3);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\na = sc.nextInt(\nb = sc.nextInt(\nc = sc.nextInt(\nSystem.out.println((a+b+c//3\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Tìm phần dư",
-    "description": "Nhập hai số nguyên `a` và `b`. In ra phần dư của phép chia `a` cho `b`.\n\n**Input:**\n- Hai số a, b\n\n**Output:**\n- Phần dư",
+    "description": "Nhập hai số nguyên `a` và `b`. In ra phần dư của phép chia `a` cho `b`.\n\n**Input:**\n- Hai số a, b\n\n**Output:**\n- Phần dư\n\n### Ví dụ:\n**Đầu vào:**\n```text\n7\n3\n```\n**Đầu ra:**\n```text\n1\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -122,11 +150,18 @@
       "cpp": "// Tìm phần dư\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tìm phần dư\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tìm phần dư\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "a = int(input())\nb = int(input())\nprint(a % b)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\", a % b);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >>( , a, b);\n    cout <<(, a % b);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\na = sc.nextInt(\nb = sc.nextInt(\nSystem.out.println(a % b\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Bình phương số",
-    "description": "Nhập một số nguyên n. In ra bình phương của nó.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- n*n",
+    "description": "Nhập một số nguyên n. In ra bình phương của nó.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- n*n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n25\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -147,11 +182,18 @@
       "cpp": "// Bình phương số\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Bình phương số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Bình phương số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "n = int(input())\nprint(n * n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n * n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    cout <<(, n * n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(n * n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Chuyển giờ sang phút",
-    "description": "Nhập vào số giờ (số nguyên). In ra số phút tương ứng.\n\n**Input:**\n- Số giờ `h`\n\n**Output:**\n- Số phút",
+    "description": "Nhập vào số giờ (số nguyên). In ra số phút tương ứng.\n\n**Input:**\n- Số giờ `h`\n\n**Output:**\n- Số phút\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n```\n**Đầu ra:**\n```text\n120\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -172,11 +214,18 @@
       "cpp": "// Chuyển giờ sang phút\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Chuyển giờ sang phút\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Chuyển giờ sang phút\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "h = int(input())\nprint(h * 60)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int h;\n    scanf(\"%d\", &h);\n    printf(\"%d\", h * 60);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int h;\n    cin >>(, h);\n    cout <<(, h * 60);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nh = sc.nextInt(\nSystem.out.println(h * 60\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Tính tuổi",
-    "description": "Nhập năm sinh. Tính tuổi hiện tại (giả sử năm hiện tại là 2025).\n\n**Input:**\n- Năm sinh\n\n**Output:**\n- Tuổi",
+    "description": "Nhập năm sinh. Tính tuổi hiện tại (giả sử năm hiện tại là 2025).\n\n**Input:**\n- Năm sinh\n\n**Output:**\n- Tuổi\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2000\n```\n**Đầu ra:**\n```text\n25\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -197,11 +246,18 @@
       "cpp": "// Tính tuổi\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tính tuổi\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tính tuổi\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "y = int(input())\nprint(2025 - y)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int y;\n    scanf(\"%d\", &y);\n    printf(\"%d\", 2025 - y);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int y;\n    cin >>(, y);\n    cout <<(, 2025 - y);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\ny = sc.nextInt(\nSystem.out.println(2025 - y\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Gấp đôi số",
-    "description": "Nhập vào 1 số. In ra số đó nhân 2.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- 2*n",
+    "description": "Nhập vào 1 số. In ra số đó nhân 2.\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- 2*n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n15\n```\n**Đầu ra:**\n```text\n30\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -218,11 +274,18 @@
       "cpp": "// Gấp đôi số\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Gấp đôi số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Gấp đôi số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "n = int(input())\nprint(n * 2)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n * 2);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    cout <<(, n * 2);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(n * 2\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Hiệu hai số",
-    "description": "Nhập a, b. Tính a - b.\n\n**Input:**\n- a, b\n\n**Output:**\n- a - b",
+    "description": "Nhập a, b. Tính a - b.\n\n**Input:**\n- a, b\n\n**Output:**\n- a - b\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n3\n```\n**Đầu ra:**\n```text\n7\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -239,11 +302,18 @@
       "cpp": "// Hiệu hai số\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Hiệu hai số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Hiệu hai số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "a = int(input())\nb = int(input())\nprint(a - b)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\", a - b);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >>( , a, b);\n    cout <<(, a - b);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\na = sc.nextInt(\nb = sc.nextInt(\nSystem.out.println(a - b\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Kiểm tra chẵn lẻ",
-    "description": "Nhập số nguyên n. Nếu chẵn in \"Chan\", lẻ in \"Le\".\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- \"Chan\" hoặc \"Le\"",
+    "description": "Nhập số nguyên n. Nếu chẵn in \"Chan\", lẻ in \"Le\".\n\n**Input:**\n- Số nguyên n\n\n**Output:**\n- \"Chan\" hoặc \"Le\"\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n```\n**Đầu ra:**\n```text\nChan\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -264,11 +334,18 @@
       "cpp": "// Kiểm tra chẵn lẻ\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Kiểm tra chẵn lẻ\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Kiểm tra chẵn lẻ\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "n = int(input())\nprint('Chan' if n % 2 == 0 else 'Le')",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    if(n % 2 == 0) printf(\"Chan\");\n    else printf(\"Le\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    if(n % 2 == 0) cout <<(Chan);\n    else cout <<(Le);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println('Chan' if n % 2 == 0 } else { 'Le'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Tìm số lớn nhất",
-    "description": "Nhập 2 số nguyên a, b. In ra số lớn hơn.\n\n**Input:**\n- a, b\n\n**Output:**\n- max(a, b)",
+    "description": "Nhập 2 số nguyên a, b. In ra số lớn hơn.\n\n**Input:**\n- a, b\n\n**Output:**\n- max(a, b)\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n10\n```\n**Đầu ra:**\n```text\n10\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -289,11 +366,18 @@
       "cpp": "// Tìm số lớn nhất\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tìm số lớn nhất\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tìm số lớn nhất\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "a = int(input())\nb = int(input())\nprint(max(a, b))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    if(a > b) printf(\"%d\", a);\n    else printf(\"%d\", b);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b;\n    cin >>( , a, b);\n    if(a > b) cout <<(, a);\n    else cout <<(, b);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\na = sc.nextInt(\nb = sc.nextInt(\nSystem.out.println(max(a, b\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Tìm max 3 số",
-    "description": "Nhập 3 số nguyên a, b, c. In ra số lớn nhất.\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Max value",
+    "description": "Nhập 3 số nguyên a, b, c. In ra số lớn nhất.\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Max value\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n5\n3\n```\n**Đầu ra:**\n```text\n5\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -314,11 +398,18 @@
       "cpp": "// Tìm max 3 số\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tìm max 3 số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tìm max 3 số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for tìm max 3 số\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for tìm max 3 số\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for tìm max 3 số\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for tìm max 3 số\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Kiểm tra số dương",
-    "description": "Nhập số n. Nếu n > 0 in \"Duong\", n < 0 in \"Am\", n = 0 in \"Khong\".\n\n**Input:**\n- n\n\n**Output:**\n- Duong | Am | Khong",
+    "description": "Nhập số n. Nếu n > 0 in \"Duong\", n < 0 in \"Am\", n = 0 in \"Khong\".\n\n**Input:**\n- n\n\n**Output:**\n- Duong | Am | Khong\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\nDuong\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -343,11 +434,18 @@
       "cpp": "// Kiểm tra số dương\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Kiểm tra số dương\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Kiểm tra số dương\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for kiểm tra số dương\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for kiểm tra số dương\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for kiểm tra số dương\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for kiểm tra số dương\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Năm nhuận",
-    "description": "Nhập năm (year). Kiểm tra có phải năm nhuận không. (Năm nhuận chia hết cho 400 HOẶC (chia hết cho 4 và KHÔNG chia hết cho 100)). Nếu có in \"Yes\", không in \"No\".\n\n**Input:**\n- year\n\n**Output:**\n- Yes / No",
+    "description": "Nhập năm (year). Kiểm tra có phải năm nhuận không. (Năm nhuận chia hết cho 400 HOẶC (chia hết cho 4 và KHÔNG chia hết cho 100)). Nếu có in \"Yes\", không in \"No\".\n\n**Input:**\n- year\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2000\n```\n**Đầu ra:**\n```text\nYes\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -376,11 +474,18 @@
       "cpp": "// Năm nhuận\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Năm nhuận\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Năm nhuận\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "y = int(input())\nif (y % 400 == 0) or (y % 4 == 0 and y % 100 != 0):\n    print('Yes')\nelse:\n    print('No')",
+      "c": "#include <stdio.h>\n\nint main() {\n    int y;\n    scanf(\"%d\", &y);\n    if((y % 400 == 0) || (y % 4 == 0 && y % 100 != 0)) printf(\"Yes\");\n    else printf(\"No\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int y;\n    cin >>(, y);\n    if((y % 400 == 0) || (y % 4 == 0  y % 100 != 0)) cout <<(Yes);\n    else cout <<(No);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\ny = sc.nextInt(\nif (y % 400 == 0 or (y % 4 == 0 and y % 100 != 0{\n    System.out.println('Yes'\n} else {{\n    System.out.println('No'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Xếp loại học lực",
-    "description": "Nhập điểm trung bình (0-10). Nếu >= 8: \"Gioi\", >= 6.5: \"Kha\", >= 5: \"Trung binh\", < 5: \"Yeu\".\n\n**Input:**\n- score\n\n**Output:**\n- Xếp loại",
+    "description": "Nhập điểm trung bình (0-10). Nếu >= 8: \"Gioi\", >= 6.5: \"Kha\", >= 5: \"Trung binh\", < 5: \"Yeu\".\n\n**Input:**\n- score\n\n**Output:**\n- Xếp loại\n\n### Ví dụ:\n**Đầu vào:**\n```text\n9\n```\n**Đầu ra:**\n```text\nGioi\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -405,11 +510,18 @@
       "cpp": "// Xếp loại học lực\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Xếp loại học lực\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Xếp loại học lực\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for xếp loại học lực\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for xếp loại học lực\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for xếp loại học lực\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for xếp loại học lực\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Kiểm tra chia hết",
-    "description": "Nhập a, b. Nếu a chia hết cho b in \"Yes\", ngược lại \"No\".\n\n**Input:**\n- a, b\n\n**Output:**\n- Yes / No",
+    "description": "Nhập a, b. Nếu a chia hết cho b in \"Yes\", ngược lại \"No\".\n\n**Input:**\n- a, b\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n5\n```\n**Đầu ra:**\n```text\nYes\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -430,11 +542,18 @@
       "cpp": "// Kiểm tra chia hết\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Kiểm tra chia hết\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Kiểm tra chia hết\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for kiểm tra chia hết\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for kiểm tra chia hết\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for kiểm tra chia hết\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for kiểm tra chia hết\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Kiểm tra tam giác",
-    "description": "Nhập 3 cạnh a, b, c. Kiểm tra xem có tạo thành tam giác không (Tổng 2 cạnh bất kỳ > cạnh còn lại). In \"Yes\" hoặc \"No\".\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Yes / No",
+    "description": "Nhập 3 cạnh a, b, c. Kiểm tra xem có tạo thành tam giác không (Tổng 2 cạnh bất kỳ > cạnh còn lại). In \"Yes\" hoặc \"No\".\n\n**Input:**\n- a, b, c\n\n**Output:**\n- Yes / No\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n4\n5\n```\n**Đầu ra:**\n```text\nYes\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -455,11 +574,18 @@
       "cpp": "// Kiểm tra tam giác\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Kiểm tra tam giác\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Kiểm tra tam giác\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for kiểm tra tam giác\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for kiểm tra tam giác\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for kiểm tra tam giác\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for kiểm tra tam giác\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Giải phương trình bậc 1",
-    "description": "Giải pt: ax + b = 0. Nhập a, b. In ra x (lấy 2 số thập phân). Nếu a=0, b!=0 in \"Vo nghiem\", a=0, b=0 in \"Vo so nghiem\".\n\n**Input:**\n- a, b\n\n**Output:**\n- x hoặc message",
+    "description": "Giải pt: ax + b = 0. Nhập a, b. In ra x (lấy 2 số thập phân). Nếu a=0, b!=0 in \"Vo nghiem\", a=0, b=0 in \"Vo so nghiem\".\n\n**Input:**\n- a, b\n\n**Output:**\n- x hoặc message\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n-4\n```\n**Đầu ra:**\n```text\n2.00\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -480,11 +606,18 @@
       "cpp": "// Giải phương trình bậc 1\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Giải phương trình bậc 1\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Giải phương trình bậc 1\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for giải phương trình bậc 1\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for giải phương trình bậc 1\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for giải phương trình bậc 1\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for giải phương trình bậc 1\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "Tính cước taxi",
-    "description": "Nhập số km đi được. 1km đầu: 10000. Từ km thứ 2 đến 30: 12000/km. Từ km 31 trở đi: 11000/km. Tính tổng tiền.\n\n**Input:**\n- km\n\n**Output:**\n- Tổng tiền",
+    "description": "Nhập số km đi được. 1km đầu: 10000. Từ km thứ 2 đến 30: 12000/km. Từ km 31 trở đi: 11000/km. Tính tổng tiền.\n\n**Input:**\n- km\n\n**Output:**\n- Tổng tiền\n\n### Ví dụ:\n**Đầu vào:**\n```text\n1\n```\n**Đầu ra:**\n```text\n10000\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -505,11 +638,18 @@
       "cpp": "// Tính cước taxi\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tính cước taxi\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tính cước taxi\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for tính cước taxi\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for tính cước taxi\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for tính cước taxi\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for tính cước taxi\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     }
   },
   {
     "title": "In từ 1 đến N",
-    "description": "Nhập n. In các số từ 1 đến n trên cùng 1 dòng, cách nhau bởi khoảng trắng.\n\n**Input:**\n- n\n\n**Output:**\n- 1 2 ... n",
+    "description": "Nhập n. In các số từ 1 đến n trên cùng 1 dòng, cách nhau bởi khoảng trắng.\n\n**Input:**\n- n\n\n**Output:**\n- 1 2 ... n\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n1 2 3 4 5\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -526,11 +666,18 @@
       "java": "// In từ 1 đến N\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// In từ 1 đến N\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nprint(*range(1, n+1))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    for(int i=1; i<=n; i++) printf(\"%d \", i);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    for(int i=1; i<=n; i++) cout <<( , i);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(*range(1, n+1\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 21
   },
   {
     "title": "Tổng 1 đến N",
-    "description": "Nhập n. Tính tổng S = 1 + 2 + ... + n.\n\n**Input:**\n- n\n\n**Output:**\n- Tổng S",
+    "description": "Nhập n. Tính tổng S = 1 + 2 + ... + n.\n\n**Input:**\n- n\n\n**Output:**\n- Tổng S\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n15\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -551,11 +698,18 @@
       "java": "// Tổng 1 đến N\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tổng 1 đến N\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nprint(sum(range(1, n+1)))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    long long s = 0;\n    for(int i=1; i<=n; i++) s += i;\n    printf(\"%lld\", s);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    long long s = 0;\n    for(int i=1; i<=n; i++) s += i;\n    cout <<(%lld, s);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(sum(range(1, n+1\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 22
   },
   {
     "title": "Giai thừa",
-    "description": "Nhập n. Tính n!.\n\n**Input:**\n- n\n\n**Output:**\n- n!",
+    "description": "Nhập n. Tính n!.\n\n**Input:**\n- n\n\n**Output:**\n- n!\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n120\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -576,11 +730,18 @@
       "java": "// Giai thừa\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Giai thừa\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "import math\nn = int(input())\nprint(math.factorial(n))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    long long gt = 1;\n    for(int i=1; i<=n; i++) gt *= i;\n    printf(\"%lld\", gt);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    long long gt = 1;\n    for(int i=1; i<=n; i++) gt *= i;\n    cout <<(%lld, gt);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nimport math\nn = sc.nextInt(\nSystem.out.println(math.factorial(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 23
   },
   {
     "title": "Bảng cửu chương",
-    "description": "Nhập n (1-9). In bảng cửu chương n. Mỗi dòng: \"n x i = result\".\n\n**Input:**\n- n\n\n**Output:**\n- 10 dòng",
+    "description": "Nhập n (1-9). In bảng cửu chương n. Mỗi dòng: \"n x i = result\".\n\n**Input:**\n- n\n\n**Output:**\n- 10 dòng\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n```\n**Đầu ra:**\n```text\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18\n2 x 10 = 20\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -597,11 +758,18 @@
       "java": "// Bảng cửu chương\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Bảng cửu chương\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nfor i in range(1, 11):\n    print(f'{n} x {i} = {n*i}')",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    for(int i=1; i<=10; i++) printf(\"%d x %d = %d\\n\", n, i, n*i);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >>(, n);\n    for(int i=1; i<=10; i++) cout <<( x  = \\n, n, i, n*i);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nfor i in range(1, 11{\n    System.out.println(f'{n} x {i} = {n*i}'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 24
   },
   {
     "title": "Đếm ước số",
-    "description": "Nhập n. Đếm xem n có bao nhiêu ước số dương.\n\n**Input:**\n- n\n\n**Output:**\n- Số lượng ước",
+    "description": "Nhập n. Đếm xem n có bao nhiêu ước số dương.\n\n**Input:**\n- n\n\n**Output:**\n- Số lượng ước\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n```\n**Đầu ra:**\n```text\n4\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -622,11 +790,18 @@
       "java": "// Đếm ước số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Đếm ước số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nprint(sum(1 for i in range(1, n+1) if n % i == 0))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n, count = 0;\n    scanf(\"%d\", &n);\n    for(int i=1; i<=n; i++) if(n%i==0) count++;\n    printf(\"%d\", count);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n, count = 0;\n    cin >>(, n);\n    for(int i=1; i<=n; i++) if(n%i==0) count++;\n    cout <<(, count);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(sum(1 for i in range(1, n+1 if n % i == 0\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 25
   },
   {
     "title": "Tổng số chẵn",
-    "description": "Tổng các số chẵn từ 1 đến N.",
+    "description": "Tổng các số chẵn từ 1 đến N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n6\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -643,11 +818,18 @@
       "java": "// Tổng số chẵn\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tổng số chẵn\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nprint(sum(i for i in range(2, n+1, 2)))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    long long sum = 0;\n    for(int i=2; i<=n; i+=2) sum += i;\n    printf(\"%lld\", sum);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    long long sum = 0;\n    for(int i=2; i<=n; i+=2) sum += i;\n    cout <<(%lld, sum);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(sum(i for i in range(2, n+1, 2\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 26
   },
   {
     "title": "Số nguyên tố",
-    "description": "Kiểm tra N có phải số nguyên tố. In Yes/No.",
+    "description": "Kiểm tra N có phải số nguyên tố. In Yes/No.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n7\n```\n**Đầu ra:**\n```text\nYes\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -668,11 +850,18 @@
       "java": "// Số nguyên tố\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Số nguyên tố\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nif n < 2:\n    print('No')\nelse:\n    is_prime = True\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0:\n            is_prime = False\n            break\n    print('Yes' if is_prime else 'No')",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    if(n<2) { printf(\"No\"); return 0; }\n    for(int i=2; i*i<=n; i++) {\n        if(n%i==0) { printf(\"No\"); return 0; }\n    }\n    printf(\"Yes\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    if(n<2) { cout <<(No); return 0; }\n    for(int i=2; i*i<=n; i++) {\n        if(n%i==0) { cout <<(No); return 0; }\n    }\n    cout <<(Yes);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nif n < 2{\n    System.out.println('No'\n} else {{\n    is_prime = True\n    for i in range(2, n**0.5+1{\n        if n % i == 0{\n            is_prime = False\n            break\n    System.out.println('Yes' if is_prime } else { 'No'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 27
   },
   {
     "title": "Tổng chữ số",
-    "description": "Nhập N. Tính tổng các chữ số của N.",
+    "description": "Nhập N. Tính tổng các chữ số của N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n123\n```\n**Đầu ra:**\n```text\n6\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -689,11 +878,18 @@
       "java": "// Tổng chữ số\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tổng chữ số\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = input()\nprint(sum(int(c) for c in n))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int sum = 0;\n    while(n > 0) { sum += n % 10; n /= 10; }\n    printf(\"%d\", sum);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int sum = 0;\n    while(n > 0) { sum += n % 10; n /= 10; }\n    cout <<(, sum);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nSystem.out.println(sum(c for c in n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 28
   },
   {
     "title": "Số đảo ngược",
-    "description": "In số đảo ngược của N.",
+    "description": "In số đảo ngược của N.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n123\n```\n**Đầu ra:**\n```text\n321\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -710,11 +906,18 @@
       "java": "// Số đảo ngược\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Số đảo ngược\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "print(input()[::-1])",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int rev = 0;\n    while(n > 0) { rev = rev * 10 + n % 10; n /= 10; }\n    printf(\"%d\", rev);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int rev = 0;\n    while(n > 0) { rev = rev * 10 + n % 10; n /= 10; }\n    cout <<(, rev);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nSystem.out.println(sc.nextInt([{{-1]\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 29
   },
   {
     "title": "Dãy Fibonacci",
-    "description": "In N số Fibonacci đầu tiên.",
+    "description": "In N số Fibonacci đầu tiên.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n0 1 1 2 3\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -731,11 +934,18 @@
       "java": "// Dãy Fibonacci\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Dãy Fibonacci\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\na, b = 0, 1\nfor _ in range(n):\n    print(a, end=' ')\n    a, b = b, a+b",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int f0=0, f1=1;\n    for(int i=0; i<n; i++) {\n        printf(\"%d \", f0);\n        int next = f0 + f1;\n        f0 = f1; f1 = next;\n    }\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int f0=0, f1=1;\n    for(int i=0; i<n; i++) {\n        cout <<( , f0);\n        int next = f0 + f1;\n        f0 = f1; f1 = next;\n    }\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\na, b = 0, 1\nfor _ in range(n{\n    System.out.println(a, end=' '\n    a, b = b, a+b\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 30
   },
   {
     "title": "Nhập xuất mảng",
-    "description": "Nhập N và mảng N phần tử. In mảng ra.",
+    "description": "Nhập N và mảng N phần tử. In mảng ra.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n1 2 3\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -752,11 +962,18 @@
       "java": "// Nhập xuất mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Nhập xuất mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\narr = list(map(int, input().split()))\nprint(*arr)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int a[100];\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\n    for(int i=0; i<n; i++) printf(\"%d \", a[i]);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int a[100];\n    for(int i=0; i<n; i++) cin >>(, a[i]);\n    for(int i=0; i<n; i++) cout <<( , a[i]);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\narr = list(map(int, sc.nextInt(.split(\nSystem.out.println(*arr\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 31
   },
   {
     "title": "Tổng mảng",
-    "description": "Nhập N và mảng A. Tính tổng các phần tử.",
+    "description": "Nhập N và mảng A. Tính tổng các phần tử.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n6\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -773,11 +990,18 @@
       "java": "// Tổng mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tổng mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "input(); print(sum(map(int, input().split())))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    long long sum = 0; int x;\n    for(int i=0; i<n; i++) { scanf(\"%d\", &x); sum += x; }\n    printf(\"%lld\", sum);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    long long sum = 0; int x;\n    for(int i=0; i<n; i++) { cin >>(, x); sum += x; }\n    cout <<(%lld, sum);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nsc.nextInt(; System.out.println(sum(map(int, sc.nextInt(.split(\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 32
   },
   {
     "title": "Max min mảng",
-    "description": "Tìm max và min trong mảng.",
+    "description": "Tìm max và min trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 5 2\n```\n**Đầu ra:**\n```text\n5 1\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -794,11 +1018,18 @@
       "java": "// Max min mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Max min mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "input() # Skip n\narr = list(map(int, input().split()))\nprint(max(arr), min(arr))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int a[100];\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\n    int min=a[0], max=a[0];\n    for(int i=1; i<n; i++) {\n        if(a[i]<min) min=a[i];\n        if(a[i]>max) max=a[i];\n    }\n    printf(\"%d %d\", max, min);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int a[100];\n    for(int i=0; i<n; i++) cin >>(, a[i]);\n    int min=a[0], max=a[0];\n    for(int i=1; i<n; i++) {\n        if(a[i]<min) min=a[i];\n        if(a[i]>max) max=a[i];\n    }\n    cout <<( , max, min);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nsc.nextInt( # Skip n\narr = list(map(int, sc.nextInt(.split(\nSystem.out.println(max(arr, min(arr\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 33
   },
   {
     "title": "Đếm số chẵn mảng",
-    "description": "Đếm số phần tử chẵn trong mảng.",
+    "description": "Đếm số phần tử chẵn trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n1 2 3 4\n```\n**Đầu ra:**\n```text\n2\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -815,11 +1046,18 @@
       "java": "// Đếm số chẵn mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Đếm số chẵn mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "input(); print(len([x for x in map(int, input().split()) if x % 2 == 0]))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int cnt = 0; int x;\n    for(int i=0; i<n; i++) { scanf(\"%d\", &x); if(x%2==0) cnt++; }\n    printf(\"%d\", cnt);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int cnt = 0; int x;\n    for(int i=0; i<n; i++) { cin >>(, x); if(x%2==0) cnt++; }\n    cout <<(, cnt);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nsc.nextInt(; System.out.println(len([x for x in map(int, sc.nextInt(.split( if x % 2 == 0]\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 34
   },
   {
     "title": "Tìm k trong mảng",
-    "description": "Nhập N, mảng A và số k. Tìm vị trí đầu tiên của k. Nếu không có in -1.",
+    "description": "Nhập N, mảng A và số k. Tìm vị trí đầu tiên của k. Nếu không có in -1.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 5 2\n5\n```\n**Đầu ra:**\n```text\n1\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -836,11 +1074,18 @@
       "java": "// Tìm k trong mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tìm k trong mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\narr = list(map(int, input().split()))\nk = int(input())\ntry:\n    print(arr.index(k) + 1)\nexcept:\n    print(-1)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int a[100];\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\n    int k; scanf(\"%d\", &k);\n    int pos = -1;\n    for(int i=0; i<n; i++) if(a[i]==k) { pos=i+1; break; }\n    printf(\"%d\", pos);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int a[100];\n    for(int i=0; i<n; i++) cin >>(, a[i]);\n    int k; cin >>(, k);\n    int pos = -1;\n    for(int i=0; i<n; i++) if(a[i]==k) { pos=i+1; break; }\n    cout <<(, pos);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\narr = list(map(int, sc.nextInt(.split(\nk = sc.nextInt(\ntry{\n    System.out.println(arr.index(k + 1\nexcept{\n    System.out.println(-1\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 35
   },
   {
     "title": "Mảng đảo ngược",
-    "description": "In mảng theo thứ tự ngược lại.",
+    "description": "In mảng theo thứ tự ngược lại.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n```\n**Đầu ra:**\n```text\n3 2 1\n```",
     "difficulty": "Easy",
     "test_cases": [
       {
@@ -857,11 +1102,18 @@
       "java": "// Mảng đảo ngược\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Mảng đảo ngược\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "input(); arr = input().split(); print(*arr[::-1])",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int a[100];\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\n    for(int i=n-1; i>=0; i--) printf(\"%d \", a[i]);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int a[100];\n    for(int i=0; i<n; i++) cin >>(, a[i]);\n    for(int i=n-1; i>=0; i--) cout <<( , a[i]);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nsc.nextInt(; arr = sc.nextInt(.split(; System.out.println(*arr[{{-1]\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 36
   },
   {
     "title": "Sắp xếp tăng dần",
-    "description": "Sắp xếp mảng tăng dần.",
+    "description": "Sắp xếp mảng tăng dần.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n3 1 2\n```\n**Đầu ra:**\n```text\n1 2 3\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -878,11 +1130,18 @@
       "java": "// Sắp xếp tăng dần\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Sắp xếp tăng dần\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "input(); arr = list(map(int, input().split())); arr.sort(); print(*arr)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    int a[100];\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\n    for(int i=0; i<n-1; i++) for(int j=i+1; j<n; j++) if(a[i]>a[j]) {int t=a[i]; a[i]=a[j]; a[j]=t;}\n    for(int i=0; i<n; i++) printf(\"%d \", a[i]);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    int a[100];\n    for(int i=0; i<n; i++) cin >>(, a[i]);\n    for(int i=0; i<n-1; i++) for(int j=i+1; j<n; j++) if(a[i]>a[j]) {int t=a[i]; a[i]=a[j]; a[j]=t;}\n    for(int i=0; i<n; i++) cout <<( , a[i]);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nsc.nextInt(; arr = list(map(int, sc.nextInt(.split(; arr.sort(; System.out.println(*arr\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 37
   },
   {
     "title": "Trung bình cộng mảng",
-    "description": "Tính TBC các giá trị trong mảng (2 số lẻ).",
+    "description": "Tính TBC các giá trị trong mảng (2 số lẻ).\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 4\n```\n**Đầu ra:**\n```text\n2.33\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -899,11 +1158,18 @@
       "java": "// Trung bình cộng mảng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Trung bình cộng mảng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for trung bình cộng mảng\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for trung bình cộng mảng\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for trung bình cộng mảng\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for trung bình cộng mảng\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 38
   },
   {
     "title": "Số lớn thứ 2",
-    "description": "Tìm số lớn thứ 2 trong mảng.",
+    "description": "Tìm số lớn thứ 2 trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n4\n1 5 2 5\n```\n**Đầu ra:**\n```text\n2\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -920,11 +1186,18 @@
       "java": "// Số lớn thứ 2\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Số lớn thứ 2\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for số lớn thứ 2\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for số lớn thứ 2\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for số lớn thứ 2\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for số lớn thứ 2\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 39
   },
   {
     "title": "Chèn phần tử",
-    "description": "Chèn x vào vị trí k trong mảng.",
+    "description": "Chèn x vào vị trí k trong mảng.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n1 2 3\n5 1\n```\n**Đầu ra:**\n```text\n1 5 2 3\n```",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -941,11 +1214,18 @@
       "java": "// Chèn phần tử\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Chèn phần tử\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for chèn phần tử\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for chèn phần tử\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for chèn phần tử\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for chèn phần tử\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 40
   },
   {
     "title": "UCLN và BCNN",
-    "description": "Tìm UCLN và BCNN của 2 số.",
+    "description": "Tìm UCLN và BCNN của 2 số.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2 4\n```\n**Đầu ra:**\n```text\n2 4\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -962,11 +1242,18 @@
       "java": "// UCLN và BCNN\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// UCLN và BCNN\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "import math\na, b = map(int, input().split())\ngcd = math.gcd(a, b)\nprint(gcd, (a*b)//gcd)",
+      "c": "#include <stdio.h>\n\nint main() {\n    int a, b; scanf(\"%d %d\", &a, &b);\n    int mul = a*b;\n    while(b!=0){int r=a%b; a=b; b=r;}\n    printf(\"%d %d\", a, mul/a);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int a, b; cin >>( , a, b);\n    int mul = a*b;\n    while(b!=0){int r=a%b; a=b; b=r;}\n    cout <<( , a, mul/a);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nimport math\na, b = map(int, sc.nextInt(.split(\ngcd = math.gcd(a, b\nSystem.out.println(gcd, (a*b//gcd\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 41
   },
   {
     "title": "Kiểm tra đối xứng",
-    "description": "Chuỗi/Mảng đối xứng (Palindrome).",
+    "description": "Chuỗi/Mảng đối xứng (Palindrome).\n\n### Ví dụ:\n**Đầu vào:**\n```text\nmadam\n```\n**Đầu ra:**\n```text\nYes\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -983,11 +1270,18 @@
       "java": "// Kiểm tra đối xứng\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Kiểm tra đối xứng\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "s = input()\nprint('Yes' if s == s[::-1] else 'No')",
+      "c": "#include <stdio.h>\n\nint main() {\n    char s[100]; scanf(\"%s\", s);\n    int n=0; while(s[n]) n++;\n    for(int i=0; i<n/2; i++) if(s[i]!=s[n-1-i]) { printf(\"No\"); return 0; }\n    printf(\"Yes\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    char s[100]; cin >>(%s, s);\n    int n=0; while(s[n]) n++;\n    for(int i=0; i<n/2; i++) if(s[i]!=s[n-1-i]) { cout <<(No); return 0; }\n    cout <<(Yes);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\ns = sc.nextInt(\nSystem.out.println('Yes' if s == s[{{-1] } else { 'No'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 42
   },
   {
     "title": "Tháp hình sao",
-    "description": "In tam giác sao cân chiều cao h.",
+    "description": "In tam giác sao cân chiều cao h.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n3\n```\n**Đầu ra:**\n```text\n  *\n ***\n*****\n```",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1004,11 +1298,18 @@
       "java": "// Tháp hình sao\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tháp hình sao\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nfor i in range(1, n+1):\n    print(' '*(n-i) + '*'*(2*i-1))",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    for(int i=1; i<=n; i++) {\n        for(int j=0; j<n-i; j++) printf(\" \");\n        for(int j=0; j<2*i-1; j++) printf(\"*\");\n        printf(\"\\n\");\n    }\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    for(int i=1; i<=n; i++) {\n        for(int j=0; j<n-i; j++) cout <<( );\n        for(int j=0; j<2*i-1; j++) cout <<(*);\n        cout <<(\\n);\n    }\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nfor i in range(1, n+1{\n    System.out.println(' '*(n-i + '*'*(2*i-1\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 43
   },
   {
     "title": "Ma trận chuyển vị",
-    "description": "Nhập ma trận NxM. In chuyển vị.",
+    "description": "Nhập ma trận NxM. In chuyển vị.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2 2\n1 2\n3 4\n```\n**Đầu ra:**\n```text\n1 3\n2 4\n```",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1025,11 +1326,18 @@
       "java": "// Ma trận chuyển vị\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Ma trận chuyển vị\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for ma trận chuyển vị\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for ma trận chuyển vị\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for ma trận chuyển vị\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for ma trận chuyển vị\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 44
   },
   {
     "title": "Tính tổ hợp chập k của n",
-    "description": "Tính nCk.",
+    "description": "Tính nCk.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5 2\n```\n**Đầu ra:**\n```text\n10\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1046,11 +1354,18 @@
       "java": "// Tính tổ hợp chập k của n\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tính tổ hợp chập k của n\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for tính tổ hợp chập k của n\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for tính tổ hợp chập k của n\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for tính tổ hợp chập k của n\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for tính tổ hợp chập k của n\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 45
   },
   {
     "title": "Liệt kê số nguyên tố < N",
-    "description": "Sàng Eratosthenes hoặc in hết.",
+    "description": "Sàng Eratosthenes hoặc in hết.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n10\n```\n**Đầu ra:**\n```text\n2 3 5 7\n```",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1067,11 +1382,18 @@
       "java": "// Liệt kê số nguyên tố < N\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Liệt kê số nguyên tố < N\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "n = int(input())\nif n < 2:\n    print('No')\nelse:\n    is_prime = True\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0:\n            is_prime = False\n            break\n    print('Yes' if is_prime else 'No')",
+      "c": "#include <stdio.h>\n\nint main() {\n    int n; scanf(\"%d\", &n);\n    if(n<2) { printf(\"No\"); return 0; }\n    for(int i=2; i*i<=n; i++) {\n        if(n%i==0) { printf(\"No\"); return 0; }\n    }\n    printf(\"Yes\");\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n; cin >>(, n);\n    if(n<2) { cout <<(No); return 0; }\n    for(int i=2; i*i<=n; i++) {\n        if(n%i==0) { cout <<(No); return 0; }\n    }\n    cout <<(Yes);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\nn = sc.nextInt(\nif n < 2{\n    System.out.println('No'\n} else {{\n    is_prime = True\n    for i in range(2, n**0.5+1{\n        if n % i == 0{\n            is_prime = False\n            break\n    System.out.println('Yes' if is_prime } else { 'No'\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 46
   },
   {
     "title": "Chuyển nhị phân",
-    "description": "Đổi số thập phân sang nhị phân.",
+    "description": "Đổi số thập phân sang nhị phân.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n5\n```\n**Đầu ra:**\n```text\n101\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1088,11 +1410,18 @@
       "java": "// Chuyển nhị phân\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Chuyển nhị phân\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for chuyển nhị phân\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for chuyển nhị phân\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for chuyển nhị phân\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for chuyển nhị phân\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 47
   },
   {
     "title": "Đếm từ trong chuỗi",
-    "description": "Đếm số từ trong câu.",
+    "description": "Đếm số từ trong câu.\n\n### Ví dụ:\n**Đầu vào:**\n```text\nHello World\n```\n**Đầu ra:**\n```text\n2\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1109,11 +1438,18 @@
       "java": "// Đếm từ trong chuỗi\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Đếm từ trong chuỗi\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for đếm từ trong chuỗi\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for đếm từ trong chuỗi\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for đếm từ trong chuỗi\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for đếm từ trong chuỗi\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 48
   },
   {
     "title": "Tổng đường chéo chính",
-    "description": "Tổng đường chéo ma trận vuông.",
+    "description": "Tổng đường chéo ma trận vuông.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\n1 2\n3 4\n```\n**Đầu ra:**\n```text\n5\n```",
     "difficulty": "Medium",
     "test_cases": [
       {
@@ -1130,11 +1466,18 @@
       "java": "// Tổng đường chéo chính\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tổng đường chéo chính\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
+    "solution_code": {
+      "python": "# Solution for tổng đường chéo chính\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for tổng đường chéo chính\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for tổng đường chéo chính\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for tổng đường chéo chính\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
+    },
     "id": 49
   },
   {
     "title": "Sắp xếp tên",
-    "description": "Sắp xếp danh sách tên theo alphabet.",
+    "description": "Sắp xếp danh sách tên theo alphabet.\n\n### Ví dụ:\n**Đầu vào:**\n```text\n2\nB\nA\n```\n**Đầu ra:**\n```text\nA\nB\n```",
     "difficulty": "Hard",
     "test_cases": [
       {
@@ -1150,6 +1493,13 @@
       "cpp": "// Sắp xếp tên\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Sắp xếp tên\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Sắp xếp tên\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
+    },
+    "solution_code": {
+      "python": "# Solution for sắp xếp tên\nn = input()\nprint(n)",
+      "c": "#include <stdio.h>\n\nint main() {\n    // Solution for sắp xếp tên\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n);\n    return 0;\n}",
+      "cpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Solution for sắp xếp tên\n    int n;\n    cin >>(, n);\n    cout <<(, n);\n    return 0;\n}",
+      "java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n# Solution for sắp xếp tên\nn = sc.nextInt(\nSystem.out.println(n\n    }\n}",
+      "csharp": "// Solution Coming Soon"
     },
     "id": 50
   }

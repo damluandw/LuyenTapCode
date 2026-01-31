@@ -10,6 +10,9 @@ def get_starter_code(func_signature, return_type, code_body):
 
 problems = []
 
+# Collected final problems list
+final_data = []
+
 # --- Level 1: Nhập xuất & Tính toán cơ bản (Easy) ---
 level_1 = [
     {
@@ -414,6 +417,13 @@ def process_level(level_list, category_name):
     for p in level_list:
         p["category"] = category_name
         
+        # 0. Enrich Description with Examples
+        original_desc = p["description"]
+        if p["test_cases"]:
+            first_tc = p["test_cases"][0]
+            example_md = f"\n\n### Ví dụ:\n**Đầu vào:**\n```text\n{first_tc['input']}\n```\n**Đầu ra:**\n```text\n{first_tc['output']}\n```"
+            p["description"] = original_desc + example_md
+
         # 1. STARTER CODE (Templates)
         # Python
         py_start = "# Viết code của bạn ở đây\n"
