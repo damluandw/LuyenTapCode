@@ -319,6 +319,10 @@ function onFilter(tab) {
     renderTable(tab);
 }
 
+function openProblemModal() {
+    window.location.href = '/admin/edit-problem';
+}
+
 function editProblem(id) {
     window.location.href = `/admin/edit-problem?id=${id}`;
 }
