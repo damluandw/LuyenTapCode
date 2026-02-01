@@ -144,6 +144,64 @@
               />
             </div>
           </div>
+          <div style="margin-top: 20px">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600"
+              >Ngôn ngữ cho phép (Để trống = Cho phép tất cả)</label
+            >
+            <div style="display: flex; gap: 20px; flex-wrap: wrap">
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" name="allowed-lang" value="python" />
+                Python
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" name="allowed-lang" value="cpp" /> C++
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" name="allowed-lang" value="c" /> C
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" name="allowed-lang" value="java" /> Java
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  cursor: pointer;
+                "
+              >
+                <input type="checkbox" name="allowed-lang" value="csharp" /> C#
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -206,6 +264,17 @@
 
             selectedProblemIds = exam.problemIds || [];
             problemPoints = exam.problemPoints || {};
+
+            // Fill allowed languages
+            if (exam.allowedLanguages && exam.allowedLanguages.length > 0) {
+              document
+                .querySelectorAll('input[name="allowed-lang"]')
+                .forEach((cb) => {
+                  if (exam.allowedLanguages.includes(cb.value)) {
+                    cb.checked = true;
+                  }
+                });
+            }
           }
         }
 
@@ -279,6 +348,10 @@
           return;
         }
 
+        const allowedLanguages = Array.from(
+          document.querySelectorAll('input[name="allowed-lang"]:checked'),
+        ).map((cb) => cb.value);
+
         const payload = {
           title,
           duration: parseInt(duration),
@@ -287,6 +360,7 @@
           isActive: isActive,
           openTime: openTime,
           closeTime: closeTime,
+          allowedLanguages: allowedLanguages,
         };
 
         const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";

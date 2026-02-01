@@ -51,12 +51,42 @@ async function fetchExamData() {
     document.getElementById('exam-title').textContent = data.info.title;
     examDuration = (data.info.duration || 60) * 60;
     allProblems = data.problems;
+    
+    // Filter languages if restricted
+    filterLanguages(data.info.allowedLanguages);
+    
     renderProblems();
 
     if (allProblems.length > 0) loadProblemDetail(allProblems[0].id);
   } catch (err) {
     console.error("Failed to load exam:", err);
   }
+}
+
+function filterLanguages(allowed) {
+    const select = document.getElementById("language-select");
+    if (!select || !allowed || allowed.length === 0) return;
+    
+    const options = Array.from(select.options);
+    let firstAllowed = null;
+    
+    options.forEach(opt => {
+        if (allowed.includes(opt.value)) {
+            opt.style.display = "";
+            opt.disabled = false;
+            if (!firstAllowed) firstAllowed = opt.value;
+        } else {
+            opt.style.display = "none";
+            opt.disabled = true;
+        }
+    });
+    
+    if (firstAllowed) {
+        select.value = firstAllowed;
+        // Trigger monaco update
+        const monacoLang = (firstAllowed === 'c' || firstAllowed === 'cpp') ? 'cpp' : firstAllowed;
+        if(editor) monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
+    }
 }
 
 function renderProblems() {

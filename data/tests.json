@@ -14,8 +14,10 @@
     },
     "isActive": true,
     "openTime": "2026-02-02T01:04",
-    "closeTime": "2026-02-02T01:06",
-    "id": 1,
-    "startTime": "2026-02-02 01:03:46"
+    "closeTime": "2026-02-02T01:15",
+    "allowedLanguages": [
+      "c"
+    ],
+    "id": 1
   }
 ]
