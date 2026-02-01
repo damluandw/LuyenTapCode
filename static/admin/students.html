@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý sinh viên - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar"></aside>
+      <main class="admin-main">
+        <div id="tab-students" class="admin-tab">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <h2>Quản lý sinh viên</h2>
+            <button class="primary-btn" onclick="openStudentModal()">
+              + Thêm sinh viên
+            </button>
+          </div>
+
+          <div class="search-row">
+            <input
+              type="text"
+              class="search-input"
+              id="search-students"
+              placeholder="Tìm sinh viên theo tên, username..."
+              oninput="onSearch('students')"
+            />
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th onclick="onSort('students', 'username')">Username</th>
+                <th onclick="onSort('students', 'display_name')">Họ tên</th>
+                <th onclick="onSort('students', 'class_name')">Lớp</th>
+                <th onclick="onSort('students', 'solved_count')">Đã giải</th>
+                <th onclick="onSort('students', 'submission_count')">
+                  Tổng nộp
+                </th>
+                <th onclick="onSort('students', 'main_lang')">Ngôn ngữ</th>
+                <th>Mật khẩu</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="students-body"></tbody>
+          </table>
+          <div class="pagination-row" id="pagination-students"></div>
+        </div>
+
+        <!-- Student Detail View -->
+        <div id="tab-student-detail" class="admin-tab" style="display: none">
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <button class="secondary-btn" onclick="showTab('students')">
+              &larr; Quay lại
+            </button>
+            <h2 id="student-detail-name">Thống kê chi tiết: [Tên SV]</h2>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="label">Bài tập đã giải</div>
+              <div class="value" id="student-stat-solved">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Tổng số lần nộp</div>
+              <div class="value" id="student-stat-subs">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Ngôn ngữ chính</div>
+              <div class="value" id="student-stat-lang">--</div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-container">
+              <h3>Phân bổ ngôn ngữ</h3>
+              <div id="student-lang-stats" class="lang-bar-wrapper"></div>
+            </div>
+            <div class="chart-container">
+              <h3>Hoạt động gần đây</h3>
+              <table class="data-table" style="font-size: 0.9rem">
+                <thead>
+                  <tr>
+                    <th>Bài tập</th>
+                    <th>Ngôn ngữ</th>
+                    <th>Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody id="student-activity-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div id="student-modal" class="modal">
+      <div class="modal-content" style="width: 400px">
+        <h3 id="student-modal-title">Thêm sinh viên</h3>
+        <div style="margin-top: 1.5rem">
+          <div style="margin-bottom: 1rem">
+            <label
+              style="
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+              "
+              >Tên đăng nhập (Username)</label
+            >
+            <input
+              type="text"
+              id="s-user"
+              class="search-input"
+              style="width: 100%"
+              placeholder="vd: sv01"
+            />
+          </div>
+          <div style="margin-bottom: 1rem">
+            <label
+              style="
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+              "
+              >Họ và tên</label
+            >
+            <input
+              type="text"
+              id="s-name"
+              class="search-input"
+              style="width: 100%"
+              placeholder="vd: Nguyễn Văn A"
+            />
+          </div>
+          <div style="margin-bottom: 1rem">
+            <label
+              style="
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+              "
+              >Lớp</label
+            >
+            <input
+              type="text"
+              id="s-class"
+              class="search-input"
+              style="width: 100%"
+              placeholder="vd: 64CNTT1"
+            />
+          </div>
+          <div style="margin-bottom: 1.5rem">
+            <label
+              style="
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+              "
+              >Mật khẩu</label
+            >
+            <input
+              type="text"
+              id="s-pass"
+              class="search-input"
+              style="width: 100%"
+              placeholder="Nhập để đặt/đổi mật khẩu"
+            />
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end">
+            <button class="secondary-btn" onclick="closeModals()">Hủy</button>
+            <button class="primary-btn" onclick="saveStudent()">
+              Lưu thay đổi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var currentTab = "students";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+  </body>
+</html>

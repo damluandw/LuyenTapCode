@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kỳ thi - Luyện Tập Code</title>
+    <meta
+      name="description"
+      content="Môi trường làm bài thi lập trình trực tuyến. Tập trung tối đa, không xao nhãng."
+    />
+    <script src="/sinhvien/js/socket.io.min.js"></script>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      .exam-timer {
+        background: #ff7b72;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .exam-header {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        border-bottom: 2px solid var(--accent);
+        background: rgba(88, 166, 255, 0.05);
+      }
+    </style>
+  </head>
+  <body class="ide-layout">
+    <header class="top-bar">
+      <div class="logo">Kỳ thi<span>Code</span></div>
+      <div class="problem-info-header" style="flex: 1; margin-left: 20px">
+        <h1 id="current-problem-title" style="font-size: 1.1rem; margin: 0">
+          Chọn một đề bài
+        </h1>
+        <div style="display: flex; gap: 8px; align-items: center">
+          <span id="current-difficulty" class="difficulty-badge">--</span>
+          <span
+            id="current-points"
+            class="difficulty-badge"
+            style="
+              background: rgba(88, 166, 255, 0.15);
+              color: var(--accent);
+              border: 1px solid var(--accent);
+            "
+            >0 điểm</span
+          >
+        </div>
+      </div>
+      <nav class="actions">
+        <div
+          id="user-display"
+          style="
+            margin-right: 15px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+          "
+        >
+          Học viên:
+          <span
+            id="user-name"
+            style="color: var(--accent); font-weight: 600"
+          ></span>
+          <a
+            href="/dashboard"
+            style="
+              margin-left: 10px;
+              color: var(--accent);
+              text-decoration: none;
+            "
+            >Trang chủ</a
+          >
+          <a
+            href="/exams"
+            style="
+              margin-left: 10px;
+              color: var(--accent);
+              text-decoration: none;
+            "
+            >Kỳ thi</a
+          >
+        </div>
+        <select id="language-select">
+          <option value="python">Python</option>
+          <option value="c">C</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+          <option value="csharp">C#</option>
+        </select>
+        <button id="run-btn" class="primary-btn">Kiểm tra</button>
+        <button id="console-run-btn" class="secondary-btn">Chạy console</button>
+      </nav>
+    </header>
+
+    <div class="app-wrapper">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div id="connection-status" class="status-orb disconnected"></div>
+        </div>
+        <div class="exam-header" id="exam-info">
+          <h2 id="exam-title" style="margin: 0; color: white; font-size: 1rem">
+            ...
+          </h2>
+          <div
+            id="timer"
+            class="exam-timer"
+            style="margin-top: 10px; font-size: 0.9rem"
+          >
+            00:00:00
+          </div>
+        </div>
+        <div class="problem-list-container">
+          <h3 style="padding: 15px 15px 0; font-size: 0.95rem">
+            Đề bài của bạn
+          </h3>
+          <div id="problem-list" class="problem-list">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+        <div class="sidebar-footer">
+          <button
+            id="finish-exam-btn"
+            class="primary-btn"
+            style="width: 80%; background: #ff7b72"
+          >
+            Nộp bài & Kết thúc
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="editor-workspace">
+          <div id="editor-container"></div>
+          <section class="info-drawer" id="info-drawer">
+            <div class="drawer-tabs">
+              <button class="tab-btn active" data-tab="desc">Đề bài</button>
+              <button class="tab-btn" data-tab="results">Kết quả</button>
+              <button class="tab-btn" data-tab="console">Console</button>
+            </div>
+            <div class="drawer-content">
+              <article id="tab-desc" class="tab-pane active">
+                <div id="problem-desc" class="markdown-body">
+                  Chọn đề bài bên trái để bắt đầu.
+                </div>
+              </article>
+              <section id="tab-results" class="tab-pane">
+                <div id="results-list" class="results-grid">
+                  Chưa có kết quả.
+                </div>
+              </section>
+              <section id="tab-console" class="tab-pane">
+                <div class="terminal-container" id="terminal-container"></div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <footer class="main-footer">
+      <p>
+        Hệ thống hỗ trợ thi cử &copy; 2026 | create by
+        <strong>Đàm Văn Luận</strong>
+      </p>
+    </footer>
+
+    <script src="/sinhvien/js/exam.js"></script>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý kỳ thi - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar"></aside>
+      <main class="admin-main">
+        <div id="tab-exams" class="admin-tab">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <h2>Quản lý kỳ thi</h2>
+            <button
+              class="primary-btn"
+              onclick="location.href = '/admin/create-exam'"
+            >
+              + Tạo kỳ thi mới
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th onclick="onSort('exams', 'exam_name')">Tên kỳ thi</th>
+                <th onclick="onSort('exams', 'created_at')">Ngày tạo</th>
+                <th onclick="onSort('exams', 'problem_count')">Số bài tập</th>
+                <th onclick="onSort('exams', 'duration')">Thời gian</th>
+                <th onclick="onSort('exams', 'status')">Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="exams-body"></tbody>
+          </table>
+          <div class="pagination-row" id="pagination-exams"></div>
+        </div>
+      </main>
+    </div>
+    <script>
+      var currentTab = "exams";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+  </body>
+</html>

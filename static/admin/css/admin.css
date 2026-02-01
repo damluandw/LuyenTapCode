@@ -32,10 +32,52 @@
     border-color: var(--accent);
 }
 
+.admin-nav-link {
+    text-decoration: none;
+    display: block;
+}
+
+.admin-nav-link.active .admin-nav-item {
+    background: rgba(88, 166, 255, 0.1);
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .admin-nav-item.active {
     background: rgba(88, 166, 255, 0.1);
     color: var(--accent);
     font-weight: 600;
+}
+
+.admin-sub-nav a {
+    text-decoration: none;
+    display: block;
+}
+
+.admin-sub-nav {
+    margin-left: 1.5rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid #30363d;
+    margin-bottom: 1rem;
+}
+
+.admin-sub-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 0.2rem;
+    transition: all 0.2s;
+}
+
+.admin-sub-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-sub-item.active {
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.05);
 }
 
 .admin-main {

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kỳ thi đang mở - Luyện Tập Code</title>
+    <meta
+      name="description"
+      content="Danh sách các kỳ thi lập trình đang diễn ra. Thử thách bản thân với các bài thi chính thức."
+    />
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .exams-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        flex: 1;
+      }
+      .exams-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+      }
+      .exam-card {
+        background: rgba(22, 27, 34, 0.8);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 25px;
+        transition:
+          transform 0.3s ease,
+          border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .exam-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent);
+      }
+      .exam-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      .exam-info {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .badge.time {
+        background: rgba(88, 166, 255, 0.15);
+        color: var(--accent);
+      }
+      .badge.count {
+        background: rgba(63, 185, 80, 0.15);
+        color: #3fb950;
+      }
+    </style>
+  </head>
+  <body>
+    <header
+      class="top-nav"
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: #161b22;
+        border-bottom: 1px solid var(--glass-border);
+      "
+    >
+      <div class="logo">Luyện tập<span>Code</span></div>
+      <nav class="user-info">
+        <a
+          href="/dashboard"
+          style="
+            color: var(--accent);
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 600;
+          "
+          >Trang chủ</a
+        >
+        <a
+          href="/api/auth/logout"
+          style="color: #ff7b72; text-decoration: none; font-size: 0.9rem"
+          >Đăng xuất</a
+        >
+      </nav>
+    </header>
+
+    <main class="exams-container">
+      <h1 style="color: white; font-size: 1.8rem">Kỳ thi đang mở</h1>
+      <p style="color: var(--text-secondary); margin-top: 5px">
+        Chọn một kỳ thi bên dưới để bắt đầu làm bài.
+      </p>
+
+      <div id="exams-list" class="exams-grid">
+        <!-- Loaded via JS -->
+      </div>
+    </main>
+
+    <footer class="main-footer">
+      <p>Hệ thống hỗ trợ học tập &copy; 2026 - Luyện Tập Code</p>
+      <p style="margin-top: 5px">create by <strong>Đàm Văn Luận</strong></p>
+    </footer>
+
+    <script>
+      async function loadExams() {
+        const res = await fetch("/api/exams/active");
+        const exams = await res.json();
+        const list = document.getElementById("exams-list");
+
+        if (exams.length === 0) {
+          list.innerHTML = `<p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 40px;">Hiện không có kỳ thi nào đang mở.</p>`;
+          return;
+        }
+
+        const now = new Date();
+
+        list.innerHTML = exams
+          .map((exam) => {
+            const openTime = exam.openTime ? new Date(exam.openTime) : null;
+            const closeTime = exam.closeTime ? new Date(exam.closeTime) : null;
+
+            let statusText = "Bắt đầu làm bài";
+            let isDisabled = false;
+            let timeInfo = "";
+
+            if (openTime && now < openTime) {
+              statusText = "Sắp mở";
+              isDisabled = true;
+              timeInfo = `<div style="color:var(--accent); font-size: 0.8rem; margin-top:5px">Mở lúc: ${exam.openTime.replace("T", " ")}</div>`;
+            } else if (closeTime && now > closeTime) {
+              statusText = "Đã kết thúc";
+              isDisabled = true;
+              timeInfo = `<div style="color:#f85149; font-size: 0.8rem; margin-top:5px">Đã đóng lúc: ${exam.closeTime.replace("T", " ")}</div>`;
+            } else if (openTime || closeTime) {
+              timeInfo = `<div style="color:#3fb950; font-size: 0.8rem; margin-top:5px">Đang diễn ra (Kết thúc: ${exam.closeTime ? exam.closeTime.replace("T", " ") : "---"})</div>`;
+            }
+
+            return `
+                <article class="exam-card">
+                    <div>
+                    <h2 class="exam-title">${exam.title}</h2>
+                    <div class="exam-info">
+                        <div class="info-item">
+                        <span class="badge time">⏱ ${exam.duration} phút</span>
+                        <span class="badge count">📝 ${exam.problemIds.length} bài tập</span>
+                        </div>
+                        <div class="info-item" style="font-size: 0.8rem;">Ngày tạo: ${exam.startTime || "---"}</div>
+                        ${timeInfo}
+                    </div>
+                    </div>
+                    <button onclick="startExam(${exam.id})" class="primary-btn" ${isDisabled ? "disabled" : ""} style="width: 100%; margin-top: 10px; ${isDisabled ? "opacity: 0.5; cursor: not-allowed" : ""}">${statusText}</button>
+                </article>
+                `;
+          })
+          .join("");
+      }
+
+      function startExam(id) {
+        window.location.href = `/exam?id=${id}`;
+      }
+
+      loadExams();
+    </script>
+  </body>
+</html>

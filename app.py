@@ -53,14 +53,23 @@ LANGUAGE_CONFIG = {
 }
 
 # Helper functions for data management
+DATA_DIR = "data"
+
+def get_data_path(filename):
+    return os.path.join(DATA_DIR, filename)
+
 def load_json(filename):
-    if not os.path.exists(filename):
+    path = get_data_path(filename)
+    if not os.path.exists(path):
         return []
-    with open(filename, "r", encoding="utf-8") as f:
+    with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def save_json(filename, data):
-    with open(filename, "w", encoding="utf-8") as f:
+    path = get_data_path(filename)
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 # Auth Decorators
@@ -85,7 +94,12 @@ def instructor_required(f):
 def index():
     if session.get('role') == 'instructor':
         return redirect(url_for('admin_page'))
-    response = app.send_static_file("sinhvien/index.html")
+    return redirect(url_for('student_dashboard_page'))
+
+@app.route("/exercise")
+@login_required
+def exercise_page():
+    response = app.send_static_file("sinhvien/exercise.html")
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return response
 
@@ -94,16 +108,74 @@ def login_page():
     return app.send_static_file("login.html")
 
 @app.route("/admin")
+@app.route("/admin/dashboard")
 @login_required
 @instructor_required
 def admin_page():
-    return app.send_static_file("admin/admin.html")
+    return app.send_static_file("admin/dashboard.html")
+
+@app.route("/admin/problems")
+@login_required
+@instructor_required
+def admin_problems_page():
+    return app.send_static_file("admin/problems.html")
+
+@app.route("/admin/students")
+@login_required
+@instructor_required
+def admin_students_page():
+    return app.send_static_file("admin/students.html")
+
+@app.route("/admin/reports")
+@login_required
+@instructor_required
+def admin_reports_page():
+    return app.send_static_file("admin/reports.html")
+
+@app.route("/admin/exams")
+@login_required
+@instructor_required
+def admin_exams_list_page():
+    return app.send_static_file("admin/exams.html")
+
+@app.route("/admin/submissions")
+@login_required
+@instructor_required
+def admin_submissions_page():
+    return app.send_static_file("admin/submissions.html")
 
 @app.route("/admin/edit-problem")
 @login_required
 @instructor_required
 def edit_problem_page():
     return app.send_static_file("admin/edit-problem.html")
+
+@app.route("/admin/create-exam")
+@login_required
+@instructor_required
+def create_exam_page():
+    return app.send_static_file("admin/create-exam.html")
+
+@app.route("/exam")
+@login_required
+def exam_page():
+    # Frontend reads id from URL ?id=X
+    return app.send_static_file("sinhvien/exam.html")
+
+@app.route("/exams")
+@login_required
+def student_exams_list_page():
+    return app.send_static_file("sinhvien/exams.html")
+
+@app.route("/history")
+@login_required
+def student_history_page():
+    return app.send_static_file("sinhvien/history.html")
+
+@app.route("/dashboard")
+@login_required
+def student_dashboard_page():
+    return app.send_static_file("sinhvien/dashboard.html")
 
 @app.route("/api/auth/login", methods=["POST"])
 def api_login():
@@ -118,6 +190,22 @@ def api_login():
         session['username'] = user['username']
         session['role'] = user['role']
         session['display_name'] = user.get('display_name', user['username'])
+        
+        # Track student logins specifically
+        if user['role'] == 'student':
+            try:
+                hits = load_json("hits.json")
+                hits["student_logins"] = hits.get("student_logins", 0) + 1
+                
+                today = time.strftime("%Y-%m-%d")
+                daily_students = hits.get("daily_student_logins", {})
+                daily_students[today] = daily_students.get(today, 0) + 1
+                hits["daily_student_logins"] = daily_students
+                
+                save_json("hits.json", hits)
+            except Exception as e:
+                print(f"Error tracking student login: {e}")
+                
         return jsonify({"status": "success", "role": user['role']})
     return jsonify({"status": "error", "message": "Sai tài khoản hoặc mật khẩu"}), 401
 
@@ -141,9 +229,23 @@ def api_me():
 def get_problems():
     try:
         data = load_json("problems.json")
-        # Return only basic info for the sidebar to save bandwidth
+        submissions = load_json("submissions.json")
+        
+        # Get solved problem IDs for current user
+        user_solved_ids = set([
+            s["problemId"] for s in submissions 
+            if s["username"] == session.get("username")
+        ])
+
+        # Return info with solved status
         minimal_list = [
-            {"id": p["id"], "title": p["title"], "difficulty": p["difficulty"], "category": p.get("category", "")}
+            {
+                "id": p["id"], 
+                "title": p["title"], 
+                "difficulty": p["difficulty"], 
+                "category": p.get("category", ""),
+                "solved": p["id"] in user_solved_ids
+            }
             for p in data
         ]
         return jsonify(minimal_list)
@@ -167,6 +269,7 @@ def get_stats():
     problems = load_json("problems.json")
     users = load_json("users.json")
     submissions = load_json("submissions.json")
+    exams = load_json("tests.json")
     hits = load_json("hits.json")
     
     # Language distribution
@@ -175,13 +278,33 @@ def get_stats():
         lang = s.get("language", "unknown")
         langs[lang] = langs.get(lang, 0) + 1
     
+    # Exam stats
+    active_exams = [e for e in exams if e.get("isActive", True)]
+    exam_subs = [s for s in submissions if s.get("examId")]
+    
+    # Exam activity
+    recent_exam_subs = []
+    for s in exam_subs[-10:]:
+        ex = next((e for e in exams if e["id"] == s.get("examId")), {"title": "Unknown"})
+        recent_exam_subs.append({
+            "username": s["username"],
+            "examTitle": ex["title"],
+            "problemTitle": s.get("problemTitle", f"ID: {s['problemId']}"),
+            "timestamp": s["timestamp"]
+        })
+    
     return jsonify({
         "problem_count": len(problems),
         "student_count": len([u for u in users if u["role"] == "student"]),
         "submission_count": len(submissions),
         "total_hits": hits.get("total_hits", 0),
+        "student_logins": hits.get("student_logins", 0),
         "languages": langs,
-        "recent_activity": submissions[-10:] if submissions else []
+        "recent_activity": submissions[-10:] if submissions else [],
+        "exam_count": len(exams),
+        "active_exam_count": len(active_exams),
+        "exam_submission_count": len(exam_subs),
+        "recent_exam_activity": recent_exam_subs
     })
 
 # Middleware-like function for traffic tracking
@@ -233,6 +356,179 @@ def manage_problem(pid):
                 break
         save_json("problems.json", problems)
         return jsonify({"status": "success"})
+
+# Administrative APIs - Exams
+@app.route("/api/admin/exams", methods=["GET", "POST"])
+@login_required
+@instructor_required
+def manage_exams():
+    if request.method == "GET":
+        return jsonify(load_json("tests.json"))
+    
+    new_exam = request.json
+    exams = load_json("tests.json")
+    
+    # Generate ID and starting metadata
+    new_exam["id"] = max([e["id"] for e in exams], default=0) + 1
+    if "startTime" not in new_exam:
+        new_exam["startTime"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    exams.append(new_exam)
+    save_json("tests.json", exams)
+    return jsonify({"status": "success", "id": new_exam["id"]})
+
+@app.route("/api/admin/exams/<int:eid>", methods=["GET", "PUT", "DELETE"])
+@login_required
+@instructor_required
+def manage_single_exam(eid):
+    exams = load_json("tests.json")
+    exam_idx = next((i for i, e in enumerate(exams) if e["id"] == eid), -1)
+    
+    if exam_idx == -1:
+        return jsonify({"error": "Exam not found"}), 404
+        
+    if request.method == "GET":
+        return jsonify(exams[exam_idx])
+        
+    if request.method == "PUT":
+        updated_data = request.json
+        # Maintain ID
+        updated_data["id"] = eid
+        exams[exam_idx] = updated_data
+        save_json("tests.json", exams)
+        return jsonify({"status": "success"})
+        
+    if request.method == "DELETE":
+        exams.pop(exam_idx)
+        save_json("tests.json", exams)
+        return jsonify({"status": "success"})
+
+@app.route("/api/exams/active")
+@login_required
+def get_active_exams():
+    exams = load_json("tests.json")
+    # In a real app, you might check startTime and duration
+    return jsonify([e for e in exams if e.get("isActive", True)])
+
+@app.route("/api/exams/<int:eid>")
+@login_required
+def get_exam_detail(eid):
+    exams = load_json("tests.json")
+    exam = next((e for e in exams if e["id"] == eid), None)
+    if not exam:
+        return jsonify({"error": "Exam not found"}), 404
+        
+    # Time window check for students
+    if session.get("role") != "instructor":
+        from datetime import datetime
+        now = datetime.now().strftime("%Y-%m-%dT%H:%M") # Match input format
+        open_time = exam.get("openTime")
+        close_time = exam.get("closeTime")
+        
+        if open_time and now < open_time:
+            return jsonify({"error": "Kỳ thi chưa đến thời gian thực hành. Mở lúc: " + open_time.replace("T", " ")}), 403
+        if close_time and now > close_time:
+            return jsonify({"error": "Kỳ thi đã kết thúc vào lúc: " + close_time.replace("T", " ")}), 403
+        if not exam.get("isActive", True):
+            return jsonify({"error": "Kỳ thi hiện đang đóng."}), 403
+        
+    all_problems = load_json("problems.json")
+    exam_problems = [p for p in all_problems if p["id"] in exam["problemIds"]]
+    
+    # Attach points to each problem
+    points_map = exam.get("problemPoints", {})
+    for p in exam_problems:
+        p["points"] = points_map.get(str(p["id"]), 0)
+    
+    # Strip sensitive info for students
+    if session.get("role") != "instructor":
+        for p in exam_problems:
+            p.pop("hint", None)
+            p.pop("solution_code", None)
+            p.pop("language_hints", None)
+            
+    return jsonify({
+        "info": exam,
+        "problems": exam_problems
+    })
+
+# Student Dashboard APIs
+@app.route("/api/student/exams/summary")
+@login_required
+def get_student_exams_summary():
+    username = session.get("username")
+    exams = load_json("tests.json")
+    submissions = load_json("submissions.json")
+    
+    summary = []
+    user_subs = [s for s in submissions if s["username"] == username]
+    
+    for exam in exams:
+        # Calculate total possible points
+        points_map = exam.get("problemPoints", {})
+        total_possible = sum(points_map.values())
+        
+        # Calculate achieved points
+        achieved = 0
+        solved_in_exam = []
+        
+        # We only count submissions made in "exam" mode for this specific exam
+        # And only the latest/best one per problem? Actually any success counts.
+        # Wait, submissions in the current system don't seem to have a "status" field in the JSON I saw. 
+        # Ah, they are only saved if successful in the frontend's logic (usually).
+        
+        exam_subs = [s for s in user_subs if s.get("examId") == exam["id"]]
+        solved_ids = set([s["problemId"] for s in exam_subs])
+        
+        for pid in solved_ids:
+            achieved += points_map.get(str(pid), 0)
+            solved_in_exam.append(pid)
+            
+        summary.append({
+            "id": exam["id"],
+            "title": exam["title"],
+            "isActive": exam.get("isActive", True),
+            "totalPoints": total_possible,
+            "achievedPoints": achieved,
+            "problemCount": len(exam["problemIds"]),
+            "solvedCount": len(solved_ids),
+            "startTime": exam.get("startTime")
+        })
+        
+    return jsonify(summary)
+
+@app.route("/api/student/stats")
+@login_required
+def get_student_personal_stats():
+    username = session.get("username")
+    submissions = load_json("submissions.json")
+    problems = load_json("problems.json")
+    users = load_json("users.json")
+    
+    user_subs = [s for s in submissions if s["username"] == username]
+    # Practice solved (not specifically exam mode)
+    solved_ids = set([s["problemId"] for s in user_subs])
+    
+    # Calculate rank
+    student_stats = []
+    students = [u for u in users if u["role"] == "student"]
+    for s in students:
+        s_subs = [sub for sub in submissions if sub["username"] == s["username"]]
+        s_solved = len(set([sub["problemId"] for sub in s_subs]))
+        student_stats.append({"username": s["username"], "solved": s_solved})
+    
+    student_stats.sort(key=lambda x: x["solved"], reverse=True)
+    rank = next((i + 1 for i, s in enumerate(student_stats) if s["username"] == username), "--")
+    
+    return jsonify({
+        "solved_count": len(solved_ids),
+        "total_problems": len(problems),
+        "submission_count": len(user_subs),
+        "success_rate": round(len(solved_ids) / len(user_subs) * 100, 1) if user_subs else 0,
+        "rank": rank,
+        "recent_activity": user_subs[-5:][::-1]
+    })
+
 def run_single_test(language, code, user_input):
     """Run a single test case for a given language and code."""
     config = LANGUAGE_CONFIG.get(language)
@@ -357,6 +653,10 @@ def manage_students():
                 s["main_lang"] = max(langs, key=langs.get).upper()
             else:
                 s["main_lang"] = "--"
+            
+            # Ensure class_name exists
+            if "class_name" not in s:
+                s["class_name"] = "--"
                 
         return jsonify(students)
     elif request.method == "POST":
@@ -422,6 +722,7 @@ def get_reports():
         student_report.append({
             "username": s["username"],
             "display_name": s["display_name"],
+            "class_name": s.get("class_name", "--"),
             "solved_count": len(solved),
             "submission_count": len(user_subs),
             "success_rate": round(len(solved) / len(user_subs) * 100, 1) if user_subs else 0
@@ -449,10 +750,55 @@ def get_reports():
             "attempt_count": len(p_subs),
             "pass_count": len(p_passers)
         })
+
+    # 3. Exam Reports
+    exams = load_json("tests.json")
+    exam_report = []
+    
+    for exam in exams:
+        exam_id = exam["id"]
+        points_map = exam.get("problemPoints", {})
+        
+        # All submissions for this exam
+        exam_subs = [s for s in submissions if s.get("examId") == exam_id]
+        
+        # Results per student in this exam
+        student_results = []
+        attendees = set([s["username"] for s in exam_subs])
+        
+        for username in attendees:
+            user = next((u for u in students if u["username"] == username), None)
+            if not user: continue
+            
+            user_exam_subs = [s for s in exam_subs if s["username"] == username]
+            # Consider only distinct solved problems
+            solved_ids = set([s["problemId"] for s in user_exam_subs])
+            
+            score = 0
+            for pid in solved_ids:
+                score += points_map.get(str(pid), 0)
+                
+            student_results.append({
+                "username": username,
+                "display_name": user["display_name"],
+                "class_name": user.get("class_name", "--"),
+                "solved_count": len(solved_ids),
+                "score": score
+            })
+        
+        exam_report.append({
+            "id": exam_id,
+            "title": exam["title"],
+            "total_points": sum(points_map.values()),
+            "problem_count": len(exam["problemIds"]),
+            "student_count": len(attendees),
+            "results": student_results
+        })
         
     return jsonify({
         "students": sorted(student_report, key=lambda x: x["solved_count"], reverse=True),
-        "problems": sorted(problem_report, key=lambda x: x["attempt_count"], reverse=True)
+        "problems": sorted(problem_report, key=lambda x: x["attempt_count"], reverse=True),
+        "exams": exam_report
     })
 
 # Tracking & Submissions

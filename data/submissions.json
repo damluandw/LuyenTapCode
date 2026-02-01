@@ -68,5 +68,37 @@
     "language": "python",
     "username": "sv01",
     "timestamp": "2026-02-01 08:24:48"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "c",
+    "username": "sv01",
+    "timestamp": "2026-02-01 23:48:41"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "mode": "exam",
+    "examId": 1,
+    "username": "sv01",
+    "timestamp": "2026-02-02 00:10:58"
+  },
+  {
+    "problemId": 5,
+    "problemTitle": "Tìm phần dư",
+    "language": "c",
+    "username": "sv01",
+    "timestamp": "2026-02-02 00:57:48"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "username": "sv01",
+    "timestamp": "2026-02-02 01:05:08"
   }
 ]

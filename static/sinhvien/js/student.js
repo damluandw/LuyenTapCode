@@ -162,13 +162,15 @@ function renderProblems() {
 
   filtered.forEach((p) => {
     const item = document.createElement("div");
-    item.className = `problem-item ${currentProblem && currentProblem.id === p.id ? "active" : ""
-      }`;
-    item.dataset.id = p.id; // Added dataset.id
+    item.className = `problem-item ${currentProblem && currentProblem.id === p.id ? "active" : ""} ${p.solved ? "solved" : ""}`;
+    item.dataset.id = p.id;
     item.innerHTML = `
-                <div class="p-title">${p.title}</div>
-                <div class="p-diff" style="font-size: 0.7rem; color: #8b949e">${p.difficulty}</div>
-            `; // Reverted to original innerHTML structure
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div class="p-title">${p.title}</div>
+            ${p.solved ? '<div class="solved-icon" title="Đã thực hành">✅</div>' : ''}
+        </div>
+        <div class="p-diff" style="font-size: 0.7rem; color: #8b949e">${p.difficulty}</div>
+    `;
     item.addEventListener("click", () => {
       document.querySelectorAll(".problem-item").forEach((el) => el.classList.remove("active"));
       item.classList.add("active");

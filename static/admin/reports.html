@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Báo cáo chi tiết - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar"></aside>
+      <main class="admin-main">
+        <div id="tab-reports" class="admin-tab">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
+            <h2 id="report-title">Báo cáo</h2>
+          </div>
+
+          <div id="tab-reports_students">
+            <div class="search-row">
+              <input
+                type="text"
+                class="search-input"
+                id="search-reports_students"
+                placeholder="Tìm sinh viên theo tên..."
+                oninput="onSearch('reports_students')"
+              />
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th onclick="onSort('reports_students', 'rank')">Hạng</th>
+                  <th onclick="onSort('reports_students', 'display_name')">
+                    Sinh viên
+                  </th>
+                  <th onclick="onSort('reports_students', 'class_name')">
+                    Lớp
+                  </th>
+                  <th onclick="onSort('reports_students', 'solved_count')">
+                    Đã giải
+                  </th>
+                  <th onclick="onSort('reports_students', 'submission_count')">
+                    Tổng nộp
+                  </th>
+                  <th onclick="onSort('reports_students', 'success_rate')">
+                    Tỷ lệ thành công
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="reports_students-body"></tbody>
+            </table>
+            <div class="pagination-row" id="pagination-reports_students"></div>
+          </div>
+
+          <div id="tab-reports_problems" style="display: none">
+            <div class="search-row">
+              <input
+                type="text"
+                class="search-input"
+                id="search-reports_problems"
+                placeholder="Tìm bài tập theo tên, ID..."
+                oninput="onSearch('reports_problems')"
+              />
+              <select
+                class="search-input"
+                id="filter-reports_problems-difficulty"
+                onchange="onFilter('reports_problems')"
+                style="flex: 0 0 150px"
+              >
+                <option value="all">Độ khó</option>
+                <option value="Dễ">Dễ</option>
+                <option value="Trung bình">Trung bình</option>
+                <option value="Khó">Khó</option>
+              </select>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th onclick="onSort('reports_problems', 'id')">ID</th>
+                  <th onclick="onSort('reports_problems', 'title')">
+                    Tên bài tập
+                  </th>
+                  <th onclick="onSort('reports_problems', 'difficulty')">
+                    Mức độ
+                  </th>
+                  <th onclick="onSort('reports_problems', 'attempt_count')">
+                    Tổng lượt nộp
+                  </th>
+                  <th onclick="onSort('reports_problems', 'pass_count')">
+                    Số SV đã giải
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="reports_problems-body"></tbody>
+            </table>
+            <div class="pagination-row" id="pagination-reports_problems"></div>
+          </div>
+
+          <div id="tab-reports_exams" style="display: none">
+            <div class="search-row">
+              <input
+                type="text"
+                class="search-input"
+                id="search-reports_exams"
+                placeholder="Tìm kỳ thi hoặc sinh viên..."
+                oninput="onSearch('reports_exams')"
+              />
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Kỳ thi</th>
+                  <th>Sinh viên</th>
+                  <th>Số bài giải</th>
+                  <th>Tổng điểm</th>
+                  <th>Tiến độ</th>
+                </tr>
+              </thead>
+              <tbody id="reports_exams-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      var currentTab = "reports";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+    <script>
+      // Handle sub-reports via URL t param
+      const urlParams = new URLSearchParams(window.location.search);
+      const type = urlParams.get("t") || "students";
+      switchReport(type);
+    </script>
+  </body>
+</html>

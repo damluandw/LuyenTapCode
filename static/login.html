@@ -1,125 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập - Luyện Tập Code</title>
-    <link rel="stylesheet" href="/sinhvien/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/sinhvien/css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at top right, #1e293b, #0d1117);
-        }
-        .login-card {
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 3rem;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-        .login-card h1 {
-            margin-bottom: 0.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-        .login-card p {
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-        .form-group {
-            text-align: left;
-            margin-bottom: 1.5rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: #0d1117;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: white;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        #error-msg {
-            color: #ff7b72;
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            display: none;
-        }
-        .login-btn {
-            width: 100%;
-            margin-top: 1rem;
-        }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top right, #1e293b, #0d1117);
+      }
+      .login-card {
+        background: rgba(22, 27, 34, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 3rem;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      }
+      .login-card h1 {
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+      }
+      .login-card p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+      }
+      .form-group {
+        text-align: left;
+        margin-bottom: 1.5rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+      input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: #0d1117;
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: white;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      #error-msg {
+        color: #ff7b72;
+        font-size: 0.85rem;
+        margin-top: 1rem;
+        display: none;
+      }
+      .login-btn {
+        width: 100%;
+        margin-top: 1rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-card">
-        <div class="logo">Luyện<span>TapCode</span></div>
-        <h1>Chào mừng trở lại</h1>
-        <p>Đăng nhập để tiếp tục luyện tập</p>
-        
-        <div class="form-group">
-            <label for="username">Tên đăng nhập</label>
-            <input type="text" id="username" placeholder="Nhập tên đăng nhập...">
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Mật khẩu</label>
-            <input type="password" id="password" placeholder="••••••••">
-        </div>
-        
-        <button class="primary-btn login-btn" onclick="login()">Đăng nhập</button>
-        <div id="error-msg"></div>
+      <div class="logo">Luyện<span>TapCode</span></div>
+      <h1>Chào mừng trở lại</h1>
+      <p>Đăng nhập để tiếp tục luyện tập</p>
+
+      <div class="form-group">
+        <label for="username">Tên đăng nhập</label>
+        <input type="text" id="username" placeholder="Nhập tên đăng nhập..." />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mật khẩu</label>
+        <input type="password" id="password" placeholder="••••••••" />
+      </div>
+
+      <button class="primary-btn login-btn" onclick="login()">Đăng nhập</button>
+      <div id="error-msg"></div>
     </div>
 
     <script>
-        async function login() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            const errorEl = document.getElementById('error-msg');
-            
-            try {
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                });
-                
-                const data = await res.json();
-                if (data.status === 'success') {
-                    window.location.href = data.role === 'instructor' ? '/admin' : '/';
-                } else {
-                    errorEl.textContent = data.message;
-                    errorEl.style.display = 'block';
-                }
-            } catch (e) {
-                errorEl.textContent = "Lỗi kết nối máy chủ";
-                errorEl.style.display = 'block';
-            }
+      async function login() {
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+        const errorEl = document.getElementById("error-msg");
+
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: user, password: pass }),
+          });
+
+          const data = await res.json();
+          if (data.status === "success") {
+            window.location.href =
+              data.role === "instructor" ? "/admin" : "/dashboard";
+          } else {
+            errorEl.textContent = data.message;
+            errorEl.style.display = "block";
+          }
+        } catch (e) {
+          errorEl.textContent = "Lỗi kết nối máy chủ";
+          errorEl.style.display = "block";
         }
-        
-        // Enter to login
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') login();
-            });
+      }
+
+      // Enter to login
+      document.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") login();
         });
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -27,14 +27,20 @@ body {
     sans-serif;
   background-color: var(--bg-dark);
   color: var(--text-primary);
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.ide-layout {
+    height: 100vh;
+    overflow: hidden;
 }
 
 .app-wrapper {
-  display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
-  height: 100vh;
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Contain children scroll */
 }
 
 /* Sidebar Styling */
@@ -43,8 +49,10 @@ body {
   border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  width: var(--sidebar-width);
+  height: 100%;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -139,13 +147,23 @@ body {
   color: white;
 }
 
+.problem-item.solved {
+  border-left: 4px solid #238636;
+}
+
+.solved-icon {
+  font-size: 0.8rem;
+  filter: saturate(1.5);
+}
+
 /* Main Content area */
 .main-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   background: #0d1117;
-  height: 100vh;
   overflow: hidden;
+  height: 100%;
 }
 
 .top-bar {
@@ -331,7 +349,7 @@ select {
   background-color: rgba(63, 185, 80, 0.15);
   color: #7ee787;
   border-radius: 6px;
-  font-family: 'Fira Code', monospace;
+  font-family: "Fira Code", monospace;
   border: 1px solid rgba(63, 185, 80, 0.2);
 }
 
@@ -370,7 +388,7 @@ select {
   color: #e6edf3;
   padding: 12px 16px;
   border-radius: 8px;
-  font-family: 'Fira Code', monospace;
+  font-family: "Fira Code", monospace;
   font-size: 0.95rem;
   margin: 8px 0 16px 0;
   white-space: pre-wrap;
@@ -466,6 +484,33 @@ select {
   background: #8b949e;
 }
 
-.syntax-tip {
-  font-family: "Inter", sans-serif;
+footer.main-footer {
+  padding: 10px 40px;
+  background: #161b22;
+  border-top: 1px solid var(--glass-border);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+footer.main-footer strong {
+    color: var(--accent);
+}
+
+/* Scrollbar Enhancement */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
 }

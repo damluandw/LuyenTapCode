@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar">
+        <!-- Sidebar injected by sidebar.js -->
+      </aside>
+
+      <main class="admin-main">
+        <div id="tab-dashboard" class="admin-tab">
+          <h2 style="margin-bottom: 2rem">Tổng quan hệ thống</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="label">Tổng bài tập</div>
+              <div id="stat-problems" class="value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Tổng sinh viên</div>
+              <div id="stat-students" class="value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Lượt đăng nhập (SV)</div>
+              <div id="stat-hits" class="value">0</div>
+            </div>
+          </div>
+
+          <div
+            class="stats-grid"
+            style="grid-template-columns: repeat(3, 1fr); margin-top: 1rem"
+          >
+            <div class="stat-card" style="border-left: 4px solid var(--accent)">
+              <div class="label">Tổng kỳ thi</div>
+              <div id="stat-exams" class="value">0</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #3fb950">
+              <div class="label">Kỳ thi đang mở</div>
+              <div id="stat-active-exams" class="value">0</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #f85149">
+              <div class="label">Lượt làm bài thi</div>
+              <div id="stat-exam-subs" class="value">0</div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-container">
+              <h3>Phân bố ngôn ngữ</h3>
+              <div id="lang-stats" class="lang-bar-wrapper">
+                <!-- Data loaded via JS -->
+              </div>
+            </div>
+            <div class="chart-container">
+              <h3>Hoạt động gần đây</h3>
+              <table class="data-table" style="font-size: 0.85rem">
+                <thead>
+                  <tr>
+                    <th>SV</th>
+                    <th>Bài tập</th>
+                    <th>Ngôn ngữ</th>
+                    <th>Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-activity-body"></tbody>
+              </table>
+            </div>
+            <div class="chart-container">
+              <h3>Hoạt động thi mới nhất</h3>
+              <table class="data-table" style="font-size: 0.85rem">
+                <thead>
+                  <tr>
+                    <th>SV</th>
+                    <th>Kỳ thi</th>
+                    <th>Bài tập</th>
+                    <th>Thời gian</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-exam-activity-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      var currentTab = "dashboard";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+  </body>
+</html>

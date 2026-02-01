@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý bài tập - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar"></aside>
+      <main class="admin-main">
+        <div id="tab-problems" class="admin-tab">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <h2>Quản lý bài tập</h2>
+            <button class="primary-btn" onclick="openProblemModal()">
+              + Thêm bài mới
+            </button>
+          </div>
+
+          <div class="search-row">
+            <input
+              type="text"
+              class="search-input"
+              id="search-problems"
+              placeholder="Tìm kiếm bài tập..."
+              oninput="onSearch('problems')"
+            />
+            <select
+              class="search-input"
+              id="filter-problems-category"
+              onchange="onFilter('problems')"
+              style="flex: 0 0 200px"
+            >
+              <option value="all">Tất cả chủ đề</option>
+              <option value="Level 1">Level 1: Nhập xuất</option>
+              <option value="Level 2">Level 2: Rẽ nhánh</option>
+              <option value="Level 3">Level 3: Vòng lặp</option>
+              <option value="Level 4">Level 4: Mảng & Chuỗi</option>
+              <option value="Level 5">Level 5: Nâng cao</option>
+            </select>
+            <select
+              class="search-input"
+              id="filter-problems-difficulty"
+              onchange="onFilter('problems')"
+              style="flex: 0 0 150px"
+            >
+              <option value="all">Mức độ</option>
+              <option value="Dễ">Dễ</option>
+              <option value="Trung bình">Trung bình</option>
+              <option value="Khó">Khó</option>
+            </select>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th onclick="onSort('problems', 'id')">ID</th>
+                <th onclick="onSort('problems', 'title')">Tiêu đề</th>
+                <th onclick="onSort('problems', 'difficulty')">Mức độ</th>
+                <th onclick="onSort('problems', 'category')">Chủ đề</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody id="problems-body"></tbody>
+          </table>
+          <div class="pagination-row" id="pagination-problems"></div>
+        </div>
+      </main>
+    </div>
+    <script>
+      var currentTab = "problems";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+  </body>
+</html>

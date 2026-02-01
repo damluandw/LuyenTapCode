@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tạo kỳ thi - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .problem-selector {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .problem-list-box {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        height: 400px;
+        overflow-y: auto;
+        padding: 10px;
+      }
+      .prob-item {
+        padding: 8px 12px;
+        margin-bottom: 5px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .prob-item:hover {
+        background: #1c2128;
+      }
+      .prob-item.selected {
+        border-color: var(--accent);
+        background: rgba(88, 166, 255, 0.1);
+      }
+      .selected-badge {
+        background: var(--accent);
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-wrapper" style="grid-template-columns: 1fr">
+      <main
+        class="admin-main"
+        style="max-width: 900px; margin: 0 auto; padding: 40px"
+      >
+        <div
+          style="
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <h1 style="color: white" id="page-title">Tạo kỳ thi mới</h1>
+          <button
+            class="secondary-btn"
+            onclick="location.href = '/admin/exams'"
+          >
+            Quay lại
+          </button>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px">
+          <div style="margin-bottom: 20px">
+            <label style="display: block; margin-bottom: 8px">Tên kỳ thi</label>
+            <input
+              type="text"
+              id="exam-title"
+              class="search-input"
+              style="width: 100%"
+              placeholder="Ví dụ: Kiểm tra giữa kỳ môn Python"
+            />
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+              margin-bottom: 20px;
+            "
+          >
+            <div>
+              <label style="display: block; margin-bottom: 8px"
+                >Thời gian làm bài (phút)</label
+              >
+              <input
+                type="number"
+                id="exam-duration"
+                class="search-input"
+                style="width: 100%"
+                value="60"
+              />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px"
+                >Trạng thái</label
+              >
+              <select id="exam-active" class="search-input" style="width: 100%">
+                <option value="true">Đang mở (Active)</option>
+                <option value="false">Đang khóa (Inactive)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+            <div>
+              <label style="display: block; margin-bottom: 8px"
+                >Mở đề lúc (Thời gian thực hành)</label
+              >
+              <input
+                type="datetime-local"
+                id="exam-open"
+                class="search-input"
+                style="width: 100%"
+              />
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px"
+                >Đóng đề lúc</label
+              >
+              <input
+                type="datetime-local"
+                id="exam-close"
+                class="search-input"
+                style="width: 100%"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Chọn bài tập cho kỳ thi</h3>
+          <div class="problem-selector">
+            <div>
+              <p style="font-size: 0.9rem; color: #8b949e; margin-bottom: 10px">
+                Ngân hàng bài tập
+              </p>
+              <div id="all-problems-list" class="problem-list-box">
+                <!-- Loaded via JS -->
+              </div>
+            </div>
+            <div>
+              <p style="font-size: 0.9rem; color: #8b949e; margin-bottom: 10px">
+                Bài tập đã chọn (<span id="selected-count">0</span>)
+              </p>
+              <div id="selected-problems-list" class="problem-list-box">
+                <!-- Loaded via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px; display: flex; justify-content: flex-end">
+          <button
+            id="save-exam-btn"
+            class="primary-btn"
+            style="padding: 12px 30px; font-size: 1rem"
+          >
+            Hoàn tất & Lưu kỳ thi
+          </button>
+        </div>
+      </main>
+    </div>
+    <script>
+      let allProblems = [];
+      let selectedProblemIds = [];
+      let problemPoints = {};
+      let examId = new URLSearchParams(window.location.search).get("id");
+
+      async function init() {
+        const res = await fetch("/problems");
+        allProblems = await res.json();
+
+        if (examId) {
+          document.getElementById("page-title").textContent =
+            "Chỉnh sửa kỳ thi";
+          const examRes = await fetch(`/api/admin/exams/${examId}`);
+          if (examRes.ok) {
+            const exam = await examRes.json();
+            document.getElementById("exam-title").value = exam.title;
+            document.getElementById("exam-duration").value = exam.duration;
+            document.getElementById("exam-active").value =
+              exam.isActive.toString();
+            if (exam.openTime)
+              document.getElementById("exam-open").value = exam.openTime;
+            if (exam.closeTime)
+              document.getElementById("exam-close").value = exam.closeTime;
+
+            selectedProblemIds = exam.problemIds || [];
+            problemPoints = exam.problemPoints || {};
+          }
+        }
+
+        renderLists();
+      }
+
+      function renderLists() {
+        const allList = document.getElementById("all-problems-list");
+        const selectedList = document.getElementById("selected-problems-list");
+
+        allList.innerHTML = "";
+        selectedList.innerHTML = "";
+
+        allProblems.forEach((p) => {
+          const isSelected = selectedProblemIds.includes(p.id);
+          const item = document.createElement("div");
+          item.className = `prob-item ${isSelected ? "selected" : ""}`;
+          item.innerHTML = `<span>${p.title}</span> ${isSelected ? '<div class="selected-badge">✓</div>' : "+"}`;
+          item.onclick = () => toggleProblem(p.id);
+          allList.appendChild(item);
+
+          if (isSelected) {
+            const selItem = document.createElement("div");
+            selItem.className = "prob-item";
+            selItem.style.cursor = "default";
+            if (!problemPoints[p.id]) problemPoints[p.id] = 10;
+
+            selItem.innerHTML = `
+              <span style="flex: 1">${p.title}</span>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <input type="number" value="${problemPoints[p.id]}" 
+                  onchange="updatePoint(${p.id}, this.value)"
+                  style="width: 60px; padding: 4px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 4px; text-align: center">
+                <span style="font-size: 0.8rem; color: #8b949e">Điểm</span>
+                <button onclick="toggleProblem(${p.id})" style="background: none; border: none; color: #ff7b72; cursor: pointer; font-size: 1.2rem; padding: 0 5px">×</button>
+              </div>
+            `;
+            selectedList.appendChild(selItem);
+          }
+        });
+
+        document.getElementById("selected-count").textContent =
+          selectedProblemIds.length;
+      }
+
+      function toggleProblem(id) {
+        if (selectedProblemIds.includes(id)) {
+          selectedProblemIds = selectedProblemIds.filter((pid) => pid !== id);
+          delete problemPoints[id];
+        } else {
+          selectedProblemIds.push(id);
+          problemPoints[id] = 10;
+        }
+        renderLists();
+      }
+
+      function updatePoint(id, val) {
+        problemPoints[id] = parseInt(val) || 0;
+      }
+
+      document.getElementById("save-exam-btn").onclick = async () => {
+        const title = document.getElementById("exam-title").value;
+        const duration = document.getElementById("exam-duration").value;
+        const isActive =
+          document.getElementById("exam-active").value === "true";
+        const openTime = document.getElementById("exam-open").value;
+        const closeTime = document.getElementById("exam-close").value;
+
+        if (!title || selectedProblemIds.length === 0) {
+          alert("Vui lòng nhập tên kỳ thi và chọn ít nhất 1 bài tập.");
+          return;
+        }
+
+        const payload = {
+          title,
+          duration: parseInt(duration),
+          problemIds: selectedProblemIds,
+          problemPoints: problemPoints,
+          isActive: isActive,
+          openTime: openTime,
+          closeTime: closeTime,
+        };
+
+        const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";
+        const method = examId ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          alert(
+            examId
+              ? "Đã cập nhật kỳ thi thành công!"
+              : "Đã tạo kỳ thi thành công!",
+          );
+          location.href = "/admin/exams";
+        } else {
+          alert("Có lỗi xảy ra khi lưu kỳ thi.");
+        }
+      };
+
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhật ký nộp bài - Admin</title>
+    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar"></aside>
+      <main class="admin-main">
+        <div id="tab-submissions" class="admin-tab">
+          <h2>Nhật ký nộp bài</h2>
+
+          <div class="search-row">
+            <input
+              type="text"
+              class="search-input"
+              id="search-submissions"
+              placeholder="Tìm kiếm SV, bài tập, ngôn ngữ..."
+              oninput="onSearch('submissions')"
+            />
+            <select
+              class="search-input"
+              id="filter-submissions-lang"
+              onchange="onFilter('submissions')"
+              style="flex: 0 0 150px"
+            >
+              <option value="all">Ngôn ngữ</option>
+              <option value="python">Python</option>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="csharp">C#</option>
+            </select>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th onclick="onSort('submissions', 'username')">Sinh viên</th>
+                <th onclick="onSort('submissions', 'problemTitle')">Bài tập</th>
+                <th onclick="onSort('submissions', 'language')">Ngôn ngữ</th>
+                <th onclick="onSort('submissions', 'timestamp')">Thời gian</th>
+                <th>Kết quả</th>
+              </tr>
+            </thead>
+            <tbody id="submissions-body"></tbody>
+          </table>
+          <div class="pagination-row" id="pagination-submissions"></div>
+        </div>
+      </main>
+    </div>
+    <script>
+      var currentTab = "submissions";
+    </script>
+    <script src="/admin/js/admin.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+  </body>
+</html>
