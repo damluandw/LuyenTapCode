@@ -12,66 +12,165 @@ require.config({
 });
 
 require(["vs/editor/editor.main"], async function () {
+  if (document.fonts) {
+    await document.fonts.ready;
+  }
+
   editor = monaco.editor.create(document.getElementById("editor-container"), {
     value: "",
     language: "python",
     theme: "vs-dark",
     fontSize: 16,
+    fontFamily: "'Fira Code', monospace",
+    fontLigatures: true,
     automaticLayout: true,
-    minimap: { enabled: false }
+    minimap: { enabled: false },
+    padding: { top: 10, bottom: 10 },
+    roundedSelection: true,
+    scrollBeyondLastLine: false,
   });
 
-  socket = io();
-  socket.on('connect', () => document.getElementById('connection-status').className = 'status-orb connected');
-  
+  window.addEventListener("resize", () => editor.layout());
+
+  socket = io({
+    transports: ['websocket', 'polling']
+  });
+
+  socket.on('connect', () => {
+    const orb = document.getElementById('connection-status');
+    if (orb) {
+      orb.className = 'status-orb connected';
+      orb.title = 'Đã kết nối máy chủ';
+    }
+  });
+
+  socket.on('disconnect', () => {
+    const orb = document.getElementById('connection-status');
+    if (orb) {
+      orb.className = 'status-orb disconnected';
+      orb.title = 'Mất kết nối máy chủ';
+    }
+  });
+
+  socket.on('error', (data) => {
+    const runBtn = document.getElementById("run-btn");
+    if (runBtn) {
+        runBtn.disabled = false;
+        runBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Kiểm tra';
+    }
+    const consoleBtn = document.getElementById("console-run-btn");
+    if (consoleBtn) {
+        consoleBtn.disabled = false;
+        consoleBtn.innerHTML = '<i class="bi bi-terminal"></i>';
+    }
+    
+    if (terminal) {
+        terminal.xterm.write(`\r\n\x1b[31m[LỖI]: ${data.message || 'Có lỗi xảy ra'}\x1b[0m\r\n`);
+    } else {
+        alert("Lỗi: " + (data.message || "Có lỗi xảy ra"));
+    }
+
+    // If we're in results tab, show the error
+    const resultsPanel = document.getElementById('tab-results');
+    if (resultsPanel && resultsPanel.classList.contains('active')) {
+        resultsPanel.innerHTML = `<div class="p-4 text-danger small" style="font-family: monospace; white-space: pre-wrap;">${data.message || 'Lỗi không xác định'}</div>`;
+    }
+  });
+
   terminal = new Terminal();
   fetchExamData();
   checkUser();
+  setupTabs();
   setupEventListeners();
   startTimer();
-  setupSidebarToggle();
-  setupTabs();
+  setupSidebarToggles();
 });
 
-function setupSidebarToggle() {
-    const toggle = document.getElementById('sidebar-toggle');
+function setupSidebarToggles() {
     const sidebar = document.getElementById('sidebar');
-    const icon = document.getElementById('toggle-icon');
     
+    // Desktop Toggle
+    const toggle = document.getElementById('sidebar-toggle');
+    const icon = document.getElementById('toggle-icon');
     if (toggle && sidebar) {
         toggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
-            icon.classList.toggle('bi-chevron-left');
-            icon.classList.toggle('bi-chevron-right');
-            setTimeout(() => editor.layout(), 310);
+            if (sidebar.classList.contains('collapsed')) {
+                icon.classList.replace('bi-chevron-left', 'bi-chevron-right');
+            } else {
+                icon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+            }
+            setTimeout(() => editor.layout(), 300);
+        });
+    }
+
+    // Mobile Toggle
+    const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-show');
+            mobileOverlay.classList.toggle('active');
+        });
+    }
+    if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('mobile-show');
+            mobileOverlay.classList.remove('active');
         });
     }
 }
 
 function setupTabs() {
-    document.querySelectorAll(".console-section .tab-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const type = btn.dataset.content ? 'content' : 'tab';
+        if (type === 'content') {
+            // Left pane tabs (Problem Info)
+            document.querySelectorAll(".problem-pane .tab-btn").forEach(b => b.classList.remove('active'));
+            document.querySelectorAll(".pane-content").forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            const targetId = `problem-${btn.dataset.content}`;
+            if (document.getElementById(targetId)) {
+                document.getElementById(targetId).classList.add('active');
+            }
+        } else {
+            // Bottom pane tabs (Console/Results)
             switchTab(btn.dataset.tab);
-        });
+        }
     });
+  });
 }
 
 function switchTab(tabId) {
-    document.querySelectorAll(".console-section .tab-btn").forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-    document.querySelectorAll(".console-section .tab-pane").forEach(p => p.classList.toggle('active', p.id === `tab-${tabId}`));
-    if (tabId === 'console') {
-        setTimeout(() => terminal.fitAddon.fit(), 50);
-    }
+  // Sync tabs in the console section
+  document.querySelectorAll(".console-section .tab-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tabId);
+  });
+  
+  // Sync panes in the console section
+  document.querySelectorAll(".console-section .tab-pane").forEach((pane) => {
+    pane.classList.toggle("active", pane.id === `tab-${tabId}`);
+  });
+
+  if (tabId === 'console' && terminal) {
+    setTimeout(() => {
+      terminal.fitAddon.fit();
+      terminal.xterm.focus();
+    }, 100);
+  }
 }
 
 async function checkUser() {
-  const res = await fetch('/api/auth/me');
-  if (!res.ok) { window.location.href = '/login'; return; }
-  const data = await res.json();
-  const nameEl = document.getElementById('user-name');
-  const navDisplayEl = document.getElementById('nav-user-display');
-  if (nameEl) nameEl.textContent = data.display_name;
-  if (navDisplayEl) navDisplayEl.textContent = data.display_name;
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) { window.location.href = '/login'; return; }
+    const data = await res.json();
+    const navDisplayEl = document.getElementById('nav-user-display');
+    if (navDisplayEl) navDisplayEl.textContent = data.display_name;
+  } catch (e) {
+    window.location.href = '/login';
+  }
 }
 
 async function fetchExamData() {
@@ -92,7 +191,6 @@ async function fetchExamData() {
     filterLanguages(data.info.allowedLanguages);
     
     renderProblems();
-
     if (allProblems.length > 0) loadProblemDetail(allProblems[0].id);
   } catch (err) {
     console.error("Failed to load exam:", err);
@@ -119,10 +217,13 @@ function filterLanguages(allowed) {
     
     if (firstAllowed) {
         select.value = firstAllowed;
-        // Trigger monaco update
-        const monacoLang = (firstAllowed === 'c' || firstAllowed === 'cpp') ? 'cpp' : firstAllowed;
-        if(editor) monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
+        updateMonacoLanguage(firstAllowed);
     }
+}
+
+function updateMonacoLanguage(lang) {
+    const monacoLang = (lang === 'c' || lang === 'cpp') ? 'cpp' : (lang === 'csharp' ? 'csharp' : lang);
+    if(editor) monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
 }
 
 function renderProblems() {
@@ -132,11 +233,25 @@ function renderProblems() {
   allProblems.forEach((p) => {
     const item = document.createElement("div");
     item.className = `problem-item ${currentProblem && currentProblem.id === p.id ? "active" : ""}`;
-    item.innerHTML = `<div class="p-title">${p.title}</div><div class="p-diff">${p.difficulty}</div>`;
+    item.innerHTML = `
+        <div class="p-title">${p.title}</div>
+        <div class="p-meta">
+            <span class="text-info">${p.difficulty}</span>
+            <span>• ${p.points || 0}đ</span>
+        </div>
+    `;
     item.addEventListener("click", () => {
       document.querySelectorAll(".problem-item").forEach((el) => el.classList.remove("active"));
       item.classList.add("active");
       loadProblemDetail(p.id);
+      
+      // Close mobile sidebar if open
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+      if (sidebar.classList.contains('mobile-show')) {
+          sidebar.classList.remove('mobile-show');
+          overlay.classList.remove('active');
+      }
     });
     listContainer.appendChild(item);
   });
@@ -149,33 +264,73 @@ function loadProblemDetail(id) {
     document.getElementById("current-problem-title").textContent = p.title;
     document.getElementById("current-difficulty").textContent = p.difficulty;
     document.getElementById("current-points").textContent = `${p.points || 0} điểm`;
-    document.getElementById("problem-desc").innerHTML = marked.parse(p.description);
     
-    if (editor) {
-        // Exam doesn't show sample code buttons, but we can set a basic boiler plate if needed
-        editor.setValue("");
+    const descEl = document.getElementById("problem-desc");
+    
+    // Robustly handle marked being potentially intercepted by Monaco's AMD loader
+    let markedObj;
+    if (typeof window.marked !== 'undefined') {
+        markedObj = window.marked;
+    } else if (typeof require === 'function' && require.defined && require.defined('marked')) {
+        markedObj = require('marked');
+    }
+
+    if (markedObj) {
+        if (markedObj.setOptions) {
+            markedObj.setOptions({
+                breaks: true,
+                gfm: true,
+                headerIds: false,
+                mangle: false
+            });
+        }
+        const htmlContent = markedObj.parse ? markedObj.parse(p.description) : markedObj(p.description);
+        descEl.innerHTML = htmlContent;
+    } else {
+        // Fallback to plain text if marked is totally unavailable
+        descEl.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${p.description}</pre>`;
     }
 }
 
 function setupEventListeners() {
-    document.getElementById("language-select").addEventListener("change", (e) => {
-        const monacoLang = e.target.value === 'c' || e.target.value === 'cpp' ? 'cpp' : e.target.value;
-        monaco.editor.setModelLanguage(editor.getModel(), monacoLang);
-    });
+    const langSelect = document.getElementById("language-select");
+    if (langSelect) {
+        langSelect.addEventListener("change", (e) => {
+            updateMonacoLanguage(e.target.value);
+        });
+    }
 
-    document.getElementById("run-btn").addEventListener("click", handleRunClick);
-    document.getElementById("console-run-btn").addEventListener("click", handleConsoleRunClick);
-    document.getElementById("finish-exam-btn").addEventListener("click", () => {
-        if(confirm("Bạn có chắc chắn muốn nộp bài và kết thúc kỳ thi?")) {
-            window.location.href = "/";
-        }
-    });
+    const runBtn = document.getElementById("run-btn");
+    if (runBtn) {
+        runBtn.addEventListener("click", handleRunClick);
+    }
+
+    const consoleBtn = document.getElementById("console-run-btn");
+    if (consoleBtn) {
+        consoleBtn.addEventListener("click", handleConsoleRunClick);
+    }
+
+    const finishBtn = document.getElementById("finish-exam-btn");
+    if (finishBtn) {
+        finishBtn.addEventListener("click", () => {
+            if(confirm("Bạn có chắc chắn muốn nộp bài và kết thúc kỳ thi?")) {
+                window.location.href = "/";
+            }
+        });
+    }
 
     socket.on('test_results', (data) => {
         const btn = document.getElementById("run-btn");
-        btn.disabled = false;
-        btn.textContent = "Kiểm tra";
-        if (data.results) renderResults(data.results);
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Kiểm tra';
+        }
+        if (data.results) {
+            renderResults(data.results);
+        } else if (data.error) {
+            const panel = document.getElementById('tab-results');
+            if (panel) panel.innerHTML = `<div class="p-4 text-danger small" style="font-family: monospace; white-space: pre-wrap;">${data.error}</div>`;
+        }
     });
 }
 
@@ -200,21 +355,29 @@ function startTimer() {
         const s = remaining % 60;
         timerEl.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         
-        if (remaining < 300) timerEl.style.background = "#ff4444";
+        if (remaining < 300) {
+            timerEl.style.background = "linear-gradient(135deg, #ff4444 0%, #cc0000 100%)";
+        }
     }, 1000);
 }
 
-// Reuse Terminal class logic from student.js
 class Terminal {
   constructor() {
     this.container = document.getElementById('terminal-container');
+    this.fitAddon = new window.FitAddon.FitAddon();
     this.xterm = new window.Terminal({
       cursorBlink: true,
-      theme: { background: '#0d1117' },
+      theme: {
+        background: '#0d1117',
+        foreground: '#d1d5db',
+        cursor: '#58a6ff',
+        selection: 'rgba(58, 150, 221, 0.3)'
+      },
       fontFamily: '"Fira Code", monospace',
+      fontSize: 14,
       convertEol: true
     });
-    this.fitAddon = new window.FitAddon.FitAddon();
+    
     this.xterm.loadAddon(this.fitAddon);
     this.xterm.open(this.container);
     this.fitAddon.fit();
@@ -226,49 +389,121 @@ class Terminal {
   init() {
     this.xterm.onData(data => {
         if (!this.isSessionActive) return;
-        if (data === '\r') { this.xterm.write('\r\n'); socket.emit('send_input', { input: this.inputBuffer }); this.inputBuffer = ''; }
-        else if (data === '\u007F') { if (this.inputBuffer.length > 0) { this.inputBuffer = this.inputBuffer.slice(0, -1); this.xterm.write('\b \b'); } }
-        else { this.inputBuffer += data; this.xterm.write(data); }
+        if (data === '\r') {
+            this.xterm.write('\r\n');
+            socket.emit('send_input', { input: this.inputBuffer });
+            this.inputBuffer = '';
+        } else if (data === '\u007F') {
+            if (this.inputBuffer.length > 0) {
+                this.inputBuffer = this.inputBuffer.slice(0, -1);
+                this.xterm.write('\b \b');
+            }
+        } else {
+            this.inputBuffer += data;
+            this.xterm.write(data);
+        }
     });
+
     socket.on('output', (data) => this.xterm.write(data.data));
-    socket.on('session_started', () => this.isSessionActive = true);
-    socket.on('session_ended', () => this.isSessionActive = false);
+    socket.on('session_started', () => {
+        this.isSessionActive = true;
+        const consoleBtn = document.getElementById("console-run-btn");
+        if (consoleBtn) {
+            consoleBtn.disabled = false;
+            consoleBtn.innerHTML = '<i class="bi bi-terminal"></i>';
+        }
+    });
+    socket.on('session_ended', () => {
+        this.isSessionActive = false;
+        this.xterm.write('\r\n[Phiên đã kết thúc]\r\n');
+    });
+
+    window.addEventListener('resize', () => {
+        if (document.getElementById('tab-console').classList.contains('active')) {
+            this.fitAddon.fit();
+        }
+    });
   }
 
   async startSession(code) {
     this.xterm.reset();
-    socket.emit('start_session', { language: document.getElementById('language-select').value, code: code });
+    this.xterm.write('Đang khởi động terminal...\r\n');
+    socket.emit('start_session', {
+        language: document.getElementById('language-select').value,
+        code: code
+    });
   }
 }
 
 async function handleRunClick() {
   const btn = document.getElementById("run-btn");
+  if (!currentProblem) return;
+
   btn.disabled = true;
-  btn.textContent = "Đang chạy...";
-  document.querySelector('.tab-btn[data-tab="results"]').click();
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang chạy...';
+
+  switchTab("results");
+  const panel = document.getElementById("tab-results");
+  panel.innerHTML = '<div class="p-4 w-100 text-center text-muted">Đang chấm bài... <div class="spinner-border spinner-border-sm ms-2" role="status"></div></div>';
+
   socket.emit('run_test_cases', {
     language: document.getElementById('language-select').value,
     code: editor.getValue(),
     test_cases: currentProblem.test_cases || []
   });
+
+  setTimeout(() => {
+    if (btn.disabled && btn.textContent.includes("Đang chạy")) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-play-fill me-1"></i> Kiểm tra';
+    }
+  }, 15000);
 }
 
 function handleConsoleRunClick() {
-    document.querySelector('.tab-btn[data-tab="console"]').click();
+    const btn = document.getElementById("console-run-btn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    
+    switchTab('console');
     terminal.startSession(editor.getValue());
+
+    // Safety timeout to re-enable button if session_started never arrives
+    setTimeout(() => {
+        if (btn.disabled && btn.innerHTML.includes("spinner-border")) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-terminal"></i>';
+        }
+    }, 15000);
 }
 
 function renderResults(results) {
-  const panel = document.getElementById('results-list');
+  const panel = document.getElementById('tab-results');
   panel.innerHTML = '';
+  
+  if (results.length === 0) {
+      panel.innerHTML = '<div class="p-4 text-center text-muted">Không có dữ liệu test case.</div>';
+      return;
+  }
+
+  let passedCount = 0;
   results.forEach((res, index) => {
+    if (res.passed) passedCount++;
     const card = document.createElement('div');
     card.className = `result-card ${res.passed ? 'passed' : 'failed'}`;
-    card.innerHTML = `<div>Test #${index + 1}: ${res.passed ? 'PASS' : 'FAIL'}</div>`;
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold small">Test case #${index + 1}</span>
+            <span class="badge ${res.passed ? 'bg-success' : 'bg-danger'} rounded-pill" style="font-size: 0.6rem">
+                ${res.passed ? 'PASSED' : 'FAILED'}
+            </span>
+        </div>
+        ${!res.passed && res.error ? `<div class="text-danger small mt-1" style="font-family: monospace; font-size: 0.75rem">${res.error}</div>` : ''}
+    `;
     panel.appendChild(card);
   });
-  
-  // Also log the exam submission
+
+  // Log submission
   fetch('/api/submissions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -277,19 +512,8 @@ function renderResults(results) {
         problemTitle: currentProblem.title,
         language: document.getElementById('language-select').value,
         mode: 'exam',
-        examId: examId
+        examId: examId,
+        allPassed: passedCount === results.length
       })
   });
 }
-
-document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove('active'));
-        document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-        if (btn.dataset.tab === 'console') {
-            setTimeout(() => terminal.fitAddon.fit(), 50);
-        }
-    });
-});

@@ -156,5 +156,112 @@
     "language": "python",
     "username": "sv01",
     "timestamp": "2026-02-06 17:29:50"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:40:18"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:41:44"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "c",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:41:51"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:42:42"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:43:11"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:45:52"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:48:27"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:52:29"
+  },
+  {
+    "problemId": 4,
+    "problemTitle": "Trung bình cộng 3 số",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:52:42"
+  },
+  {
+    "problemId": 4,
+    "problemTitle": "Trung bình cộng 3 số",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:53:03"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:53:15"
   }
 ]
