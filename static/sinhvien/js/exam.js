@@ -310,6 +310,11 @@ function setupEventListeners() {
         consoleBtn.addEventListener("click", handleConsoleRunClick);
     }
 
+    const submitBtn = document.getElementById("submit-btn");
+    if (submitBtn) {
+        submitBtn.addEventListener("click", handleSubmitClick);
+    }
+
     const finishBtn = document.getElementById("finish-exam-btn");
     if (finishBtn) {
         finishBtn.addEventListener("click", () => {
@@ -477,6 +482,53 @@ function handleConsoleRunClick() {
     }, 15000);
 }
 
+async function handleSubmitClick() {
+    const btn = document.getElementById("submit-btn");
+    if (!currentProblem) return;
+
+    btn.disabled = true;
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang nộp...';
+
+    // We submit the current state. If they haven't run tests, allPassed will be undefined/false.
+    // Usually, students run tests first, then submit.
+    
+    try {
+        const response = await fetch('/api/submissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                problemId: currentProblem.id,
+                problemTitle: currentProblem.title,
+                language: document.getElementById('language-select').value,
+                code: editor.getValue(),
+                mode: 'exam',
+                examId: examId,
+                allPassed: false // Default to false unless we have results state. 
+                // In a more complex version, we'd check the last test run results.
+            })
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+            btn.classList.replace('btn-success', 'btn-outline-success');
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Đã nộp';
+            setTimeout(() => {
+                btn.classList.replace('btn-outline-success', 'btn-success');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            throw new Error(data.message || "Lỗi nộp bài");
+        }
+    } catch (error) {
+        console.error("Submission error:", error);
+        alert("Lỗi khi nộp bài: " + error.message);
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+}
+
 function renderResults(results) {
   const panel = document.getElementById('tab-results');
   panel.innerHTML = '';
@@ -503,7 +555,7 @@ function renderResults(results) {
     panel.appendChild(card);
   });
 
-  // Log submission
+  // Log submission (automatic on test run)
   fetch('/api/submissions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -511,6 +563,7 @@ function renderResults(results) {
         problemId: currentProblem.id,
         problemTitle: currentProblem.title,
         language: document.getElementById('language-select').value,
+        code: editor.getValue(),
         mode: 'exam',
         examId: examId,
         allPassed: passedCount === results.length

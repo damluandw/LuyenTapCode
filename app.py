@@ -529,7 +529,8 @@ def get_student_exams_summary():
         # Wait, submissions in the current system don't seem to have a "status" field in the JSON I saw. 
         # Ah, they are only saved if successful in the frontend's logic (usually).
         
-        exam_subs = [s for s in user_subs if s.get("examId") == exam["id"]]
+        # We only count successful submissions made in "exam" mode for this specific exam
+        exam_subs = [s for s in user_subs if str(s.get("examId")) == str(exam["id"]) and s.get("allPassed") is True]
         solved_ids = set([s["problemId"] for s in exam_subs])
         
         for pid in solved_ids:
@@ -811,8 +812,8 @@ def get_reports():
         exam_id = exam["id"]
         points_map = exam.get("problemPoints", {})
         
-        # All submissions for this exam
-        exam_subs = [s for s in submissions if s.get("examId") == exam_id]
+        # All successful submissions for this exam
+        exam_subs = [s for s in submissions if str(s.get("examId")) == str(exam_id) and s.get("allPassed") is True]
         
         # Results per student in this exam
         student_results = []
@@ -862,6 +863,10 @@ def handle_submissions():
         data["username"] = session["username"]
         data["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
         
+        # Include code if provided (for persistence/instructor review)
+        if "code" not in data and "code" in request.json:
+            data["code"] = request.json["code"]
+            
         submissions = load_json("submissions.json")
         submissions.append(data)
         save_json("submissions.json", submissions)
