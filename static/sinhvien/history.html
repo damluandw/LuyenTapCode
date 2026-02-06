@@ -8,192 +8,248 @@
       name="description"
       content="Theo dõi kết quả và thống kê các kỳ thi lập trình bạn đã tham gia."
     />
-    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      .history-container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 40px 20px;
-        flex: 1;
-      }
-      .history-table-container {
-        background: rgba(22, 27, 34, 0.8);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        overflow: hidden;
-        margin-top: 30px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        color: #fff;
-      }
-      th {
-        background: #161b22;
-        padding: 15px 20px;
-        text-align: left;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        color: var(--text-secondary);
-        border-bottom: 1px solid var(--glass-border);
-      }
-      td {
-        padding: 20px;
-        border-bottom: 1px solid var(--glass-border);
-        font-size: 0.95rem;
-      }
-      tr:last-child td {
-        border-bottom: none;
-      }
-
       .score-box {
         display: inline-block;
-        padding: 5px 12px;
+        padding: 4px 12px;
         border-radius: 8px;
         font-weight: 700;
         min-width: 80px;
         text-align: center;
       }
       .score-high {
-        background: rgba(63, 185, 80, 0.2);
+        background: rgba(63, 185, 80, 0.15);
         color: #3fb950;
       }
       .score-mid {
-        background: rgba(210, 153, 34, 0.2);
+        background: rgba(210, 153, 34, 0.15);
         color: #d29922;
       }
       .score-low {
-        background: rgba(248, 81, 73, 0.2);
+        background: rgba(248, 81, 73, 0.15);
         color: #f85149;
       }
-
-      .progress-bar {
-        width: 100%;
-        height: 6px;
-        background: #30363d;
-        border-radius: 3px;
-        margin-top: 5px;
-        overflow: hidden;
-      }
-      .progress-fill {
-        height: 100%;
-        background: var(--accent);
-        border-radius: 3px;
-        transition: width 0.5s ease;
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(88, 166, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        font-size: 1.2rem;
       }
     </style>
   </head>
   <body>
-    <header
-      class="top-nav"
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 40px;
-        background: #161b22;
-        border-bottom: 1px solid var(--glass-border);
-      "
-    >
-      <div class="logo">Luyện tập<span>Code</span></div>
-      <nav class="user-info">
-        <a
-          href="/dashboard"
-          style="
-            color: var(--accent);
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: 600;
-          "
-          >Trang chủ</a
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="bi bi-code-slash"></i>
+          Luyện tập<span>Code</span>
+        </a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
         >
-        <a
-          href="/api/auth/logout"
-          style="color: #ff7b72; text-decoration: none; font-size: 0.9rem"
-          >Đăng xuất</a
-        >
-      </nav>
-    </header>
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">
+                <i class="bi bi-house-door"></i> Trang chủ
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/exams">
+                <i class="bi bi-journal-text"></i> Kỳ thi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/history">
+                <i class="bi bi-clock-history"></i> Lịch sử
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-nav align-items-center">
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <div class="d-inline-flex align-items-center text-white">
+                  <div class="user-avatar me-2">
+                    <i class="bi bi-person-circle"></i>
+                  </div>
+                  <span id="nav-user-display" class="fw-medium">Sinh viên</span>
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="/profile"
+                    ><i class="bi bi-person"></i> Hồ sơ cá nhân</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item active" href="/history"
+                    ><i class="bi bi-bar-chart"></i> Tiến độ học tập</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="/api/auth/logout"
+                    ><i class="bi bi-box-arrow-right"></i> Đăng xuất</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-    <main class="history-container">
-      <h1 style="color: white; font-size: 1.8rem">Thống kê bài thi</h1>
-      <p style="color: var(--text-secondary); margin-top: 5px">
-        Xem lại điểm số và hiệu suất của bạn qua các kỳ thi.
-      </p>
+    <main class="container py-5">
+      <div class="mb-5">
+        <h1 class="display-6 fw-bold text-white mb-2">Thống kê bài thi</h1>
+        <p class="text-muted lead">
+          Xem lại điểm số và hiệu suất của bạn qua các kỳ thi.
+        </p>
+      </div>
 
-      <div class="history-table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Kỳ thi</th>
-              <th>Ngày tham gia</th>
-              <th>Tiến độ</th>
-              <th>Điểm đạt được</th>
-              <th>Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody id="history-list">
-            <!-- Loaded via JS -->
-          </tbody>
-        </table>
+      <div class="card border-0 overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-dark table-hover mb-0">
+            <thead>
+              <tr class="text-muted small text-uppercase fw-bold">
+                <th class="px-4 py-3 border-secondary">Kỳ thi</th>
+                <th class="px-4 py-3 border-secondary">Ngày tham gia</th>
+                <th class="px-4 py-3 border-secondary">Tiến độ</th>
+                <th class="px-4 py-3 border-secondary">Điểm số</th>
+                <th class="px-4 py-3 border-secondary">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="history-list" class="border-top-0">
+              <!-- Loaded via JS -->
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  Đang tải dữ liệu...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
 
-    <footer class="main-footer">
-      <p>Hệ thống hỗ trợ học tập &copy; 2026 - Luyện Tập Code</p>
-      <p style="margin-top: 5px">create by <strong>Đàm Văn Luận</strong></p>
+    <footer class="container py-4 mt-auto text-center">
+      <p class="mb-1 text-muted small">
+        Hệ thống hỗ trợ học tập &copy; 2026 - Luyện Tập Code
+      </p>
+      <p class="text-muted small mb-0">
+        create by <strong>Đàm Văn Luận</strong>
+      </p>
     </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
       async function loadHistory() {
-        const res = await fetch("/api/student/exams/summary");
-        const summary = await res.json();
-        const list = document.getElementById("history-list");
+        try {
+          const res = await fetch("/api/student/exams/summary");
+          const summary = await res.json();
+          const list = document.getElementById("history-list");
 
-        if (summary.length === 0) {
-          list.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary);">Bạn chưa tham gia kỳ thi nào.</td></tr>`;
-          return;
+          if (!summary || summary.length === 0) {
+            list.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted">Bạn chưa tham gia kỳ thi nào.</td></tr>`;
+            return;
+          }
+
+          list.innerHTML = summary
+            .map((item) => {
+              const percent =
+                item.totalPoints > 0
+                  ? (item.achievedPoints / item.totalPoints) * 100
+                  : 0;
+              let scoreClass = "score-low";
+              if (percent >= 80) scoreClass = "score-high";
+              else if (percent >= 50) scoreClass = "score-mid";
+
+              const solvedPercent =
+                (item.solvedCount / item.problemCount) * 100;
+
+              return `
+              <tr class="align-middle">
+                <td class="px-4 py-3">
+                  <div class="fw-bold text-white">${item.title}</div>
+                  <div class="small text-muted mt-1">${item.problemCount} bài tập</div>
+                </td>
+                <td class="px-4 py-3 text-muted">${item.startTime || "---"}</td>
+                <td class="px-4 py-3" style="min-width: 150px;">
+                  <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>${item.solvedCount}/${item.problemCount} bài</span>
+                    <span>${Math.round(solvedPercent)}%</span>
+                  </div>
+                  <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05)">
+                    <div class="progress-bar bg-info" style="width: ${solvedPercent}%"></div>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="score-box ${scoreClass}">${item.achievedPoints} / ${item.totalPoints}</div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="d-flex align-items-center gap-2" style="color: ${item.isActive ? "#3fb950" : "#8b949e"}">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span>
+                    ${item.isActive ? "Đang mở" : "Đã đóng"}
+                  </span>
+                </td>
+              </tr>
+            `;
+            })
+            .join("");
+        } catch (e) {
+          console.error("Error loading history:", e);
+          document.getElementById("history-list").innerHTML =
+            `<tr><td colspan="5" class="text-center py-5 text-danger">Lỗi khi tải dữ liệu.</td></tr>`;
         }
-
-        list.innerHTML = summary
-          .map((item) => {
-            const percent =
-              item.totalPoints > 0
-                ? (item.achievedPoints / item.totalPoints) * 100
-                : 0;
-            let scoreClass = "score-low";
-            if (percent >= 80) scoreClass = "score-high";
-            else if (percent >= 50) scoreClass = "score-mid";
-
-            return `
-            <tr>
-              <td>
-                <div style="font-weight: 600; color: #fff;">${item.title}</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">${item.problemCount} bài tập</div>
-              </td>
-              <td style="color: var(--text-secondary);">${item.startTime || "---"}</td>
-              <td>
-                <div style="font-size: 0.85rem; margin-bottom: 4px;">${item.solvedCount}/${item.problemCount} bài</div>
-                <div class="progress-bar"><div class="progress-fill" style="width: ${(item.solvedCount / item.problemCount) * 100}%"></div></div>
-              </td>
-              <td>
-                <div class="score-box ${scoreClass}">${item.achievedPoints} / ${item.totalPoints}</div>
-              </td>
-              <td>
-                <span style="color: ${item.isActive ? "#3fb950" : "#8b949e"}">
-                  ${item.isActive ? "● Đang mở" : "○ Đã đóng"}
-                </span>
-              </td>
-            </tr>
-          `;
-          })
-          .join("");
       }
 
+      async function loadNavbarUser() {
+        try {
+          const res = await fetch("/api/auth/me");
+          const data = await res.json();
+          if (data.display_name) {
+            document.getElementById("nav-user-display").textContent =
+              data.display_name;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      loadNavbarUser();
       loadHistory();
     </script>
   </body>

@@ -1,0 +1,185 @@
+/* Custom Bootstrap 5 Overrides and Theme */
+:root {
+    --bg-dark: #0d1117;
+    --card-bg: rgba(22, 27, 34, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #58a6ff;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Glassmorphism Cards */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    border-color: var(--accent);
+}
+
+/* Navbar */
+.navbar {
+    background: rgba(13, 17, 23, 0.8) !important;
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    padding: 0.75rem 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: #fff !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand i {
+    color: var(--accent);
+    font-size: 1.6rem;
+}
+
+.navbar-brand span {
+    color: var(--accent);
+    font-weight: 400;
+}
+
+.nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    color: var(--accent) !important;
+    background: rgba(88, 166, 255, 0.1);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+/* Navbar Dropdown */
+.dropdown-menu {
+    background: #161b22;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-top: 10px !important;
+    padding: 8px;
+}
+
+.dropdown-item {
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-item i {
+    font-size: 1.1rem;
+    width: 20px;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.dropdown-divider {
+    border-top: 1px solid var(--glass-border);
+    margin: 8px 0;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: rgba(13, 17, 23, 0.8);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(13, 17, 23, 1);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(88, 166, 255, 0.25);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #238636;
+    border-color: #238636;
+}
+
+.btn-primary:hover {
+    background-color: #2ea043;
+    border-color: #2ea043;
+}
+
+.btn-secondary {
+    background-color: #21262d;
+    border-color: var(--glass-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: #30363d;
+    border-color: #8b949e;
+}
+
+/* Text Colors */
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    border-top: 1px solid var(--glass-border);
+    padding: 2rem 0;
+    color: var(--text-secondary);
+}
+
+/* Custom Badges */
+.badge-time {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--accent);
+}
+
+.badge-count {
+    background: rgba(63, 185, 80, 0.15);
+    color: #3fb950;
+}

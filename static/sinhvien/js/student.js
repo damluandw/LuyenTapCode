@@ -102,6 +102,45 @@ require(["vs/editor/editor.main"], async function () {
   if (searchEl) {
     searchEl.addEventListener('input', () => renderProblems());
   }
+
+  // Mobile Sidebar Toggle
+  const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+  const mobileOverlay = document.getElementById('mobile-overlay');
+  const sidebar = document.getElementById('sidebar');
+
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('mobile-show');
+      mobileOverlay.classList.toggle('active');
+    });
+  }
+
+  if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-show');
+      mobileOverlay.classList.remove('active');
+    });
+  }
+
+  // Desktop Sidebar Toggle
+  const deskToggle = document.getElementById('sidebar-toggle');
+  const toggleIcon = document.getElementById('toggle-icon');
+
+  if (deskToggle) {
+    deskToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.classList.replace('bi-chevron-left', 'bi-chevron-right');
+      } else {
+        toggleIcon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+      }
+      
+      // Trigger editor layout recalculation
+      if (editor) {
+        setTimeout(() => editor.layout(), 300); // Wait for CSS transition
+      }
+    });
+  }
 });
 
 // Sidebar & Problem Loading
@@ -114,7 +153,10 @@ async function checkUser() {
       return;
     }
     const data = await res.json();
-    document.getElementById('user-name').textContent = data.display_name;
+    const nameEl = document.getElementById('user-name');
+    const navDisplayEl = document.getElementById('nav-user-display');
+    if (nameEl) nameEl.textContent = data.display_name;
+    if (navDisplayEl) navDisplayEl.textContent = data.display_name;
   } catch (e) {
     window.location.href = '/login';
   }
@@ -182,6 +224,14 @@ function renderProblems() {
 
 async function loadProblemDetail(id) {
   try {
+    // Close mobile sidebar on selection
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('mobile-overlay');
+    if (window.innerWidth < 992) {
+      if (sidebar) sidebar.classList.remove('mobile-show');
+      if (overlay) overlay.classList.remove('active');
+    }
+
     const res = await fetch(`/api/problems/${id}`);
     const p = await res.json();
     setProblem(p);
@@ -308,16 +358,26 @@ function setupEventListeners() {
   socket.on('test_results', (data) => {
     const btn = document.getElementById("run-btn");
     btn.disabled = false;
-    btn.textContent = "Kiểm tra";
+    btn.innerHTML = '<i class="bi bi-lightning-fill"></i> Kiểm tra';
 
-    const resultsPanel = document.getElementById("results-list");
+    const resultsPanel = document.getElementById("tab-results");
+    if (!resultsPanel) return;
+    
     if (data.error) {
-      resultsPanel.innerHTML = `<div class="result-card failed"><div style="color: #f85149; font-weight: bold; margin-bottom: 5px;">Lỗi thực thi:</div><pre style="white-space: pre-wrap; margin: 0; font-family: 'Fira Code', monospace; font-size: 0.85rem;">${escapeHtml(data.error)}</pre></div>`;
+      resultsPanel.innerHTML = `<div class="p-3 w-100"><div class="result-card failed"><div style="color: #f85149; font-weight: bold; margin-bottom: 5px;">Lỗi thực thi:</div><pre style="white-space: pre-wrap; margin: 0; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #f85149;">${escapeHtml(data.error)}</pre></div></div>`;
       return;
     }
 
     if (data.results) {
       renderResults(data.results);
+    }
+  });
+
+  socket.on('session_started', () => {
+    const btn = document.getElementById("console-run-btn");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-play"></i> Console';
     }
   });
 }
@@ -338,20 +398,17 @@ async function handleConsoleRunClick() {
   if (!currentProblem) return;
 
   btn.disabled = true;
-  const originalText = btn.textContent;
-  btn.textContent = "Đang chạy...";
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Khởi động...';
 
   switchTab('console');
   if (terminal) {
     await terminal.startSession(editor.getValue());
   }
-  btn.disabled = false;
-  btn.textContent = originalText;
 }
 
 async function handleRunClick() {
   const btn = document.getElementById("run-btn");
-  const resultsPanel = document.getElementById("results-list");
+  const resultsPanel = document.getElementById("tab-results");
 
   if (!currentProblem) return;
 
@@ -362,11 +419,11 @@ async function handleRunClick() {
   }
 
   btn.disabled = true;
-  const originalText = btn.textContent;
-  btn.textContent = "Đang kiểm tra...";
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang kiểm tra...';
 
   switchTab("results");
-  resultsPanel.innerHTML = '<div class="loading">Đang thực thi các test case... <br><span style="font-size: 0.8em; color: gray">Đang biên dịch và chạy thử nghiệm</span></div>';
+  resultsPanel.innerHTML = '<div class="p-4 w-100 text-center text-muted">Đang thực thi các test case... <div class="spinner-border spinner-border-sm ms-2" role="status"></div></div>';
 
   const code = editor.getValue();
   const language = document.getElementById('language-select').value;
@@ -398,7 +455,19 @@ function updateEditorLanguage(lang) {
 
 function setupTabs() {
   document.querySelectorAll(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    btn.addEventListener("click", () => {
+        const type = btn.dataset.content ? 'content' : 'tab';
+        if (type === 'content') {
+            // Left pane tabs
+            document.querySelectorAll(".problem-pane .tab-btn").forEach(b => b.classList.remove('active'));
+            document.querySelectorAll(".pane-content").forEach(p => p.classList.add('d-none'));
+            btn.classList.add('active');
+            document.getElementById(`problem-${btn.dataset.content}`).classList.remove('d-none');
+        } else {
+            // Bottom pane tabs (Console/Results)
+            switchTab(btn.dataset.tab);
+        }
+    });
   });
 
   document.getElementById("template-btn").addEventListener("click", () => {
@@ -406,31 +475,47 @@ function setupTabs() {
     const lang = document.getElementById("language-select").value;
     if (currentProblem.starter_code && currentProblem.starter_code[lang]) {
       editor.setValue(currentProblem.starter_code[lang]);
-      switchTab("desc");
     } else alert("Bài tập này không có code mẫu cho ngôn ngữ này.");
   });
 }
 
 function switchTab(tabId) {
-  document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabId));
-  document.querySelectorAll(".tab-pane").forEach((pane) => pane.classList.toggle("active", pane.id === `tab-${tabId}`));
+  // Sync tabs in the console section
+  document.querySelectorAll(".console-section .tab-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.tab === tabId);
+  });
+  
+  // Sync panes in the console section
+  document.querySelectorAll(".console-section .tab-pane").forEach((pane) => {
+    pane.classList.toggle("active", pane.id === `tab-${tabId}`);
+  });
 
   if (tabId === 'console' && terminal) {
     setTimeout(() => {
       terminal.fitAddon.fit();
       terminal.xterm.focus();
-    }, 50);
+      terminal.xterm.scrollToBottom();
+    }, 100);
   }
 }
 
 function renderResults(results) {
-  const panel = document.getElementById('results-list');
+  const panel = document.getElementById('tab-results');
+  if (!panel) return;
   panel.innerHTML = '';
-  let allPassed = true;
+  
+  if (!results || results.length === 0) {
+    panel.innerHTML = '<div class="p-4 w-100 text-center text-muted">Không tìm thấy test case nào cho bài này.</div>';
+    return;
+  }
+
+  let allPassed = results.length > 0;
 
   results.forEach((res, index) => {
     const card = document.createElement('div');
     card.className = `result-card ${res.passed ? 'passed' : 'failed'}`;
+    const actualText = (res.actual || "").toString().trim() || '(không có đầu ra)';
+    
     card.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                 <strong>Test Case #${index + 1}</strong>
@@ -439,7 +524,7 @@ function renderResults(results) {
             <div style="font-size: 0.8rem; color: #8b949e">
                 <div>Input: <code>${res.input}</code></div>
                 <div>Expected: <code>${res.expected}</code></div>
-                <div>Actual: <code>${res.actual.trim() || '(empty)'}</code></div>
+                <div class="text-truncate" title="${escapeHtml(actualText)}">Actual: <code>${escapeHtml(actualText)}</code></div>
             </div>
         `;
     panel.appendChild(card);

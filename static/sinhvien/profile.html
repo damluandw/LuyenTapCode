@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hồ sơ cá nhân - Luyện Tập Code</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(88, 166, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="bi bi-code-slash"></i>
+          Luyện tập<span>Code</span>
+        </a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">
+                <i class="bi bi-house-door"></i> Trang chủ
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/exams">
+                <i class="bi bi-journal-text"></i> Kỳ thi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/history">
+                <i class="bi bi-clock-history"></i> Lịch sử
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-nav align-items-center">
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <div class="d-inline-flex align-items-center text-white">
+                  <div class="user-avatar me-2">
+                    <i class="bi bi-person-circle"></i>
+                  </div>
+                  <span id="nav-user-display" class="fw-medium">Sinh viên</span>
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item active" href="/profile"
+                    ><i class="bi bi-person"></i> Hồ sơ cá nhân</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/history"
+                    ><i class="bi bi-bar-chart"></i> Tiến độ học tập</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="/api/auth/logout"
+                    ><i class="bi bi-box-arrow-right"></i> Đăng xuất</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h1 class="h2 text-white mb-4">Hồ sơ cá nhân</h1>
+
+          <!-- User Info Card -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <h5 class="card-title text-white mb-4">Thông tin cá nhân</h5>
+
+              <div class="mb-3">
+                <label class="form-label text-muted small">Tên đăng nhập</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="display_name" class="form-label text-muted small"
+                  >Tên hiển thị</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="display_name"
+                  placeholder="Nhập tên hiển thị..."
+                />
+              </div>
+
+              <div class="mb-4">
+                <label for="class_name" class="form-label text-muted small"
+                  >Lớp</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="class_name"
+                  placeholder="Nhập tên lớp..."
+                />
+              </div>
+
+              <button class="btn btn-primary" onclick="updateInfo()">
+                Cập nhật thông tin
+              </button>
+              <div id="info-msg" class="mt-3" style="display: none"></div>
+            </div>
+          </div>
+
+          <!-- Change Password Card -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title text-white mb-4">Đổi mật khẩu</h5>
+
+              <div class="mb-3">
+                <label
+                  for="current_password"
+                  class="form-label text-muted small"
+                  >Mật khẩu hiện tại</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="current_password"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="new_password" class="form-label text-muted small"
+                  >Mật khẩu mới</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="new_password"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div class="mb-4">
+                <label
+                  for="confirm_password"
+                  class="form-label text-muted small"
+                  >Xác nhận mật khẩu mới</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirm_password"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button class="btn btn-primary" onclick="changePassword()">
+                Đổi mật khẩu
+              </button>
+              <div id="password-msg" class="mt-3" style="display: none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-auto">
+      <p class="mb-1 text-muted small">&copy; 2026 Luyện Tập Code</p>
+      <p class="text-muted small mb-0">
+        create by <strong>Đàm Văn Luận</strong>
+      </p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Load user info on page load
+      async function loadUserInfo() {
+        try {
+          const res = await fetch("/api/auth/me");
+          const data = await res.json();
+
+          if (data.username) {
+            document.getElementById("username").value = data.username;
+            document.getElementById("display_name").value =
+              data.display_name || "";
+            const navDisplayEl = document.getElementById("nav-user-display");
+            if (navDisplayEl)
+              navDisplayEl.textContent = data.display_name || "Sinh viên";
+
+            // Load full user data to get class_name
+            const usersRes = await fetch("/api/admin/students");
+            if (usersRes.ok) {
+              const users = await usersRes.json();
+              const currentUser = users.find(
+                (u) => u.username === data.username,
+              );
+              if (currentUser && currentUser.class_name) {
+                document.getElementById("class_name").value =
+                  currentUser.class_name;
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed to load user info:", e);
+        }
+      }
+
+      async function updateInfo() {
+        const displayName = document
+          .getElementById("display_name")
+          .value.trim();
+        const className = document.getElementById("class_name").value.trim();
+        const msgEl = document.getElementById("info-msg");
+
+        if (!displayName) {
+          showMessage(msgEl, "Vui lòng nhập tên hiển thị", "danger");
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/auth/update-info", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              display_name: displayName,
+              class_name: className,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.status === "success") {
+            showMessage(msgEl, "Cập nhật thông tin thành công!", "success");
+          } else {
+            showMessage(msgEl, data.message || "Có lỗi xảy ra", "danger");
+          }
+        } catch (e) {
+          showMessage(msgEl, "Lỗi kết nối máy chủ", "danger");
+        }
+      }
+
+      async function changePassword() {
+        const currentPassword =
+          document.getElementById("current_password").value;
+        const newPassword = document.getElementById("new_password").value;
+        const confirmPassword =
+          document.getElementById("confirm_password").value;
+        const msgEl = document.getElementById("password-msg");
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          showMessage(msgEl, "Vui lòng điền đầy đủ thông tin", "danger");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showMessage(msgEl, "Mật khẩu mới không khớp", "danger");
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          showMessage(msgEl, "Mật khẩu mới phải có ít nhất 6 ký tự", "danger");
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/auth/change-password", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              current_password: currentPassword,
+              new_password: newPassword,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.status === "success") {
+            showMessage(
+              msgEl,
+              "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.",
+              "success",
+            );
+            // Clear password fields
+            document.getElementById("current_password").value = "";
+            document.getElementById("new_password").value = "";
+            document.getElementById("confirm_password").value = "";
+
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+              window.location.href = "/api/auth/logout";
+            }, 2000);
+          } else {
+            showMessage(msgEl, data.message || "Có lỗi xảy ra", "danger");
+          }
+        } catch (e) {
+          showMessage(msgEl, "Lỗi kết nối máy chủ", "danger");
+        }
+      }
+
+      function showMessage(element, message, type) {
+        element.className = `alert alert-${type} py-2 small`;
+        element.textContent = message;
+        element.style.display = "block";
+
+        // Auto-hide success messages after 3 seconds
+        if (type === "success") {
+          setTimeout(() => {
+            element.style.display = "none";
+          }, 3000);
+        }
+      }
+
+      // Load user info when page loads
+      loadUserInfo();
+    </script>
+  </body>
+</html>

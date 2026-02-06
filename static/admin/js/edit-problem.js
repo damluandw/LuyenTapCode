@@ -66,7 +66,12 @@ function updatePreview() {
 
     document.getElementById('pre-title').textContent = title;
     document.getElementById('pre-diff').textContent = diff;
-    document.getElementById('pre-diff').className = `difficulty-badge ${diff.toLowerCase()}`;
+    
+    // Bootstrap badge colors
+    let badgeClass = 'bg-success';
+    if (diff === 'Medium') badgeClass = 'bg-warning text-dark';
+    if (diff === 'Hard') badgeClass = 'bg-danger';
+    document.getElementById('pre-diff').className = `badge ${badgeClass} mb-3`;
 
     // Use marked for markdown rendering
     if (window.marked) {
@@ -81,17 +86,19 @@ function updatePreview() {
 function addTestCase(input = '', output = '') {
     const container = document.getElementById('testcase-list');
     const div = document.createElement('div');
-    div.className = 'testcase-item';
+    div.className = 'card bg-dark bg-opacity-25 border-secondary border-opacity-25 p-4 mb-3 position-relative shadow-sm testcase-item';
     div.innerHTML = `
-        <span class="tc-remove" onclick="this.parentElement.remove()">Xóa bộ này</span>
-        <div class="testcase-grid">
-            <div class="form-group">
-                <label>Input</label>
-                <textarea class="tc-input tc-in">${input}</textarea>
+        <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 border-0" onclick="this.parentElement.remove()" title="Xóa bộ test">
+            <i class="bi bi-trash"></i>
+        </button>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label-custom">Đầu vào (Input)</label>
+                <textarea class="form-control bg-dark border-secondary text-light tc-input tc-in" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${input}</textarea>
             </div>
-            <div class="form-group">
-                <label>Output mong đợi</label>
-                <textarea class="tc-input tc-out">${output}</textarea>
+            <div class="col-md-6">
+                <label class="form-label-custom">Đầu ra mong đợi (Output)</label>
+                <textarea class="form-control bg-dark border-secondary text-light tc-input tc-out" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${output}</textarea>
             </div>
         </div>
     `;
@@ -247,17 +254,23 @@ async function testSolution(lang) {
 
         result.results.forEach((r, i) => {
             const card = document.createElement('div');
-            card.className = `result-mini-card ${r.passed ? 'passed' : 'failed'}`;
+            const statusColor = r.passed ? 'success' : 'danger';
+            card.className = `card bg-dark bg-opacity-25 border-${statusColor} border-opacity-50 border-start border-4 mb-2 p-3 shadow-sm`;
 
             const inText = (r.input || "").substring(0, 15);
             const outText = (r.actual || "").substring(0, 15);
 
             card.innerHTML = `
-                <strong>Test #${i + 1}: ${r.passed ? 'PASSED' : 'FAILED'}</strong>
-                <div style="font-size: 0.75rem; color: #8b949e">
-                    In: ${inText}${r.input && r.input.length > 15 ? '...' : ''} | Out: ${outText}${r.actual && r.actual.length > 15 ? '...' : ''}
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <strong class="text-${statusColor} small text-uppercase fw-bold">Test #${i + 1}: ${r.passed ? 'PASSED' : 'FAILED'}</strong>
+                    ${r.passed ? '<i class="bi bi-check-circle-fill text-success h6 mb-0"></i>' : '<i class="bi bi-x-circle-fill text-danger h6 mb-0"></i>'}
                 </div>
-                ${r.error ? `<div style="font-size: 0.7rem; color: #f85149; margin-top: 5px; white-space: pre-wrap;">Error: ${r.error}</div>` : ''}
+                <div class="small text-muted font-monospace">
+                    <span class="opacity-50">In:</span> ${inText}${r.input && r.input.length > 15 ? '...' : ''} 
+                    <span class="mx-1 opacity-25">|</span>
+                    <span class="opacity-50">Out:</span> ${outText}${r.actual && r.actual.length > 15 ? '...' : ''}
+                </div>
+                ${r.error ? `<div class="mt-2 small text-danger bg-danger bg-opacity-10 p-2 rounded border border-danger border-opacity-25" style="white-space: pre-wrap;">Error: ${r.error}</div>` : ''}
             `;
             listContainer.appendChild(card);
         });

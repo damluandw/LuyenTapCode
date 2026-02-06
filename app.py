@@ -177,6 +177,12 @@ def student_history_page():
 def student_dashboard_page():
     return app.send_static_file("sinhvien/dashboard.html")
 
+@app.route("/profile")
+@login_required
+def student_profile_page():
+    return app.send_static_file("sinhvien/profile.html")
+
+
 @app.route("/api/auth/login", methods=["POST"])
 def api_login():
     data = request.json
@@ -223,6 +229,52 @@ def api_me():
             "display_name": session.get('display_name')
         })
     return jsonify({"error": "Not logged in"}), 401
+
+@app.route("/api/auth/update-info", methods=["PUT"])
+@login_required
+def update_info():
+    data = request.json
+    username = session.get("username")
+    display_name = data.get("display_name")
+    class_name = data.get("class_name")
+    
+    users = load_json("users.json")
+    found = False
+    for user in users:
+        if user["username"] == username:
+            if display_name:
+                user["display_name"] = display_name
+                session['display_name'] = display_name
+            if class_name:
+                user["class_name"] = class_name
+            found = True
+            break
+    
+    if found:
+        save_json("users.json", users)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "User not found"}), 404
+
+@app.route("/api/auth/change-password", methods=["PUT"])
+@login_required
+def change_password():
+    data = request.json
+    username = session.get("username")
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    
+    users = load_json("users.json")
+    user_idx = next((i for i, u in enumerate(users) if u["username"] == username), -1)
+    
+    if user_idx == -1:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+        
+    if users[user_idx]["password"] != current_password:
+        return jsonify({"status": "error", "message": "Mật khẩu hiện tại không đúng"}), 400
+        
+    users[user_idx]["password"] = new_password
+    save_json("users.json", users)
+    return jsonify({"status": "success"})
 
 @app.route("/problems")
 @login_required

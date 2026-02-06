@@ -100,5 +100,61 @@
     "examId": "1",
     "username": "sv01",
     "timestamp": "2026-02-02 01:05:08"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 16:35:39"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 16:53:06"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 16:53:59"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:07:26"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:07:45"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:13:27"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:24:08"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-06 17:29:50"
   }
 ]

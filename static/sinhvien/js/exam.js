@@ -29,13 +29,49 @@ require(["vs/editor/editor.main"], async function () {
   checkUser();
   setupEventListeners();
   startTimer();
+  setupSidebarToggle();
+  setupTabs();
 });
+
+function setupSidebarToggle() {
+    const toggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const icon = document.getElementById('toggle-icon');
+    
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            icon.classList.toggle('bi-chevron-left');
+            icon.classList.toggle('bi-chevron-right');
+            setTimeout(() => editor.layout(), 310);
+        });
+    }
+}
+
+function setupTabs() {
+    document.querySelectorAll(".console-section .tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            switchTab(btn.dataset.tab);
+        });
+    });
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll(".console-section .tab-btn").forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+    document.querySelectorAll(".console-section .tab-pane").forEach(p => p.classList.toggle('active', p.id === `tab-${tabId}`));
+    if (tabId === 'console') {
+        setTimeout(() => terminal.fitAddon.fit(), 50);
+    }
+}
 
 async function checkUser() {
   const res = await fetch('/api/auth/me');
   if (!res.ok) { window.location.href = '/login'; return; }
   const data = await res.json();
-  document.getElementById('user-name').textContent = data.display_name;
+  const nameEl = document.getElementById('user-name');
+  const navDisplayEl = document.getElementById('nav-user-display');
+  if (nameEl) nameEl.textContent = data.display_name;
+  if (navDisplayEl) navDisplayEl.textContent = data.display_name;
 }
 
 async function fetchExamData() {

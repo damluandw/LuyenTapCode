@@ -4,95 +4,218 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Admin</title>
-    <link rel="stylesheet" href="/sinhvien/css/student.css" />
-    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        width: 260px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+      .admin-main {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg-dark);
+        overflow-y: auto;
+      }
+      .stat-card {
+        border-radius: 16px;
+        border-left: 4px solid var(--accent);
+      }
+      .lang-bar-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+    </style>
   </head>
   <body>
     <div class="admin-wrapper">
-      <aside class="admin-sidebar">
+      <aside class="admin-sidebar shadow-sm">
         <!-- Sidebar injected by sidebar.js -->
+        <div
+          class="p-4 text-center border-bottom border-secondary border-opacity-25"
+        >
+          <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
+        </div>
       </aside>
 
       <main class="admin-main">
         <div id="tab-dashboard" class="admin-tab">
-          <h2 style="margin-bottom: 2rem">Tổng quan hệ thống</h2>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="label">Tổng bài tập</div>
-              <div id="stat-problems" class="value">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">Tổng sinh viên</div>
-              <div id="stat-students" class="value">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="label">Lượt đăng nhập (SV)</div>
-              <div id="stat-hits" class="value">0</div>
-            </div>
-          </div>
-
-          <div
-            class="stats-grid"
-            style="grid-template-columns: repeat(3, 1fr); margin-top: 1rem"
+          <header
+            class="mb-5 d-flex justify-content-between align-items-center"
           >
-            <div class="stat-card" style="border-left: 4px solid var(--accent)">
-              <div class="label">Tổng kỳ thi</div>
-              <div id="stat-exams" class="value">0</div>
+            <div>
+              <h2 class="h3 fw-bold text-white mb-1">Tổng quan hệ thống</h2>
+              <p class="text-muted small">Thông tin thống kê toàn hệ thống</p>
             </div>
-            <div class="stat-card" style="border-left: 4px solid #3fb950">
-              <div class="label">Kỳ thi đang mở</div>
-              <div id="stat-active-exams" class="value">0</div>
+            <div class="d-flex gap-2">
+              <a href="/dashboard" class="btn btn-sm btn-outline-info"
+                >Về trang học viên</a
+              >
+              <a href="/api/auth/logout" class="btn btn-sm btn-outline-danger"
+                >Đăng xuất</a
+              >
             </div>
-            <div class="stat-card" style="border-left: 4px solid #f85149">
-              <div class="label">Lượt làm bài thi</div>
-              <div id="stat-exam-subs" class="value">0</div>
-            </div>
-          </div>
+          </header>
 
-          <div class="charts-row">
-            <div class="chart-container">
-              <h3>Phân bố ngôn ngữ</h3>
-              <div id="lang-stats" class="lang-bar-wrapper">
-                <!-- Data loaded via JS -->
+          <!-- Main Stats Row -->
+          <div class="row g-4 mb-4">
+            <div class="col-md-4">
+              <div class="card h-100 p-4 stat-card shadow-sm">
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Tổng bài tập
+                </div>
+                <div id="stat-problems" class="h2 fw-bold text-white mb-0">
+                  0
+                </div>
               </div>
             </div>
-            <div class="chart-container">
-              <h3>Hoạt động gần đây</h3>
-              <table class="data-table" style="font-size: 0.85rem">
-                <thead>
-                  <tr>
-                    <th>SV</th>
-                    <th>Bài tập</th>
-                    <th>Ngôn ngữ</th>
-                    <th>Thời gian</th>
-                  </tr>
-                </thead>
-                <tbody id="recent-activity-body"></tbody>
-              </table>
+            <div class="col-md-4">
+              <div class="card h-100 p-4 stat-card shadow-sm">
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Tổng sinh viên
+                </div>
+                <div id="stat-students" class="h2 fw-bold text-white mb-0">
+                  0
+                </div>
+              </div>
             </div>
-            <div class="chart-container">
-              <h3>Hoạt động thi mới nhất</h3>
-              <table class="data-table" style="font-size: 0.85rem">
-                <thead>
-                  <tr>
-                    <th>SV</th>
-                    <th>Kỳ thi</th>
-                    <th>Bài tập</th>
-                    <th>Thời gian</th>
-                  </tr>
-                </thead>
-                <tbody id="recent-exam-activity-body"></tbody>
-              </table>
+            <div class="col-md-4">
+              <div class="card h-100 p-4 stat-card shadow-sm">
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Lượt đăng nhập (SV)
+                </div>
+                <div id="stat-hits" class="h2 fw-bold text-white mb-0">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exam Stats Row -->
+          <div class="row g-4 mb-5">
+            <div class="col-md-4">
+              <div
+                class="card h-100 p-4 stat-card shadow-sm border-info"
+                style="border-left-color: var(--bs-info) !important"
+              >
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Tổng kỳ thi
+                </div>
+                <div id="stat-exams" class="h2 fw-bold text-white mb-0">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div
+                class="card h-100 p-4 stat-card shadow-sm border-success"
+                style="border-left-color: var(--bs-success) !important"
+              >
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Kỳ thi đang mở
+                </div>
+                <div id="stat-active-exams" class="h2 fw-bold text-white mb-0">
+                  0
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div
+                class="card h-100 p-4 stat-card shadow-sm border-danger"
+                style="border-left-color: var(--bs-danger) !important"
+              >
+                <div class="text-muted small mb-2 text-uppercase fw-bold">
+                  Lượt làm bài thi
+                </div>
+                <div id="stat-exam-subs" class="h2 fw-bold text-white mb-0">
+                  0
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4 mb-5">
+            <!-- Language Bar Chart Wrapper -->
+            <div class="col-lg-4">
+              <div class="card h-100 p-4">
+                <h3 class="h5 fw-bold text-white mb-4">Phân bố ngôn ngữ</h3>
+                <div id="lang-stats" class="lang-bar-wrapper">
+                  <!-- Data loaded via JS -->
+                  <div class="text-center text-muted p-4">Đang tải...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="col-lg-4">
+              <div class="card h-100 p-4">
+                <h3 class="h5 fw-bold text-white mb-4">Hoạt động gần đây</h3>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover table-sm small mb-0"
+                  >
+                    <thead>
+                      <tr class="text-muted fst-italic">
+                        <th class="border-secondary">SV</th>
+                        <th class="border-secondary">Bài tập</th>
+                        <th class="border-secondary">Ngôn ngữ</th>
+                        <th class="border-secondary">Thời gian</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="recent-activity-body"
+                      class="border-top-0"
+                    ></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Exam Activity Table -->
+            <div class="col-lg-4">
+              <div class="card h-100 p-4">
+                <h3 class="h5 fw-bold text-white mb-4">
+                  Hoạt động thi mới nhất
+                </h3>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover table-sm small mb-0"
+                  >
+                    <thead>
+                      <tr class="text-muted fst-italic">
+                        <th class="border-secondary">SV</th>
+                        <th class="border-secondary">Kỳ thi</th>
+                        <th class="border-secondary">Bài tập</th>
+                        <th class="border-secondary">Thời gian</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      id="recent-exam-activity-body"
+                      class="border-top-0"
+                    ></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
     </div>
 
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       var currentTab = "dashboard";
     </script>

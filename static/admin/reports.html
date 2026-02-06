@@ -4,136 +4,285 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Báo cáo chi tiết - Admin</title>
-    <link rel="stylesheet" href="/sinhvien/css/student.css" />
-    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        width: 260px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+      .admin-main {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg-dark);
+        overflow-y: auto;
+      }
+    </style>
   </head>
   <body>
     <div class="admin-wrapper">
-      <aside class="admin-sidebar"></aside>
+      <aside class="admin-sidebar shadow-sm">
+        <!-- Sidebar injected by sidebar.js -->
+        <div
+          class="p-4 text-center border-bottom border-secondary border-opacity-25"
+        >
+          <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
+        </div>
+      </aside>
+
       <main class="admin-main">
         <div id="tab-reports" class="admin-tab">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 20px;
-            "
-          >
-            <h2 id="report-title">Báo cáo</h2>
-          </div>
+          <header class="mb-4">
+            <h2 id="report-title" class="h3 fw-bold text-white mb-1">
+              Báo cáo hệ thống
+            </h2>
+            <p class="text-muted small">
+              Thống kê chi tiết về sinh viên, bài tập và kỳ thi
+            </p>
+          </header>
 
+          <!-- Sub-tab: Student Reports -->
           <div id="tab-reports_students">
-            <div class="search-row">
-              <input
-                type="text"
-                class="search-input"
-                id="search-reports_students"
-                placeholder="Tìm sinh viên theo tên..."
-                oninput="onSearch('reports_students')"
-              />
+            <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
+              <div class="p-3">
+                <div class="input-group">
+                  <span
+                    class="input-group-text bg-dark border-secondary text-muted"
+                  >
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control bg-dark border-secondary text-light"
+                    id="search-reports_students"
+                    placeholder="Tìm sinh viên theo tên..."
+                    oninput="onSearch('reports_students')"
+                  />
+                </div>
+              </div>
             </div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th onclick="onSort('reports_students', 'rank')">Hạng</th>
-                  <th onclick="onSort('reports_students', 'display_name')">
-                    Sinh viên
-                  </th>
-                  <th onclick="onSort('reports_students', 'class_name')">
-                    Lớp
-                  </th>
-                  <th onclick="onSort('reports_students', 'solved_count')">
-                    Đã giải
-                  </th>
-                  <th onclick="onSort('reports_students', 'submission_count')">
-                    Tổng nộp
-                  </th>
-                  <th onclick="onSort('reports_students', 'success_rate')">
-                    Tỷ lệ thành công
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="reports_students-body"></tbody>
-            </table>
-            <div class="pagination-row" id="pagination-reports_students"></div>
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                  <thead
+                    class="bg-dark text-muted small text-uppercase fw-bold"
+                  >
+                    <tr>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'rank')"
+                      >
+                        Hạng <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'display_name')"
+                      >
+                        Sinh viên <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'class_name')"
+                      >
+                        Lớp <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'solved_count')"
+                      >
+                        Đã giải <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'submission_count')"
+                      >
+                        Tổng nộp <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_students', 'success_rate')"
+                      >
+                        Tỷ lệ thành công
+                        <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="reports_students-body"
+                    class="border-top-0"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+            <div
+              class="mt-4 d-flex justify-content-center"
+              id="pagination-reports_students"
+            ></div>
           </div>
 
+          <!-- Sub-tab: Problem Reports -->
           <div id="tab-reports_problems" style="display: none">
-            <div class="search-row">
-              <input
-                type="text"
-                class="search-input"
-                id="search-reports_problems"
-                placeholder="Tìm bài tập theo tên, ID..."
-                oninput="onSearch('reports_problems')"
-              />
-              <select
-                class="search-input"
-                id="filter-reports_problems-difficulty"
-                onchange="onFilter('reports_problems')"
-                style="flex: 0 0 150px"
-              >
-                <option value="all">Độ khó</option>
-                <option value="Dễ">Dễ</option>
-                <option value="Trung bình">Trung bình</option>
-                <option value="Khó">Khó</option>
-              </select>
+            <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
+              <div class="p-3">
+                <div class="row g-3">
+                  <div class="col-md">
+                    <div class="input-group">
+                      <span
+                        class="input-group-text bg-dark border-secondary text-muted"
+                      >
+                        <i class="bi bi-search"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control bg-dark border-secondary text-light"
+                        id="search-reports_problems"
+                        placeholder="Tìm bài tập theo tên, ID..."
+                        oninput="onSearch('reports_problems')"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-auto">
+                    <select
+                      class="form-select bg-dark border-secondary text-light"
+                      id="filter-reports_problems-difficulty"
+                      onchange="onFilter('reports_problems')"
+                      style="min-width: 150px"
+                    >
+                      <option value="all">Tất cả độ khó</option>
+                      <option value="Dễ">Dễ</option>
+                      <option value="Trung bình">Trung bình</option>
+                      <option value="Khó">Khó</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th onclick="onSort('reports_problems', 'id')">ID</th>
-                  <th onclick="onSort('reports_problems', 'title')">
-                    Tên bài tập
-                  </th>
-                  <th onclick="onSort('reports_problems', 'difficulty')">
-                    Mức độ
-                  </th>
-                  <th onclick="onSort('reports_problems', 'attempt_count')">
-                    Tổng lượt nộp
-                  </th>
-                  <th onclick="onSort('reports_problems', 'pass_count')">
-                    Số SV đã giải
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="reports_problems-body"></tbody>
-            </table>
-            <div class="pagination-row" id="pagination-reports_problems"></div>
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                  <thead
+                    class="bg-dark text-muted small text-uppercase fw-bold"
+                  >
+                    <tr>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_problems', 'id')"
+                      >
+                        ID <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_problems', 'title')"
+                      >
+                        Tên bài tập <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_problems', 'difficulty')"
+                      >
+                        Mức độ <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_problems', 'attempt_count')"
+                      >
+                        Tổng lượt nộp <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                      <th
+                        class="px-4 py-3 border-secondary"
+                        style="cursor: pointer"
+                        onclick="onSort('reports_problems', 'pass_count')"
+                      >
+                        Số SV đã giải <i class="bi bi-arrow-down-up ms-1"></i>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    id="reports_problems-body"
+                    class="border-top-0"
+                  ></tbody>
+                </table>
+              </div>
+            </div>
+            <div
+              class="mt-4 d-flex justify-content-center"
+              id="pagination-reports_problems"
+            ></div>
           </div>
 
+          <!-- Sub-tab: Exam Reports -->
           <div id="tab-reports_exams" style="display: none">
-            <div class="search-row">
-              <input
-                type="text"
-                class="search-input"
-                id="search-reports_exams"
-                placeholder="Tìm kỳ thi hoặc sinh viên..."
-                oninput="onSearch('reports_exams')"
-              />
+            <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
+              <div class="p-3">
+                <div class="input-group">
+                  <span
+                    class="input-group-text bg-dark border-secondary text-muted"
+                  >
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input
+                    type="text"
+                    class="form-control bg-dark border-secondary text-light"
+                    id="search-reports_exams"
+                    placeholder="Tìm kỳ thi hoặc sinh viên..."
+                    oninput="onSearch('reports_exams')"
+                  />
+                </div>
+              </div>
             </div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Kỳ thi</th>
-                  <th>Sinh viên</th>
-                  <th>Số bài giải</th>
-                  <th>Tổng điểm</th>
-                  <th>Tiến độ</th>
-                </tr>
-              </thead>
-              <tbody id="reports_exams-body"></tbody>
-            </table>
+
+            <div class="card shadow-sm border-0 overflow-hidden">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                  <thead
+                    class="bg-dark text-muted small text-uppercase fw-bold"
+                  >
+                    <tr>
+                      <th class="px-4 py-3 border-secondary">Kỳ thi</th>
+                      <th class="px-4 py-3 border-secondary">Sinh viên</th>
+                      <th class="px-4 py-3 border-secondary">Số bài giải</th>
+                      <th class="px-4 py-3 border-secondary">Tổng điểm</th>
+                      <th class="px-4 py-3 border-secondary">Tiến độ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reports_exams-body" class="border-top-0"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </main>
     </div>
 
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       var currentTab = "reports";
     </script>
@@ -143,7 +292,12 @@
       // Handle sub-reports via URL t param
       const urlParams = new URLSearchParams(window.location.search);
       const type = urlParams.get("t") || "students";
-      switchReport(type);
+      if (window.switchReport) switchReport(type);
     </script>
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
   </body>
 </html>

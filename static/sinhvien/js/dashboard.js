@@ -7,8 +7,13 @@ async function initDashboard() {
             return;
         }
         const userData = await userRes.json();
-        document.getElementById('user-display').textContent = userData.display_name;
-        document.getElementById('welcome-msg').textContent = `Chào mừng trở lại, ${userData.display_name}!`;
+        const displayEl = document.getElementById('user-display');
+        const navDisplayEl = document.getElementById('nav-user-display');
+        if (displayEl) displayEl.textContent = userData.display_name;
+        if (navDisplayEl) navDisplayEl.textContent = userData.display_name;
+        
+        const welcomeEl = document.getElementById('welcome-msg');
+        if (welcomeEl) welcomeEl.textContent = `Chào mừng trở lại, ${userData.display_name}!`;
 
         // Fetch stats
         const statsRes = await fetch('/api/student/stats');

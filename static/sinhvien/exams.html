@@ -8,122 +8,131 @@
       name="description"
       content="Danh sách các kỳ thi lập trình đang diễn ra. Thử thách bản thân với các bài thi chính thức."
     />
-    <link rel="stylesheet" href="/sinhvien/css/student.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
-      .exams-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 40px 20px;
-        flex: 1;
-      }
-      .exams-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
-        margin-top: 30px;
-      }
-      .exam-card {
-        background: rgba(22, 27, 34, 0.8);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 25px;
-        transition:
-          transform 0.3s ease,
-          border-color 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-      .exam-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--accent);
-      }
-      .exam-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 10px;
-      }
-      .exam-info {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .info-item {
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: rgba(88, 166, 255, 0.1);
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 8px;
-      }
-      .badge {
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-      .badge.time {
-        background: rgba(88, 166, 255, 0.15);
+        justify-content: center;
         color: var(--accent);
-      }
-      .badge.count {
-        background: rgba(63, 185, 80, 0.15);
-        color: #3fb950;
+        font-size: 1.2rem;
       }
     </style>
   </head>
   <body>
-    <header
-      class="top-nav"
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 40px;
-        background: #161b22;
-        border-bottom: 1px solid var(--glass-border);
-      "
-    >
-      <div class="logo">Luyện tập<span>Code</span></div>
-      <nav class="user-info">
-        <a
-          href="/dashboard"
-          style="
-            color: var(--accent);
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: 600;
-          "
-          >Trang chủ</a
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="bi bi-code-slash"></i>
+          Luyện tập<span>Code</span>
+        </a>
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
         >
-        <a
-          href="/api/auth/logout"
-          style="color: #ff7b72; text-decoration: none; font-size: 0.9rem"
-          >Đăng xuất</a
-        >
-      </nav>
-    </header>
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">
+                <i class="bi bi-house-door"></i> Trang chủ
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/exams">
+                <i class="bi bi-journal-text"></i> Kỳ thi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/history">
+                <i class="bi bi-clock-history"></i> Lịch sử
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-nav align-items-center">
+            <div class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                <div class="d-inline-flex align-items-center text-white">
+                  <div class="user-avatar me-2">
+                    <i class="bi bi-person-circle"></i>
+                  </div>
+                  <span id="nav-user-display" class="fw-medium">Sinh viên</span>
+                </div>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="/profile"
+                    ><i class="bi bi-person"></i> Hồ sơ cá nhân</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="/history"
+                    ><i class="bi bi-bar-chart"></i> Tiến độ học tập</a
+                  >
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item text-danger" href="/api/auth/logout"
+                    ><i class="bi bi-box-arrow-right"></i> Đăng xuất</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-    <main class="exams-container">
-      <h1 style="color: white; font-size: 1.8rem">Kỳ thi đang mở</h1>
-      <p style="color: var(--text-secondary); margin-top: 5px">
-        Chọn một kỳ thi bên dưới để bắt đầu làm bài.
-      </p>
+    <!-- Main Content -->
+    <main class="container py-5">
+      <div class="mb-4">
+        <h1 class="h2 text-white mb-2">Kỳ thi đang mở</h1>
+        <p class="text-muted">Chọn một kỳ thi bên dưới để bắt đầu làm bài.</p>
+      </div>
 
-      <div id="exams-list" class="exams-grid">
+      <div id="exams-list" class="row g-4">
         <!-- Loaded via JS -->
       </div>
     </main>
 
-    <footer class="main-footer">
-      <p>Hệ thống hỗ trợ học tập &copy; 2026 - Luyện Tập Code</p>
-      <p style="margin-top: 5px">create by <strong>Đàm Văn Luận</strong></p>
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-auto">
+      <p class="mb-1 text-muted small">&copy; 2026 Luyện Tập Code</p>
+      <p class="text-muted small mb-0">
+        create by <strong>Đàm Văn Luận</strong>
+      </p>
     </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
       async function loadExams() {
@@ -132,7 +141,7 @@
         const list = document.getElementById("exams-list");
 
         if (exams.length === 0) {
-          list.innerHTML = `<p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 40px;">Hiện không có kỳ thi nào đang mở.</p>`;
+          list.innerHTML = `<div class="col-12"><p class="text-center text-muted py-5">Hiện không có kỳ thi nào đang mở.</p></div>`;
           return;
         }
 
@@ -146,35 +155,44 @@
             let statusText = "Bắt đầu làm bài";
             let isDisabled = false;
             let timeInfo = "";
+            let badgeClass = "bg-success";
 
             if (openTime && now < openTime) {
               statusText = "Sắp mở";
               isDisabled = true;
-              timeInfo = `<div style="color:var(--accent); font-size: 0.8rem; margin-top:5px">Mở lúc: ${exam.openTime.replace("T", " ")}</div>`;
+              badgeClass = "bg-info";
+              timeInfo = `<div class="text-info small mt-2">Mở lúc: ${exam.openTime.replace("T", " ")}</div>`;
             } else if (closeTime && now > closeTime) {
               statusText = "Đã kết thúc";
               isDisabled = true;
-              timeInfo = `<div style="color:#f85149; font-size: 0.8rem; margin-top:5px">Đã đóng lúc: ${exam.closeTime.replace("T", " ")}</div>`;
+              badgeClass = "bg-danger";
+              timeInfo = `<div class="text-danger small mt-2">Đã đóng lúc: ${exam.closeTime.replace("T", " ")}</div>`;
             } else if (openTime || closeTime) {
-              timeInfo = `<div style="color:#3fb950; font-size: 0.8rem; margin-top:5px">Đang diễn ra (Kết thúc: ${exam.closeTime ? exam.closeTime.replace("T", " ") : "---"})</div>`;
+              timeInfo = `<div class="text-success small mt-2">Đang diễn ra (Kết thúc: ${exam.closeTime ? exam.closeTime.replace("T", " ") : "---"})</div>`;
             }
 
             return `
-                <article class="exam-card">
-                    <div>
-                    <h2 class="exam-title">${exam.title}</h2>
-                    <div class="exam-info">
-                        <div class="info-item">
-                        <span class="badge time">⏱ ${exam.duration} phút</span>
-                        <span class="badge count">📝 ${exam.problemIds.length} bài tập</span>
-                        </div>
-                        <div class="info-item" style="font-size: 0.8rem;">Ngày tạo: ${exam.startTime || "---"}</div>
-                        ${timeInfo}
+              <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-white mb-3">${exam.title}</h5>
+                    <div class="mb-3">
+                      <span class="badge badge-time me-2">⏱ ${exam.duration} phút</span>
+                      <span class="badge badge-count">📝 ${exam.problemIds.length} bài tập</span>
                     </div>
-                    </div>
-                    <button onclick="startExam(${exam.id})" class="primary-btn" ${isDisabled ? "disabled" : ""} style="width: 100%; margin-top: 10px; ${isDisabled ? "opacity: 0.5; cursor: not-allowed" : ""}">${statusText}</button>
-                </article>
-                `;
+                    <p class="text-muted small mb-2">Ngày tạo: ${exam.startTime || "---"}</p>
+                    ${timeInfo}
+                    <button 
+                      onclick="startExam(${exam.id})" 
+                      class="btn btn-primary w-100 mt-auto ${isDisabled ? "disabled" : ""}"
+                      ${isDisabled ? "disabled" : ""}
+                    >
+                      ${statusText}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
           })
           .join("");
       }
@@ -183,6 +201,20 @@
         window.location.href = `/exam?id=${id}`;
       }
 
+      async function loadNavbarUser() {
+        try {
+          const res = await fetch("/api/auth/me");
+          const data = await res.json();
+          if (data.display_name) {
+            document.getElementById("nav-user-display").textContent =
+              data.display_name;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      loadNavbarUser();
       loadExams();
     </script>
   </body>

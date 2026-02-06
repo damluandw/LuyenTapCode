@@ -4,54 +4,134 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quản lý kỳ thi - Admin</title>
-    <link rel="stylesheet" href="/sinhvien/css/student.css" />
-    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        width: 260px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+      .admin-main {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg-dark);
+        overflow-y: auto;
+      }
+    </style>
   </head>
   <body>
     <div class="admin-wrapper">
-      <aside class="admin-sidebar"></aside>
+      <aside class="admin-sidebar shadow-sm">
+        <!-- Sidebar injected by sidebar.js -->
+        <div
+          class="p-4 text-center border-bottom border-secondary border-opacity-25"
+        >
+          <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
+        </div>
+      </aside>
+
       <main class="admin-main">
         <div id="tab-exams" class="admin-tab">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
+          <header
+            class="mb-4 d-flex justify-content-between align-items-center"
           >
-            <h2>Quản lý kỳ thi</h2>
+            <div>
+              <h2 class="h3 fw-bold text-white mb-1">Quản lý kỳ thi</h2>
+              <p class="text-muted small">
+                Quản lý các đợt thi, thời gian và cấu trúc đề thi
+              </p>
+            </div>
             <button
-              class="primary-btn"
+              class="btn btn-primary shadow-sm px-4 fw-bold"
               onclick="location.href = '/admin/create-exam'"
             >
-              + Tạo kỳ thi mới
+              <i class="bi bi-calendar-plus me-1"></i> Tạo kỳ thi mới
             </button>
+          </header>
+
+          <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0">
+                <thead class="bg-dark text-muted small text-uppercase fw-bold">
+                  <tr>
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('exams', 'exam_name')"
+                    >
+                      Tên kỳ thi <i class="bi bi-arrow-down-up ms-1"></i>
+                    </th>
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('exams', 'created_at')"
+                    >
+                      Ngày tạo <i class="bi bi-arrow-down-up ms-1"></i>
+                    </th>
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('exams', 'problem_count')"
+                    >
+                      Số bài tập <i class="bi bi-arrow-down-up ms-1"></i>
+                    </th>
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('exams', 'duration')"
+                    >
+                      Thời gian <i class="bi bi-arrow-down-up ms-1"></i>
+                    </th>
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('exams', 'status')"
+                    >
+                      Trạng thái <i class="bi bi-arrow-down-up ms-1"></i>
+                    </th>
+                    <th class="px-4 py-3 border-secondary">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="exams-body" class="border-top-0">
+                  <!-- Loaded via JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th onclick="onSort('exams', 'exam_name')">Tên kỳ thi</th>
-                <th onclick="onSort('exams', 'created_at')">Ngày tạo</th>
-                <th onclick="onSort('exams', 'problem_count')">Số bài tập</th>
-                <th onclick="onSort('exams', 'duration')">Thời gian</th>
-                <th onclick="onSort('exams', 'status')">Trạng thái</th>
-                <th>Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="exams-body"></tbody>
-          </table>
-          <div class="pagination-row" id="pagination-exams"></div>
+          <div
+            class="mt-4 d-flex justify-content-center"
+            id="pagination-exams"
+          ></div>
         </div>
       </main>
     </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       var currentTab = "exams";
     </script>
     <script src="/admin/js/admin.js"></script>
     <script src="/admin/js/sidebar.js"></script>
+    <!-- Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
   </body>
 </html>

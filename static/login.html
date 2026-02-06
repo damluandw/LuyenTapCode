@@ -4,98 +4,100 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đăng nhập - Luyện Tập Code</title>
-    <link rel="stylesheet" href="/sinhvien/css/styles.css" />
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <style>
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at top right, #1e293b, #0d1117);
-      }
-      .login-card {
-        background: rgba(22, 27, 34, 0.8);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 3rem;
-        border-radius: 20px;
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        text-align: center;
-      }
-      .login-card h1 {
-        margin-bottom: 0.5rem;
-        font-size: 1.75rem;
-        font-weight: 700;
-      }
-      .login-card p {
-        color: var(--text-secondary);
-        margin-bottom: 2rem;
-      }
-      .form-group {
-        text-align: left;
-        margin-bottom: 1.5rem;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-      }
-      input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        background: #0d1117;
-        border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        color: white;
-        transition: border-color 0.2s;
-      }
-      input:focus {
-        outline: none;
-        border-color: var(--accent);
-      }
-      #error-msg {
-        color: #ff7b72;
-        font-size: 0.85rem;
-        margin-top: 1rem;
-        display: none;
-      }
-      .login-btn {
-        width: 100%;
-        margin-top: 1rem;
-      }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <div class="login-card">
-      <div class="logo">Luyện<span>TapCode</span></div>
-      <h1>Chào mừng trở lại</h1>
-      <p>Đăng nhập để tiếp tục luyện tập</p>
+    <div
+      class="container d-flex flex-column justify-content-center"
+      style="min-height: 100vh"
+    >
+      <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+          <div class="card p-4 mb-4">
+            <div class="text-center mb-4">
+              <div class="h3 fw-bold text-white mb-3">
+                Luyện<span style="color: var(--accent)">Code</span>
+              </div>
+              <h1 class="h4 mb-2 text-white">Chào mừng trở lại</h1>
+              <p class="text-muted small">Đăng nhập để tiếp tục luyện tập</p>
+            </div>
 
-      <div class="form-group">
-        <label for="username">Tên đăng nhập</label>
-        <input type="text" id="username" placeholder="Nhập tên đăng nhập..." />
+            <div class="mb-3">
+              <label for="username" class="form-label text-muted small"
+                >Tên đăng nhập</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Nhập tên đăng nhập..."
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label text-muted small"
+                >Mật khẩu</label
+              >
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              class="btn btn-primary w-100 py-2 fw-semibold"
+              onclick="login()"
+            >
+              Đăng nhập
+            </button>
+
+            <div
+              id="error-msg"
+              class="alert alert-danger mt-3 py-2 small"
+              style="display: none"
+            ></div>
+          </div>
+
+          <div class="text-center text-muted small">
+            &copy; 2026 Luyện Tập Code
+          </div>
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="password">Mật khẩu</label>
-        <input type="password" id="password" placeholder="••••••••" />
-      </div>
-
-      <button class="primary-btn login-btn" onclick="login()">Đăng nhập</button>
-      <div id="error-msg"></div>
     </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
       async function login() {
         const user = document.getElementById("username").value;
         const pass = document.getElementById("password").value;
         const errorEl = document.getElementById("error-msg");
+
+        // Simple validation
+        if (!user || !pass) {
+          errorEl.textContent = "Vui lòng nhập đầy đủ thông tin";
+          errorEl.style.display = "block";
+          return;
+        }
+
+        // Disable button to prevent double submit (optional UX)
+        const btn = document.querySelector("button");
+        const originalText = btn.innerText;
+        btn.innerText = "Đang xử lý...";
+        btn.disabled = true;
 
         try {
           const res = await fetch("/api/auth/login", {
@@ -111,10 +113,14 @@
           } else {
             errorEl.textContent = data.message;
             errorEl.style.display = "block";
+            btn.innerText = originalText;
+            btn.disabled = false;
           }
         } catch (e) {
           errorEl.textContent = "Lỗi kết nối máy chủ";
           errorEl.style.display = "block";
+          btn.innerText = originalText;
+          btn.disabled = false;
         }
       }
 
