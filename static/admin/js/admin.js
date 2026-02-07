@@ -227,6 +227,15 @@ function switchReport(view) {
   if (reportsProblems) reportsProblems.style.display = view === "problems" ? "block" : "none";
   if (reportsExams) reportsExams.style.display = view === "exams" ? "block" : "none";
 
+  // Swap data for reports_exams if needed
+  if (view === "exams" && state.originalExamsReportData) {
+    state.reports_exams.data = state.originalExamsReportData;
+    updateFilteredData("reports_exams");
+  } else if (view === "students_exam" && state.reports_exams_flat) { // Custom view for drill-down in reports.html if needed
+    state.reports_exams.data = state.reports_exams_flat;
+    updateFilteredData("reports_exams");
+  }
+
   renderTable(`reports_${view}`);
 }
 
@@ -398,13 +407,14 @@ function updateFilteredData(tab) {
         item.difficulty === s.filters.difficulty;
       return matchesSearch && matchesDiff;
     } else if (tab === "reports_exams") {
-      matchesSearch =
-        (item.examTitle || "").toLowerCase().includes(query) ||
-        (item.display_name || "").toLowerCase().includes(query) ||
-        (item.username || "").toLowerCase().includes(query);
-
-      const matchesExam = selectedExamId === null || item.examId == selectedExamId;
-      return matchesSearch && matchesExam;
+      if (examReportView === "exams") {
+        matchesSearch = (item.title || "").toLowerCase().includes(query) || (item.id || "").toString().includes(query);
+        return matchesSearch;
+      } else {
+        matchesSearch = (item.display_name || "").toLowerCase().includes(query) || (item.username || "").toLowerCase().includes(query);
+        const matchesExam = selectedExamId === null || item.examId == selectedExamId;
+        return matchesSearch && matchesExam;
+      }
     }
     return true;
   });
@@ -423,11 +433,8 @@ function updateFilteredData(tab) {
   });
 }
 
-// Exam reports drill-down state
-// Exam reports drill-down state
-examReportView = "exams"; // "exams" or "students"
-selectedExamId = null;
-allExamSubmissions = []; // To store raw submissions of selected exam
+// Exam reports drill-down state is now derived from URL and page context
+// examReportView, selectedExamId, allExamSubmissions are initialized at top or in pages
 
 function renderTable(tab) {
   const s = state[tab];
@@ -574,7 +581,7 @@ function renderTable(tab) {
           `;
       }
 
-      body.innerHTML = state.originalExamsReportData.map(ex => `
+      body.innerHTML = pageData.map(ex => `
             <tr>
                 <td><div class="fw-bold">${ex.title}</div><div class="text-muted small">ID: ${ex.id}</div></td>
                 <td class="text-center">${ex.student_count}</td>
@@ -585,6 +592,8 @@ function renderTable(tab) {
                 </td>
             </tr>
         `).join("") || '<tr><td colspan="5" class="text-center">Chưa có kỳ thi nào</td></tr>';
+      renderPagination(tab);
+      updateSortUI(tab);
     } else if (examReportView === "students") {
       const titleEl = document.getElementById("exam-title-breadcrumb");
       const ex = state.originalExamsReportData.find(e => e.id == selectedExamId);
@@ -625,6 +634,8 @@ function renderTable(tab) {
                 </tr>
             `;
       }).join("") || '<tr><td colspan="5" class="text-center">Chưa có sinh viên tham gia</td></tr>';
+      renderPagination(tab);
+      updateSortUI(tab);
     }
   }
 }
@@ -957,7 +968,7 @@ async function saveStudent() {
 }
 
 // Reports logic
-examReportView = "students"; // Re-using existing global
+// examReportView is usually managed by individual pages
 
 function toggleReportView(view) {
   switchReport(view);
@@ -991,21 +1002,26 @@ async function loadReports() {
         });
       });
     });
-    state.reports_exams.data = flatExamReports;
+    state.reports_exams_flat = flatExamReports;
+
+    // Assign data to active tab state based on view
+    if (examReportView === "exams") {
+      state.reports_exams.data = state.originalExamsReportData;
+    } else {
+      state.reports_exams.data = state.reports_exams_flat;
+    }
 
     updateFilteredData("reports_students");
     updateFilteredData("reports_problems");
     updateFilteredData("reports_exams");
 
     if (currentTab === "reports_exams" || currentTab.includes("exam-")) {
-      console.log("Current Tab matches report-exams, view:", examReportView);
       if (examReportView === "submissions") {
         loadExamSubmissions(selectedExamId, selectedUsername);
       } else {
         renderTable("reports_exams");
       }
     } else {
-      console.log("Current Tab is:", currentTab, "rendering naturally.");
       renderTable(currentTab);
     }
   } catch (e) {
