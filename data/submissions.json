@@ -305,5 +305,38 @@
     "allPassed": false,
     "username": "sv01",
     "timestamp": "2026-02-06 18:09:28"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "code": "",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-07 08:58:14"
+  },
+  {
+    "problemId": 4,
+    "problemTitle": "Trung bình cộng 3 số",
+    "language": "c",
+    "code": "",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-07 08:58:22"
+  },
+  {
+    "problemId": 5,
+    "problemTitle": "Tìm phần dư",
+    "language": "c",
+    "code": "",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "username": "sv01",
+    "timestamp": "2026-02-07 08:58:27"
   }
 ]

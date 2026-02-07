@@ -4,7 +4,7 @@ function injectSidebar() {
 
     const path = window.location.pathname;
     const search = window.location.search;
-    
+
     sidebar.innerHTML = `
         <div class="sidebar-header p-4 border-bottom border-secondary border-opacity-25 mb-3">
             <h1 class="h5 fw-bold text-white mb-0">
@@ -30,14 +30,14 @@ function injectSidebar() {
                 <i class="bi bi-chevron-down ms-auto small transition-transform" id="reports-chevron"></i>
             </div>
             
-            <div id="sub-nav-reports" class="admin-sub-nav" style="display: ${path.includes('/reports') || path.includes('/submissions') ? 'block' : 'none'}">
-                <a href="/admin/reports?t=students" class="admin-sub-item ${path.includes('/reports') && search.includes('t=students') ? 'active' : ''}">
+            <div id="sub-nav-reports" class="admin-sub-nav" style="display: ${path.includes('/report') || path.includes('/submissions') ? 'block' : 'none'}">
+                <a href="/admin/report-students.html" class="admin-sub-item ${path.includes('report-students') ? 'active' : ''}">
                     Bảng xếp hạng SV
                 </a>
-                <a href="/admin/reports?t=problems" class="admin-sub-item ${path.includes('/reports') && search.includes('t=problems') ? 'active' : ''}">
+                <a href="/admin/report-problems.html" class="admin-sub-item ${path.includes('report-problems') ? 'active' : ''}">
                     Thống kê bài tập
                 </a>
-                <a href="/admin/reports?t=exams" class="admin-sub-item ${path.includes('/reports') && search.includes('t=exams') ? 'active' : ''}">
+                <a href="/admin/report-exams.html" class="admin-sub-item ${path.includes('report-exam') ? 'active' : ''}">
                     Lịch sử thi
                 </a>
                 <a href="/admin/submissions" class="admin-sub-item ${path === '/admin/submissions' ? 'active' : ''}">

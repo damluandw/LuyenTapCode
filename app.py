@@ -812,20 +812,22 @@ def get_reports():
         exam_id = exam["id"]
         points_map = exam.get("problemPoints", {})
         
-        # All successful submissions for this exam
-        exam_subs = [s for s in submissions if str(s.get("examId")) == str(exam_id) and s.get("allPassed") is True]
+        # All submissions for this exam (regardless of success, to count attendees)
+        exam_all_subs = [s for s in submissions if str(s.get("examId")) == str(exam_id)]
+        # Successful submissions for score calculation
+        exam_pass_subs = [s for s in exam_all_subs if s.get("allPassed") is True]
         
         # Results per student in this exam
         student_results = []
-        attendees = set([s["username"] for s in exam_subs])
+        attendees = set([s["username"] for s in exam_all_subs])
         
         for username in attendees:
             user = next((u for u in students if u["username"] == username), None)
             if not user: continue
             
-            user_exam_subs = [s for s in exam_subs if s["username"] == username]
+            user_exam_pass_subs = [s for s in exam_pass_subs if s["username"] == username]
             # Consider only distinct solved problems
-            solved_ids = set([s["problemId"] for s in user_exam_subs])
+            solved_ids = set([s["problemId"] for s in user_exam_pass_subs])
             
             score = 0
             for pid in solved_ids:
@@ -854,6 +856,37 @@ def get_reports():
         "exams": exam_report
     })
 
+# Admin Pages Routing
+@app.route("/admin/report-students")
+@login_required
+@instructor_required
+def admin_report_students_page():
+    return app.send_static_file("admin/report-students.html")
+
+@app.route("/admin/report-problems")
+@login_required
+@instructor_required
+def admin_report_problems_page():
+    return app.send_static_file("admin/report-problems.html")
+
+@app.route("/admin/report-exams")
+@login_required
+@instructor_required
+def admin_report_exams_page():
+    return app.send_static_file("admin/report-exams.html")
+
+@app.route("/admin/report-exam-detail")
+@login_required
+@instructor_required
+def admin_report_exam_detail_page():
+    return app.send_static_file("admin/report-exam-detail.html")
+
+@app.route("/admin/report-exam-submissions")
+@login_required
+@instructor_required
+def admin_report_exam_submissions_page():
+    return app.send_static_file("admin/report-exam-submissions.html")
+
 # Tracking & Submissions
 @app.route("/api/submissions", methods=["GET", "POST"])
 @login_required
@@ -880,6 +913,14 @@ def handle_submissions():
         # Student only sees their own
         user_subs = [s for s in submissions if s["username"] == session["username"]]
         return jsonify(user_subs)
+
+@app.route("/api/admin/exams/<int:eid>/submissions")
+@login_required
+@instructor_required
+def get_exam_submissions(eid):
+    submissions = load_json("submissions.json")
+    exam_subs = [s for s in submissions if str(s.get("examId")) == str(eid)]
+    return jsonify(exam_subs)
 
 @socketio.on('connect')
 def handle_connect():
