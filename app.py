@@ -391,6 +391,18 @@ def add_problem():
     save_json("problems.json", problems)
     return jsonify({"status": "success", "id": new_prob["id"]})
 
+@app.route("/api/admin/students/list", methods=["GET"])
+@login_required
+@instructor_required
+def get_all_students_for_selection():
+    users = load_json("users.json")
+    students = [{
+        "username": u["username"],
+        "display_name": u.get("display_name", u["username"]),
+        "class_name": u.get("class_name", "--")
+    } for u in users if u.get("role") == "student"]
+    return jsonify(students)
+
 @app.route("/api/admin/problems/<int:pid>", methods=["PUT", "DELETE"])
 @login_required
 @instructor_required
@@ -470,8 +482,12 @@ def get_exam_detail(eid):
     if not exam:
         return jsonify({"error": "Exam not found"}), 404
         
-    # Time window check for students
+    # Access control by allowedStudents for students
     if session.get("role") != "instructor":
+        allowed_students = exam.get("allowedStudents", [])
+        if allowed_students and session.get("username") not in allowed_students:
+            return jsonify({"error": "Bạn không có quyền tham gia kỳ thi này."}), 403
+
         from datetime import datetime
         now = datetime.now().strftime("%Y-%m-%dT%H:%M") # Match input format
         open_time = exam.get("openTime")
@@ -492,12 +508,28 @@ def get_exam_detail(eid):
     for p in exam_problems:
         p["points"] = points_map.get(str(p["id"]), 0)
     
-    # Strip sensitive info for students
+    # Fetch student's latest submissions for this exam if not instructor
+    last_subs = {}
+    if session.get("role") != "instructor":
+        submissions = load_json("submissions.json")
+        # Filter for this user and this exam
+        user_exam_subs = [s for s in submissions if s["username"] == session["username"] and str(s.get("examId")) == str(eid)]
+        # Get latest code for each problem
+        for s in sorted(user_exam_subs, key=lambda x: x.get("timestamp", "")):
+            last_subs[str(s["problemId"])] = {
+                "code": s.get("code", ""),
+                "allPassed": s.get("allPassed", False),
+                "language": s.get("language", "python"),
+                "timeRemaining": s.get("timeRemaining")
+            }
+
+    # Strip sensitive info and attach last submission for students
     if session.get("role") != "instructor":
         for p in exam_problems:
             p.pop("hint", None)
             p.pop("solution_code", None)
             p.pop("language_hints", None)
+            p["last_submission"] = last_subs.get(str(p["id"]))
             
     return jsonify({
         "info": exam,
@@ -516,6 +548,11 @@ def get_student_exams_summary():
     user_subs = [s for s in submissions if s["username"] == username]
     
     for exam in exams:
+        # Filtering by allowedStudents
+        allowed_students = exam.get("allowedStudents", [])
+        if allowed_students and username not in allowed_students:
+            continue
+
         # Calculate total possible points
         points_map = exam.get("problemPoints", {})
         total_possible = sum(points_map.values())
@@ -896,9 +933,9 @@ def handle_submissions():
         data["username"] = session["username"]
         data["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
         
-        # Include code if provided (for persistence/instructor review)
-        if "code" not in data and "code" in request.json:
-            data["code"] = request.json["code"]
+        # Consistent timeRemaining and code handling
+        if "timeRemaining" not in data and "time_remaining" in data:
+            data["timeRemaining"] = data.pop("time_remaining")
             
         submissions = load_json("submissions.json")
         submissions.append(data)

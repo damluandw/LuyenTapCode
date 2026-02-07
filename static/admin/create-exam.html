@@ -208,12 +208,30 @@
         </div>
       </div>
 
-      <!-- Problem Selection Card -->
+      <!-- Student Selection Card -->
       <div class="card shadow-sm mb-5 border-0 p-4">
         <h3 class="h5 fw-bold text-white mb-4">
-          <i class="bi bi-list-check me-2 text-warning"></i>Chọn bài tập cho kỳ
-          thi
+          <i class="bi bi-people me-2 text-success"></i>Chọn sinh viên tham gia kỳ thi
         </h3>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted small fw-bold text-uppercase mb-0">Danh sách sinh viên</p>
+                    <input type="text" id="student-search" class="form-control form-control-sm w-50 bg-dark border-secondary text-light" placeholder="Tìm tên/lớp...">
+                </div>
+                <div id="all-students-list" class="problem-list-box p-2">
+                    <div class="text-center text-muted p-5">Đang tải danh sách sinh viên...</div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <p class="text-muted small fw-bold text-uppercase mb-3">Sinh viên đã chọn (<span id="selected-student-count" class="text-success">0</span>)</p>
+                <div id="selected-students-list" class="problem-list-box p-2">
+                    <div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>
+                </div>
+            </div>
+        </div>
+      </div>
 
         <div class="row g-4">
           <div class="col-lg-6">
@@ -270,7 +288,9 @@
 
     <script>
       let allProblems = [];
+      let allStudents = [];
       let selectedProblemIds = [];
+      let selectedStudentUsernames = [];
       let problemPoints = {};
       let examId = new URLSearchParams(window.location.search).get("id");
 
@@ -306,9 +326,17 @@
                     }
                   });
               }
+
+              selectedStudentUsernames = exam.allowedStudents || [];
             }
           }
+
+          const studentRes = await fetch("/api/admin/students/list");
+          allStudents = await studentRes.json();
+
           renderLists();
+          renderStudentLists();
+          setupStudentSearch();
         } catch (e) {
           console.error("Initialization error:", e);
         }
@@ -385,6 +413,72 @@
         problemPoints[id] = parseInt(val) || 0;
       }
 
+      function renderStudentLists(filter = "") {
+        const allList = document.getElementById("all-students-list");
+        const selectedList = document.getElementById("selected-students-list");
+        const countEl = document.getElementById("selected-student-count");
+
+        allList.innerHTML = "";
+        selectedList.innerHTML = "";
+
+        allStudents.forEach((s) => {
+          const isSelected = selectedStudentUsernames.includes(s.username);
+          const matchesFilter = !filter || 
+                               s.display_name.toLowerCase().includes(filter.toLowerCase()) || 
+                               s.username.toLowerCase().includes(filter.toLowerCase()) ||
+                               s.class_name.toLowerCase().includes(filter.toLowerCase());
+
+          if (matchesFilter) {
+            const item = document.createElement("div");
+            item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
+            item.innerHTML = `
+              <div>
+                <div class="text-white">${s.display_name} <span class="text-muted small">(@${s.username})</span></div>
+                <div class="text-muted extra-small" style="font-size: 0.7rem">${s.class_name}</div>
+              </div>
+              ${isSelected ? '<div class="selected-badge"><i class="bi bi-check-lg"></i></div>' : '<i class="bi bi-plus-lg text-muted"></i>'}
+            `;
+            item.onclick = () => toggleStudent(s.username);
+            allList.appendChild(item);
+          }
+
+          if (isSelected) {
+            const selItem = document.createElement("div");
+            selItem.className = "prob-item d-flex justify-content-between align-items-center";
+            selItem.innerHTML = `
+              <div>
+                <div class="text-white fw-bold">${s.display_name}</div>
+                <div class="text-muted small">${s.class_name}</div>
+              </div>
+              <button onclick="toggleStudent('${s.username}')" class="btn btn-link btn-sm text-danger p-0 border-0">
+                <i class="bi bi-x-circle-fill h5 mb-0"></i>
+              </button>
+            `;
+            selectedList.appendChild(selItem);
+          }
+        });
+
+        if (selectedStudentUsernames.length === 0) {
+          selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>';
+        }
+        countEl.textContent = selectedStudentUsernames.length;
+      }
+
+      function toggleStudent(username) {
+        if (selectedStudentUsernames.includes(username)) {
+          selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== username);
+        } else {
+          selectedStudentUsernames.push(username);
+        }
+        renderStudentLists(document.getElementById("student-search").value);
+      }
+
+      function setupStudentSearch() {
+        document.getElementById("student-search").oninput = (e) => {
+          renderStudentLists(e.target.value);
+        };
+      }
+
       document.getElementById("save-exam-btn").onclick = async () => {
         const title = document.getElementById("exam-title").value;
         const duration = document.getElementById("exam-duration").value;
@@ -411,6 +505,7 @@
           openTime: openTime,
           closeTime: closeTime,
           allowedLanguages: allowedLanguages,
+          allowedStudents: selectedStudentUsernames,
         };
 
         const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";
