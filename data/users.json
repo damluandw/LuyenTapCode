@@ -7,7 +7,7 @@
   },
   {
     "username": "student",
-    "password": "student123",
+    "password": "123",
     "role": "student",
     "display_name": "Sinh viên mẫu",
     "class_name": "64CNTT2"

@@ -2203,27 +2203,35 @@
     "title": "Tính diện tích hình chữ nhật 2",
     "difficulty": "Easy",
     "category": "Level 1: Nhập xuất & Tính toán",
-    "description": "lkjfksdlfkls",
-    "hint": "printf(\"a\")",
+    "description": "<div><p> Viết chương trình nhập vào chiều dài a và chiều rộng b của hình chữ nhật. Tính và in ra diện tích.</p>\n<p>Dữ liệu vào</p>\n<p>- Hai số nguyên a, b trên 2 dòng.</p>\n<p>Kết quả ra</p>\n<p>- Diện tích hình chữ nhật.</p>\n</div>\n### Ví dụ:\n**Đầu vào:**\n<div class='example-box'>6\n6</div>\n**Đầu ra:**\n<div class='example-box'>36</div>",
+    "hint": "Diện tích hình chữ nhật = chiều dài * chiều rộng",
     "test_cases": [
       {
-        "input": "a: 3\nb: 4",
-        "output": "12"
+        "input": "6\n6",
+        "output": "36"
+      },
+      {
+        "input": "5\n5",
+        "output": "25"
+      },
+      {
+        "input": "4\n4",
+        "output": "16"
       }
     ],
     "starter_code": {
-      "python": "# Viết code của bạn ở đây\nprintf(\"a\")",
+      "python": "",
       "c": "// Tính toán...\n#include <stdio.h>\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "cpp": "// Tính toán...\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // Viết code của bạn ở đây\n    \n    return 0;\n}",
       "java": "// Tính toán...\nimport java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Viết code của bạn ở đây\n    }\n}",
       "csharp": "// Tính toán...\nusing System;\n\nclass Program {\n    static void Main() {\n        // Viết code của bạn ở đây\n    }\n}"
     },
     "solution_code": {
-      "python": "printf(\"a\")",
-      "c": "",
-      "cpp": "",
-      "java": "",
-      "csharp": ""
+      "python": "a = int(input())\r\nb = int(input())\r\nprint(a * b)",
+      "c": "#include <stdio.h>\r\n\r\nint main() {\r\n    int a, b;\r\n    scanf(\"%d %d\", &a, &b);\r\n    printf(\"%d\", a * b);\r\n    return 0;\r\n}",
+      "cpp": "#include <iostream>\r\nusing namespace std;\r\n\r\nint main() {\r\n    int a, b;\r\n    cin >> a >> b;\r\n    cout << a * b;\r\n    return 0;\r\n}",
+      "java": "import java.util.Scanner;\r\n\r\npublic class Main {\r\n    public static void main(String[] args) {\r\n        Scanner sc = new Scanner(System.in);\r\n        int a = sc.nextInt();\r\n        int b = sc.nextInt();\r\n        System.out.println(a * b);\r\n    }\r\n}",
+      "csharp": "using System;\r\nusing System.Linq;\r\nusing System.Collections.Generic;\r\n\r\nclass Program {\r\n    static void Main() {\r\n        int a = int.Parse(Console.ReadLine());\r\n        int b = int.Parse(Console.ReadLine());\r\n        Console.WriteLine(a * b);\r\n    }\r\n}"
     },
     "id": 51
   }

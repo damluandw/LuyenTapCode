@@ -471,8 +471,35 @@ def manage_single_exam(eid):
 @login_required
 def get_active_exams():
     exams = load_json("tests.json")
-    # In a real app, you might check startTime and duration
-    return jsonify([e for e in exams if e.get("isActive", True)])
+    active_exams = [e for e in exams if e.get("isActive", True)]
+    
+    # Filter for students
+    role = session.get("role")
+    username = session.get("username")
+    
+    # DEBUG LOGGING (REMOVE LATER)
+    with open("debug_log.txt", "a", encoding="utf-8") as f:
+        f.write(f"\n--- API Call: /api/exams/active ---\nUser: {username}, Role: {role}\n")
+    
+    if role == "student":
+        filtered_exams = []
+        for exam in active_exams:
+            allowed = exam.get("allowedStudents", [])
+            
+            # Check logic
+            can_see = True
+            if allowed and username not in allowed:
+                can_see = False
+            
+            with open("debug_log.txt", "a", encoding="utf-8") as f:
+                f.write(f"Exam {exam['id']} ({exam['title']}): Allowed={allowed}, UserIn={username in allowed}, Result={can_see}\n")
+                
+            if not can_see:
+                continue
+            filtered_exams.append(exam)
+        return jsonify(filtered_exams)
+        
+    return jsonify(active_exams)
 
 @app.route("/api/exams/<int:eid>")
 @login_required

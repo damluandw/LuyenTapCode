@@ -216,16 +216,31 @@
         
         <div class="row g-4">
             <div class="col-lg-6">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <p class="text-muted small fw-bold text-uppercase mb-0">Danh sách sinh viên</p>
-                    <input type="text" id="student-search" class="form-control form-control-sm w-50 bg-dark border-secondary text-light" placeholder="Tìm tên/lớp...">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <input type="text" id="student-search" class="form-control form-control-sm bg-dark border-secondary text-light" style="flex: 1; min-width: 120px;" placeholder="Tìm tên/lớp...">
+                    <select id="class-filter" class="form-select form-select-sm bg-dark border-secondary text-light" style="width: auto; max-width: 150px;">
+                        <option value="">Tất cả lớp</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-success flex-fill" onclick="toggleAllStudents(true)">
+                        <i class="bi bi-check-all"></i> Chọn tất cả
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="toggleAllStudents(false)">
+                        <i class="bi bi-x-circle"></i> Bỏ chọn hết
+                    </button>
                 </div>
                 <div id="all-students-list" class="problem-list-box p-2">
                     <div class="text-center text-muted p-5">Đang tải danh sách sinh viên...</div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <p class="text-muted small fw-bold text-uppercase mb-3">Sinh viên đã chọn (<span id="selected-student-count" class="text-success">0</span>)</p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted small fw-bold text-uppercase mb-0">Sinh viên đã chọn (<span id="selected-student-count" class="text-success">0</span>)</p>
+                    <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllStudents()">
+                        <i class="bi bi-trash"></i> Xóa hết
+                    </button>
+                </div>
                 <div id="selected-students-list" class="problem-list-box p-2">
                     <div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>
                 </div>
@@ -238,6 +253,25 @@
             <p class="text-muted small fw-bold text-uppercase mb-3">
               Ngân hàng bài tập
             </p>
+            
+            <div class="d-flex gap-2 mb-3">
+                <select id="prob-category-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
+                    <option value="">Tất cả chủ đề</option>
+                </select>
+                <select id="prob-difficulty-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
+                    <option value="">Độ khó</option>
+                    <option value="Easy">Dễ (Easy)</option>
+                    <option value="Medium">Trung bình (Medium)</option>
+                    <option value="Hard">Khó (Hard)</option>
+                </select>
+            </div>
+            
+            <div class="input-group input-group-sm mb-3">
+                <input type="number" id="random-count" class="form-control bg-dark border-secondary text-light" placeholder="SL" min="1">
+                <button class="btn btn-outline-warning" type="button" onclick="selectRandomProblems()">
+                    <i class="bi bi-shuffle"></i> Random
+                </button>
+            </div>
             <div id="all-problems-list" class="problem-list-box p-2">
               <div class="text-center text-muted p-5">
                 Đang tải danh sách bài tập...
@@ -245,11 +279,14 @@
             </div>
           </div>
           <div class="col-lg-6">
-            <p class="text-muted small fw-bold text-uppercase mb-3">
-              Bài tập đã chọn (<span id="selected-count" class="text-info"
-                >0</span
-              >)
-            </p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted small fw-bold text-uppercase mb-0">
+                  Bài tập đã chọn (<span id="selected-count" class="text-info">0</span>)
+                </p>
+                <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllProblems()">
+                    <i class="bi bi-trash"></i> Xóa hết
+                </button>
+            </div>
             <div id="selected-problems-list" class="problem-list-box p-2">
               <div class="text-center text-muted p-5 italic">
                 Chưa chọn bài tập nào
@@ -334,6 +371,8 @@
           const studentRes = await fetch("/api/admin/students/list");
           allStudents = await studentRes.json();
 
+          
+          populateFilters();
           renderLists();
           renderStudentLists();
           setupStudentSearch();
@@ -413,7 +452,10 @@
         problemPoints[id] = parseInt(val) || 0;
       }
 
-      function renderStudentLists(filter = "") {
+      function renderStudentLists() {
+        const filter = document.getElementById("student-search").value.toLowerCase();
+        const classFilter = document.getElementById("class-filter").value;
+        
         const allList = document.getElementById("all-students-list");
         const selectedList = document.getElementById("selected-students-list");
         const countEl = document.getElementById("selected-student-count");
@@ -423,12 +465,19 @@
 
         allStudents.forEach((s) => {
           const isSelected = selectedStudentUsernames.includes(s.username);
-          const matchesFilter = !filter || 
-                               s.display_name.toLowerCase().includes(filter.toLowerCase()) || 
-                               s.username.toLowerCase().includes(filter.toLowerCase()) ||
-                               s.class_name.toLowerCase().includes(filter.toLowerCase());
+          
+          // Filter Logic
+          let visible = true;
+          if (filter && !s.display_name.toLowerCase().includes(filter) && 
+              !s.username.toLowerCase().includes(filter) && 
+              !s.class_name.toLowerCase().includes(filter)) {
+              visible = false;
+          }
+          if (classFilter && s.class_name !== classFilter) {
+              visible = false;
+          }
 
-          if (matchesFilter) {
+          if (visible) {
             const item = document.createElement("div");
             item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
             item.innerHTML = `
@@ -470,13 +519,187 @@
         } else {
           selectedStudentUsernames.push(username);
         }
-        renderStudentLists(document.getElementById("student-search").value);
+        renderStudentLists();
+      }
+      
+      function toggleAllStudents(select) {
+        const filter = document.getElementById("student-search").value.toLowerCase();
+        const classFilter = document.getElementById("class-filter").value;
+        
+        // ... (rest of logic same as before, essentially) ...
+        // Actually, to serve the "Select All" function perfectly I should rewrite it to be sure.
+        // But the user asked for "Delete All" which is removing ALL from *Selected*.
+        
+        allStudents.forEach(s => {
+            let visible = true;
+            if (filter && !s.display_name.toLowerCase().includes(filter) && 
+                !s.username.toLowerCase().includes(filter) && 
+                !s.class_name.toLowerCase().includes(filter)) {
+                visible = false;
+            }
+            if (classFilter && s.class_name !== classFilter) {
+                visible = false;
+            }
+            
+            if (visible) {
+                if (select) {
+                    if (!selectedStudentUsernames.includes(s.username)) {
+                        selectedStudentUsernames.push(s.username);
+                    }
+                } else {
+                    selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== s.username);
+                }
+            }
+        });
+        renderStudentLists();
+      }
+
+      function removeAllStudents() {
+          if (confirm("Bạn có chắc muốn xóa toàn bộ sinh viên đã chọn?")) {
+              selectedStudentUsernames = [];
+              renderStudentLists();
+          }
+      }
+
+      function removeAllProblems() {
+          if (confirm("Bạn có chắc muốn xóa toàn bộ bài tập đã chọn?")) {
+              selectedProblemIds = [];
+              problemPoints = {};
+              renderLists();
+          }
       }
 
       function setupStudentSearch() {
-        document.getElementById("student-search").oninput = (e) => {
-          renderStudentLists(e.target.value);
-        };
+        document.getElementById("student-search").oninput = renderStudentLists;
+        document.getElementById("class-filter").onchange = renderStudentLists;
+        document.getElementById("prob-category-filter").onchange = renderLists;
+        document.getElementById("prob-difficulty-filter").onchange = renderLists;
+      }
+      
+      // Update renderLists to support problem filtering
+      const originalRenderLists = renderLists;
+      renderLists = function() {
+          const catFilter = document.getElementById("prob-category-filter")?.value;
+          const difFilter = document.getElementById("prob-difficulty-filter")?.value;
+          
+          const allList = document.getElementById("all-problems-list");
+          const selectedList = document.getElementById("selected-problems-list");
+          
+          allList.innerHTML = "";
+          selectedList.innerHTML = "";
+          
+          // Re-implement rendering with filters
+          allProblems.forEach((p) => {
+            const isSelected = selectedProblemIds.includes(p.id);
+            
+            // Filter Logic
+            let visible = true;
+            if (catFilter && p.category !== catFilter) visible = false;
+            if (difFilter && p.difficulty !== difFilter) visible = false;
+
+            if (visible) {
+                const item = document.createElement("div");
+                item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
+                item.innerHTML = `
+                  <div>
+                    <span class="text-white">${p.title}</span>
+                    <div class="d-flex gap-2 mt-1">
+                        <span class="badge bg-secondary border border-secondary text-light" style="font-size:0.65rem">${p.category || 'Chung'}</span>
+                        <span class="badge ${p.difficulty === 'Dễ' ? 'bg-success' : (p.difficulty === 'Trung bình' ? 'bg-warning text-dark' : 'bg-danger')} border border-secondary" style="font-size:0.65rem">${p.difficulty}</span>
+                    </div>
+                  </div>
+                  ${isSelected ? '<div class="selected-badge"><i class="bi bi-check-lg"></i></div>' : '<i class="bi bi-plus-lg text-muted"></i>'}
+                `;
+                item.onclick = () => toggleProblem(p.id);
+                allList.appendChild(item);
+            }
+            
+            // Selected items (always show all selected regardless of filter, or maybe separate?)
+            // Usually selected list shows ALL selected items.
+            if (isSelected) {
+                const selItem = document.createElement("div");
+                selItem.className = "prob-item d-flex flex-column gap-2";
+                selItem.style.cursor = "default";
+                if (!problemPoints[p.id]) problemPoints[p.id] = 10;
+
+                selItem.innerHTML = `
+                  <div class="d-flex justify-content-between">
+                    <span class="text-white fw-bold">${p.title}</span>
+                    <button onclick="toggleProblem(${p.id})" class="btn btn-link btn-sm text-danger p-0 border-0">
+                      <i class="bi bi-x-circle-fill h5 mb-0"></i>
+                    </button>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="text-muted small">Điểm:</span>
+                    <input type="number" 
+                      class="form-control form-control-sm bg-dark border-secondary text-info text-center fw-bold" 
+                      style="width: 70px"
+                      value="${problemPoints[p.id]}" 
+                      onchange="updatePoint(${p.id}, this.value)">
+                  </div>
+                `;
+                selectedList.appendChild(selItem);
+            }
+          });
+          
+          if (selectedProblemIds.length === 0) {
+            selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Chưa chọn bài tập nào</div>';
+          }
+          document.getElementById("selected-count").textContent = selectedProblemIds.length;
+      };
+
+      function selectRandomProblems() {
+        const count = parseInt(document.getElementById("random-count").value) || 0;
+        if (count <= 0) return;
+        
+        const catFilter = document.getElementById("prob-category-filter").value;
+        const difFilter = document.getElementById("prob-difficulty-filter").value;
+        
+        // Get valid candidates (not already selected, matching filters)
+        const candidates = allProblems.filter(p => {
+             if (selectedProblemIds.includes(p.id)) return false;
+             if (catFilter && p.category !== catFilter) return false;
+             if (difFilter && p.difficulty !== difFilter) return false;
+             return true;
+        });
+        
+        if (candidates.length === 0) {
+            alert("Không còn bài tập nào phù hợp để chọn!");
+            return;
+        }
+        
+        // Shuffle and pick
+        const shuffled = candidates.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, count);
+        
+        selected.forEach(p => {
+            selectedProblemIds.push(p.id);
+            problemPoints[p.id] = 10;
+        });
+        
+        renderLists();
+        alert(`Đã thêm ngẫu nhiên ${selected.length} bài tập.`);
+      }
+      
+      // Populate drop downs
+      async function populateFilters() {
+         const classes = [...new Set(allStudents.map(s => s.class_name).filter(Boolean))].sort();
+         const classSelect = document.getElementById("class-filter");
+         classes.forEach(c => {
+             const opt = document.createElement("option");
+             opt.value = c;
+             opt.textContent = c;
+             classSelect.appendChild(opt);
+         });
+         
+         const categories = [...new Set(allProblems.map(p => p.category || "Chung"))].sort();
+         const catSelect = document.getElementById("prob-category-filter");
+         categories.forEach(c => {
+             const opt = document.createElement("option");
+             opt.value = c;
+             opt.textContent = c;
+             catSelect.appendChild(opt);
+         });
       }
 
       document.getElementById("save-exam-btn").onclick = async () => {
