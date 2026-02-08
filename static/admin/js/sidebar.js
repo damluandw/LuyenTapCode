@@ -48,6 +48,16 @@ function injectSidebar() {
             <a href="/admin/exams" class="admin-nav-item ${path === '/admin/exams' || path.includes('create-exam') ? 'active' : ''}">
                 <i class="bi bi-journal-text"></i> Quản lý kỳ thi
             </a>
+            
+            <div class="admin-nav-divider my-3"></div>
+            
+            <a href="/admin/roles" class="admin-nav-item ${path === '/admin/roles' ? 'active' : ''}">
+                <i class="bi bi-shield-check"></i> Quản lý vai trò
+            </a>
+            
+            <a href="/admin/user-permissions" class="admin-nav-item ${path === '/admin/user-permissions' ? 'active' : ''}">
+                <i class="bi bi-person-gear"></i> Phân quyền
+            </a>
         </div>
         
         <div class="mt-auto p-3 border-top border-secondary border-opacity-25">

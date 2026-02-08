@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phân quyền người dùng - Admin</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        width: 260px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+      .admin-main {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg-dark);
+        overflow-y: auto;
+      }
+      .user-card {
+        transition: all 0.3s ease;
+      }
+      .user-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      }
+      .permission-checkbox {
+        cursor: pointer;
+      }
+      .role-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar shadow-sm">
+        <!-- Sidebar injected by sidebar.js -->
+      </aside>
+
+      <main class="admin-main">
+        <header class="mb-5 d-flex justify-content-between align-items-center">
+          <div>
+            <h2 class="h3 fw-bold text-white mb-1">Phân quyền người dùng</h2>
+            <p class="text-muted small">
+              Quản lý vai trò và quyền hạn của các tài khoản (không bao gồm sinh
+              viên)
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button
+              class="btn btn-sm btn-success"
+              onclick="showCreateUserModal()"
+            >
+              <i class="bi bi-person-plus"></i> Thêm tài khoản
+            </button>
+            <a href="/admin/roles" class="btn btn-sm btn-outline-info">
+              <i class="bi bi-shield-check"></i> Xem vai trò
+            </a>
+            <a href="/admin" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+          </div>
+        </header>
+
+        <!-- Users Table -->
+        <div class="card p-4">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+              <thead>
+                <tr class="text-muted">
+                  <th>Tên đăng nhập</th>
+                  <th>Tên hiển thị</th>
+                  <th>Vai trò</th>
+                  <th>Quyền hạn</th>
+                  <th>Quyền bổ sung</th>
+                  <th class="text-end">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr>
+                  <td colspan="6" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Create User Modal -->
+    <div
+      class="modal fade"
+      id="createUserModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white">Tạo tài khoản mới</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label text-white">Tên đăng nhập *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="create-username"
+                  placeholder="Nhập tên đăng nhập..."
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-white">Tên hiển thị *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="create-display-name"
+                  placeholder="Nhập tên hiển thị..."
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-white">Mật khẩu *</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="create-password"
+                  placeholder="Nhập mật khẩu..."
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-white">Vai trò *</label>
+                <select class="form-select" id="create-role">
+                  <!-- Options loaded via JS -->
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-white fw-bold">
+                Quyền hạn bổ sung (tùy chọn)
+              </label>
+              <div id="create-permissions" class="row g-2">
+                <!-- Checkboxes loaded via JS -->
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="createUser()"
+            >
+              <i class="bi bi-person-plus"></i> Tạo tài khoản
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-white">Phân quyền người dùng</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4">
+              <h6 class="text-white mb-2">Thông tin người dùng</h6>
+              <div class="card p-3 bg-secondary bg-opacity-10">
+                <div class="row">
+                  <div class="col-md-6">
+                    <small class="text-muted">Tên đăng nhập:</small>
+                    <div class="text-white fw-bold" id="modal-username">-</div>
+                  </div>
+                  <div class="col-md-6">
+                    <small class="text-muted">Tên hiển thị:</small>
+                    <div class="text-white fw-bold" id="modal-display-name">
+                      -
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label text-white fw-bold">Vai trò</label>
+              <select class="form-select" id="modal-role">
+                <!-- Options loaded via JS -->
+              </select>
+              <small class="text-muted">
+                Vai trò xác định quyền hạn mặc định của người dùng
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label text-white fw-bold">
+                Quyền hạn bổ sung
+              </label>
+              <div id="modal-permissions" class="row g-2">
+                <!-- Checkboxes loaded via JS -->
+              </div>
+              <small class="text-muted">
+                Thêm quyền hạn ngoài những quyền mặc định của vai trò
+              </small>
+            </div>
+
+            <div class="alert alert-info border-info bg-info bg-opacity-10">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Tổng quyền hạn:</strong>
+              <div id="modal-total-permissions" class="mt-2 small">-</div>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="saveUserPermissions()"
+            >
+              <i class="bi bi-save"></i> Lưu thay đổi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/admin/js/sidebar.js"></script>
+    <script>
+      let allRoles = {};
+      let allPermissions = {};
+      let currentEditingUser = null;
+      let editModal = null;
+      let createModal = null;
+
+      async function loadData() {
+        try {
+          // Load roles and permissions config
+          const configRes = await fetch("/api/admin/permissions/config");
+          if (!configRes.ok) {
+            if (configRes.status === 403) {
+              alert("Bạn không có quyền truy cập trang này");
+              window.location.href = "/admin";
+              return;
+            }
+            throw new Error("Failed to load config");
+          }
+          const config = await configRes.json();
+          allRoles = config.roles || {};
+          allPermissions = config.permissions || {};
+
+          // Load non-student users
+          const usersRes = await fetch("/api/admin/users/non-students");
+          if (!usersRes.ok) throw new Error("Failed to load users");
+          const users = await usersRes.json();
+
+          renderUsers(users);
+        } catch (error) {
+          console.error("Error loading data:", error);
+          document.getElementById("users-table-body").innerHTML = `
+            <tr>
+              <td colspan="6">
+                <div class="alert alert-danger mb-0">
+                  Lỗi khi tải dữ liệu: ${error.message}
+                </div>
+              </td>
+            </tr>
+          `;
+        }
+      }
+
+      function renderUsers(users) {
+        const tbody = document.getElementById("users-table-body");
+        tbody.innerHTML = "";
+
+        if (users.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-muted">
+                Chưa có tài khoản nào (ngoài sinh viên)
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const roleColors = {
+          super_admin: "danger",
+          admin: "warning",
+          instructor: "info",
+          teaching_assistant: "success",
+        };
+
+        users.forEach((user) => {
+          const roleData = allRoles[user.role] || {};
+          const color = roleColors[user.role] || "secondary";
+          const rolePerms = roleData.permissions || [];
+          const customPerms = user.custom_permissions || [];
+
+          const totalPerms =
+            rolePerms[0] === "*"
+              ? Object.keys(allPermissions).length
+              : new Set([...rolePerms, ...customPerms]).size;
+
+          tbody.innerHTML += `
+            <tr>
+              <td>
+                <code class="text-info">${user.username}</code>
+              </td>
+              <td class="fw-bold text-white">${user.display_name}</td>
+              <td>
+                <span class="badge bg-${color}">${roleData.name || user.role}</span>
+              </td>
+              <td>
+                <span class="text-white">${totalPerms}</span>
+                <small class="text-muted"> quyền</small>
+              </td>
+              <td>
+                ${customPerms.length > 0 ? `<span class="badge bg-warning text-dark">+${customPerms.length}</span>` : '<span class="text-muted">-</span>'}
+              </td>
+              <td class="text-end">
+                <button 
+                  class="btn btn-sm btn-outline-primary"
+                  onclick="editUser('${user.username}')"
+                >
+                  <i class="bi bi-pencil"></i> Phân quyền
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      function showCreateUserModal() {
+        // Populate role dropdown
+        const roleSelect = document.getElementById("create-role");
+        roleSelect.innerHTML = "";
+        for (const [roleKey, roleData] of Object.entries(allRoles)) {
+          if (roleKey === "student") continue; // Skip student role
+          const option = document.createElement("option");
+          option.value = roleKey;
+          option.textContent = roleData.name;
+          roleSelect.appendChild(option);
+        }
+
+        // Populate permissions checkboxes
+        const permsContainer = document.getElementById("create-permissions");
+        permsContainer.innerHTML = "";
+        for (const [permKey, permData] of Object.entries(allPermissions)) {
+          permsContainer.innerHTML += `
+            <div class="col-md-6">
+              <div class="form-check">
+                <input 
+                  class="form-check-input create-permission-checkbox" 
+                  type="checkbox" 
+                  value="${permKey}" 
+                  id="create-perm-${permKey}"
+                >
+                <label class="form-check-label text-white small" for="create-perm-${permKey}">
+                  ${permData.name}
+                </label>
+              </div>
+            </div>
+          `;
+        }
+
+        // Clear form
+        document.getElementById("create-username").value = "";
+        document.getElementById("create-display-name").value = "";
+        document.getElementById("create-password").value = "";
+
+        // Show modal
+        if (!createModal) {
+          createModal = new bootstrap.Modal(
+            document.getElementById("createUserModal"),
+          );
+        }
+        createModal.show();
+      }
+
+      async function createUser() {
+        const username = document
+          .getElementById("create-username")
+          .value.trim();
+        const displayName = document
+          .getElementById("create-display-name")
+          .value.trim();
+        const password = document.getElementById("create-password").value;
+        const role = document.getElementById("create-role").value;
+
+        // Validation
+        if (!username || !displayName || !password) {
+          alert("Vui lòng điền đầy đủ thông tin bắt buộc!");
+          return;
+        }
+
+        if (username.length < 3) {
+          alert("Tên đăng nhập phải có ít nhất 3 ký tự!");
+          return;
+        }
+
+        if (password.length < 3) {
+          alert("Mật khẩu phải có ít nhất 3 ký tự!");
+          return;
+        }
+
+        const checkboxes = document.querySelectorAll(
+          ".create-permission-checkbox",
+        );
+        const customPerms = Array.from(checkboxes)
+          .filter((cb) => cb.checked)
+          .map((cb) => cb.value);
+
+        try {
+          const res = await fetch("/api/admin/users/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: username,
+              display_name: displayName,
+              password: password,
+              role: role,
+              custom_permissions: customPerms,
+            }),
+          });
+
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.message || "Failed to create user");
+          }
+
+          alert("Tạo tài khoản thành công!");
+          createModal.hide();
+          loadData(); // Reload users
+        } catch (error) {
+          console.error("Error creating user:", error);
+          alert("Lỗi khi tạo tài khoản: " + error.message);
+        }
+      }
+
+      async function editUser(username) {
+        try {
+          currentEditingUser = username;
+
+          // Load user permissions
+          const res = await fetch(`/api/admin/users/${username}/permissions`);
+          if (!res.ok) throw new Error("Failed to load user permissions");
+          const userData = await res.json();
+
+          // Populate modal
+          document.getElementById("modal-username").textContent = username;
+          document.getElementById("modal-display-name").textContent =
+            userData.username; // Will be updated from users list
+
+          // Populate role dropdown
+          const roleSelect = document.getElementById("modal-role");
+          roleSelect.innerHTML = "";
+          for (const [roleKey, roleData] of Object.entries(allRoles)) {
+            const option = document.createElement("option");
+            option.value = roleKey;
+            option.textContent = roleData.name;
+            if (roleKey === userData.role) option.selected = true;
+            roleSelect.appendChild(option);
+          }
+
+          // Populate permissions checkboxes
+          const permsContainer = document.getElementById("modal-permissions");
+          permsContainer.innerHTML = "";
+
+          for (const [permKey, permData] of Object.entries(allPermissions)) {
+            const isChecked = userData.custom_permissions.includes(permKey);
+            permsContainer.innerHTML += `
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input 
+                    class="form-check-input permission-checkbox" 
+                    type="checkbox" 
+                    value="${permKey}" 
+                    id="perm-${permKey}"
+                    ${isChecked ? "checked" : ""}
+                    onchange="updateTotalPermissions()"
+                  >
+                  <label class="form-check-label text-white small" for="perm-${permKey}">
+                    ${permData.name}
+                    <div class="text-muted" style="font-size: 0.75rem">${permData.description}</div>
+                  </label>
+                </div>
+              </div>
+            `;
+          }
+
+          // Update role change listener
+          roleSelect.onchange = updateTotalPermissions;
+
+          updateTotalPermissions();
+
+          // Show modal
+          if (!editModal) {
+            editModal = new bootstrap.Modal(
+              document.getElementById("editUserModal"),
+            );
+          }
+          editModal.show();
+        } catch (error) {
+          console.error("Error editing user:", error);
+          alert("Lỗi khi tải thông tin người dùng: " + error.message);
+        }
+      }
+
+      function updateTotalPermissions() {
+        const selectedRole = document.getElementById("modal-role").value;
+        const rolePerms = allRoles[selectedRole]?.permissions || [];
+
+        const checkboxes = document.querySelectorAll(".permission-checkbox");
+        const customPerms = Array.from(checkboxes)
+          .filter((cb) => cb.checked)
+          .map((cb) => cb.value);
+
+        let totalPerms = [];
+        if (rolePerms[0] === "*") {
+          totalPerms = Object.keys(allPermissions);
+        } else {
+          totalPerms = [...new Set([...rolePerms, ...customPerms])];
+        }
+
+        const container = document.getElementById("modal-total-permissions");
+        container.innerHTML = totalPerms
+          .map((p) => {
+            const isFromRole = rolePerms.includes(p) || rolePerms[0] === "*";
+            const badge = isFromRole ? "bg-primary" : "bg-warning";
+            return `<span class="badge ${badge} me-1 mb-1">${allPermissions[p]?.name || p}</span>`;
+          })
+          .join("");
+      }
+
+      async function saveUserPermissions() {
+        try {
+          const role = document.getElementById("modal-role").value;
+          const checkboxes = document.querySelectorAll(".permission-checkbox");
+          const customPerms = Array.from(checkboxes)
+            .filter((cb) => cb.checked)
+            .map((cb) => cb.value);
+
+          const res = await fetch(
+            `/api/admin/users/${currentEditingUser}/permissions`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                role: role,
+                custom_permissions: customPerms,
+              }),
+            },
+          );
+
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || "Failed to update permissions");
+          }
+
+          alert("Cập nhật quyền hạn thành công!");
+          editModal.hide();
+          loadData(); // Reload users
+        } catch (error) {
+          console.error("Error saving permissions:", error);
+          alert("Lỗi khi lưu quyền hạn: " + error.message);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadData);
+    </script>
+  </body>
+</html>

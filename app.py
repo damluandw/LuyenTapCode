@@ -72,6 +72,49 @@ def save_json(filename, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+def load_permissions():
+    """Load permissions configuration"""
+    return load_json("permissions.json")
+
+def has_permission(username, permission):
+    """Check if user has specific permission"""
+    users = load_json("users.json")
+    user = next((u for u in users if u["username"] == username), None)
+    if not user:
+        return False
+    
+    # Get role permissions
+    perms_config = load_permissions()
+    role = user.get("role", "student")
+    role_perms = perms_config.get("roles", {}).get(role, {}).get("permissions", [])
+    
+    # Super admin has all permissions
+    if "*" in role_perms:
+        return True
+    
+    # Check custom permissions
+    custom_perms = user.get("custom_permissions", [])
+    
+    return permission in role_perms or permission in custom_perms
+
+def get_user_permissions(username):
+    """Get all permissions for a user"""
+    users = load_json("users.json")
+    user = next((u for u in users if u["username"] == username), None)
+    if not user:
+        return []
+    
+    perms_config = load_permissions()
+    role = user.get("role", "student")
+    role_perms = perms_config.get("roles", {}).get(role, {}).get("permissions", [])
+    
+    if "*" in role_perms:
+        # Return all permissions
+        return list(perms_config.get("permissions", {}).keys())
+    
+    custom_perms = user.get("custom_permissions", [])
+    return list(set(role_perms + custom_perms))
+
 # Auth Decorators
 def login_required(f):
     @wraps(f)
@@ -89,11 +132,29 @@ def instructor_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def permission_required(permission):
+    """Decorator to check if user has specific permission"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'username' not in session:
+                return jsonify({"error": "Authentication required"}), 401
+            
+            if not has_permission(session['username'], permission):
+                return jsonify({"error": "Permission denied"}), 403
+            
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 @app.route("/")
 @login_required
 def index():
-    if session.get('role') == 'instructor':
-        return redirect(url_for('admin_page'))
+    # Redirect based on role - check if user has any admin permissions
+    if 'username' in session:
+        role = session.get('role', 'student')
+        if role != 'student':
+            return redirect(url_for('admin_page'))
     return redirect(url_for('student_dashboard_page'))
 
 @app.route("/exercise")
@@ -146,13 +207,13 @@ def admin_submissions_page():
 
 @app.route("/admin/edit-problem")
 @login_required
-@instructor_required
+@permission_required("manage_problems")
 def edit_problem_page():
     return app.send_static_file("admin/edit-problem.html")
 
 @app.route("/admin/create-exam")
 @login_required
-@instructor_required
+@permission_required("manage_exams")
 def create_exam_page():
     return app.send_static_file("admin/create-exam.html")
 
@@ -181,6 +242,18 @@ def student_dashboard_page():
 @login_required
 def student_profile_page():
     return app.send_static_file("sinhvien/profile.html")
+
+@app.route("/admin/roles")
+@login_required
+@permission_required("manage_roles")
+def admin_roles_page():
+    return app.send_static_file("admin/roles.html")
+
+@app.route("/admin/user-permissions")
+@login_required
+@permission_required("manage_roles")
+def admin_user_permissions_page():
+    return app.send_static_file("admin/user-permissions.html")
 
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -381,7 +454,7 @@ def track_traffic():
 # Administrative APIs - Problems
 @app.route("/api/admin/problems", methods=["POST"])
 @login_required
-@instructor_required
+@permission_required("manage_problems")
 def add_problem():
     new_prob = request.json
     problems = load_json("problems.json")
@@ -405,7 +478,7 @@ def get_all_students_for_selection():
 
 @app.route("/api/admin/problems/<int:pid>", methods=["PUT", "DELETE"])
 @login_required
-@instructor_required
+@permission_required("manage_problems")
 def manage_problem(pid):
     problems = load_json("problems.json")
     if request.method == "DELETE":
@@ -424,7 +497,7 @@ def manage_problem(pid):
 # Administrative APIs - Exams
 @app.route("/api/admin/exams", methods=["GET", "POST"])
 @login_required
-@instructor_required
+@permission_required("manage_exams")
 def manage_exams():
     if request.method == "GET":
         return jsonify(load_json("tests.json"))
@@ -443,7 +516,7 @@ def manage_exams():
 
 @app.route("/api/admin/exams/<int:eid>", methods=["GET", "PUT", "DELETE"])
 @login_required
-@instructor_required
+@permission_required("manage_exams")
 def manage_single_exam(eid):
     exams = load_json("tests.json")
     exam_idx = next((i for i, e in enumerate(exams) if e["id"] == eid), -1)
@@ -950,6 +1023,216 @@ def admin_report_exam_detail_page():
 @instructor_required
 def admin_report_exam_submissions_page():
     return app.send_static_file("admin/report-exam-submissions.html")
+
+# Permission Management APIs
+@app.route("/api/admin/permissions/config", methods=["GET"])
+@login_required
+@permission_required("manage_roles")
+def get_permissions_config():
+    """Get all roles and permissions configuration"""
+    return jsonify(load_permissions())
+
+@app.route("/api/admin/roles", methods=["GET"])
+@login_required
+def get_roles():
+    """Get all available roles"""
+    perms = load_permissions()
+    return jsonify(perms.get("roles", {}))
+
+@app.route("/api/admin/permissions", methods=["GET"])
+@login_required
+def get_all_permissions():
+    """Get all available permissions"""
+    perms = load_permissions()
+    return jsonify(perms.get("permissions", {}))
+
+@app.route("/api/admin/users/<username>/permissions", methods=["GET", "PUT"])
+@login_required
+@permission_required("manage_roles")
+def manage_user_permissions(username):
+    """Get or update user permissions"""
+    users = load_json("users.json")
+    user = next((u for u in users if u["username"] == username), None)
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    if request.method == "GET":
+        return jsonify({
+            "username": username,
+            "role": user.get("role", "student"),
+            "custom_permissions": user.get("custom_permissions", []),
+            "all_permissions": get_user_permissions(username)
+        })
+    
+    # PUT - Update permissions
+    data = request.json
+    new_role = data.get("role")
+    custom_perms = data.get("custom_permissions", [])
+    
+    # Prevent changing super_admin role unless current user is super_admin
+    current_user = next((u for u in users if u["username"] == session["username"]), None)
+    if user.get("role") == "super_admin" and current_user.get("role") != "super_admin":
+        return jsonify({"error": "Only super admin can modify super admin accounts"}), 403
+    
+    if new_role:
+        user["role"] = new_role
+    user["custom_permissions"] = custom_perms
+    
+    save_json("users.json", users)
+    return jsonify({"status": "success"})
+
+@app.route("/api/admin/users/non-students", methods=["GET"])
+@login_required
+@permission_required("manage_roles")
+def get_non_student_users():
+    """Get all non-student users for permission management"""
+    users = load_json("users.json")
+    non_students = [
+        {
+            "username": u["username"],
+            "display_name": u.get("display_name", u["username"]),
+            "role": u.get("role", "student"),
+            "custom_permissions": u.get("custom_permissions", [])
+        }
+        for u in users if u.get("role") != "student"
+    ]
+    return jsonify(non_students)
+
+@app.route("/api/admin/users/create", methods=["POST"])
+@login_required
+@permission_required("manage_roles")
+def create_non_student_user():
+    """Create a new non-student user"""
+    data = request.json
+    username = data.get("username", "").strip()
+    display_name = data.get("display_name", "").strip()
+    password = data.get("password", "")
+    role = data.get("role", "instructor")
+    custom_permissions = data.get("custom_permissions", [])
+    
+    # Validation
+    if not username or not display_name or not password:
+        return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
+    
+    if len(username) < 3:
+        return jsonify({"status": "error", "message": "Tên đăng nhập phải có ít nhất 3 ký tự"}), 400
+    
+    if len(password) < 3:
+        return jsonify({"status": "error", "message": "Mật khẩu phải có ít nhất 3 ký tự"}), 400
+    
+    # Check if role is valid and not student
+    perms_config = load_permissions()
+    if role not in perms_config.get("roles", {}) or role == "student":
+        return jsonify({"status": "error", "message": "Vai trò không hợp lệ"}), 400
+    
+    users = load_json("users.json")
+    
+    # Check if username already exists
+    if any(u["username"] == username for u in users):
+        return jsonify({"status": "error", "message": "Tên đăng nhập đã tồn tại"}), 400
+    
+    # Create new user
+    new_user = {
+        "username": username,
+        "password": password,
+        "role": role,
+        "display_name": display_name,
+        "custom_permissions": custom_permissions
+    }
+    
+    users.append(new_user)
+    save_json("users.json", users)
+    
+    return jsonify({"status": "success", "message": "Tạo tài khoản thành công"})
+
+# Permission CRUD APIs
+@app.route("/api/admin/permissions", methods=["POST"])
+@login_required
+@permission_required("manage_roles")
+def create_permission():
+    """Create a new permission"""
+    data = request.json
+    perm_key = data.get("key", "").strip()
+    perm_name = data.get("name", "").strip()
+    perm_desc = data.get("description", "").strip()
+    
+    if not perm_key or not perm_name:
+        return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
+    
+    # Validate key format (lowercase, numbers, underscores only)
+    import re
+    if not re.match(r'^[a-z0-9_]+$', perm_key):
+        return jsonify({"status": "error", "message": "Permission key chỉ được chứa chữ thường, số và dấu gạch dưới"}), 400
+    
+    perms_config = load_permissions()
+    
+    if perm_key in perms_config.get("permissions", {}):
+        return jsonify({"status": "error", "message": "Permission key đã tồn tại"}), 400
+    
+    perms_config.setdefault("permissions", {})[perm_key] = {
+        "name": perm_name,
+        "description": perm_desc
+    }
+    
+    save_json("permissions.json", perms_config)
+    return jsonify({"status": "success", "message": "Tạo permission thành công"})
+
+@app.route("/api/admin/permissions/<perm_key>", methods=["PUT", "DELETE"])
+@login_required
+@permission_required("manage_roles")
+def manage_permission(perm_key):
+    """Update or delete a permission"""
+    perms_config = load_permissions()
+    
+    if perm_key not in perms_config.get("permissions", {}):
+        return jsonify({"status": "error", "message": "Permission không tồn tại"}), 404
+    
+    if request.method == "DELETE":
+        # Check if permission is used in any role
+        for role_key, role_data in perms_config.get("roles", {}).items():
+            if perm_key in role_data.get("permissions", []):
+                return jsonify({"status": "error", "message": f"Permission đang được sử dụng bởi role '{role_data.get('name', role_key)}'"}), 400
+        
+        del perms_config["permissions"][perm_key]
+        save_json("permissions.json", perms_config)
+        return jsonify({"status": "success", "message": "Xóa permission thành công"})
+    
+    # PUT - Update
+    data = request.json
+    perms_config["permissions"][perm_key] = {
+        "name": data.get("name", ""),
+        "description": data.get("description", "")
+    }
+    save_json("permissions.json", perms_config)
+    return jsonify({"status": "success", "message": "Cập nhật permission thành công"})
+
+@app.route("/api/admin/roles/<role_key>/permissions", methods=["PUT"])
+@login_required
+@permission_required("manage_roles")
+def update_role_permissions(role_key):
+    """Update permissions for a role"""
+    perms_config = load_permissions()
+    
+    if role_key not in perms_config.get("roles", {}):
+        return jsonify({"status": "error", "message": "Role không tồn tại"}), 404
+    
+    # Prevent modifying super_admin
+    if role_key == "super_admin":
+        return jsonify({"status": "error", "message": "Không thể sửa quyền của super_admin"}), 403
+    
+    data = request.json
+    new_perms = data.get("permissions", [])
+    
+    # Validate all permissions exist
+    all_perms = perms_config.get("permissions", {})
+    for perm in new_perms:
+        if perm not in all_perms:
+            return jsonify({"status": "error", "message": f"Permission '{perm}' không tồn tại"}), 400
+    
+    perms_config["roles"][role_key]["permissions"] = new_perms
+    save_json("permissions.json", perms_config)
+    return jsonify({"status": "success", "message": "Cập nhật role thành công"})
 
 # Tracking & Submissions
 @app.route("/api/submissions", methods=["GET", "POST"])

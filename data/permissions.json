@@ -1,0 +1,70 @@
+{
+  "roles": {
+    "super_admin": {
+      "name": "Quản trị viên cấp cao",
+      "permissions": ["*"],
+      "description": "Toàn quyền quản lý hệ thống"
+    },
+    "admin": {
+      "name": "Quản trị viên",
+      "permissions": [
+        "manage_problems",
+        "manage_exams",
+        "manage_students",
+        "view_reports",
+        "view_submissions"
+      ],
+      "description": "Quản lý nội dung và sinh viên"
+    },
+    "instructor": {
+      "name": "Giảng viên",
+      "permissions": [
+        "manage_problems",
+        "manage_exams",
+        "view_reports",
+        "view_submissions"
+      ],
+      "description": "Tạo và quản lý bài tập, đề thi"
+    },
+    "teaching_assistant": {
+      "name": "Trợ giảng",
+      "permissions": ["view_reports", "view_submissions"],
+      "description": "Xem báo cáo và hỗ trợ sinh viên"
+    },
+    "student": {
+      "name": "Sinh viên",
+      "permissions": [],
+      "description": "Làm bài tập và thi"
+    }
+  },
+  "permissions": {
+    "manage_users": {
+      "name": "Quản lý tài khoản",
+      "description": "Tạo, sửa, xóa tài khoản người dùng"
+    },
+    "manage_roles": {
+      "name": "Quản lý vai trò",
+      "description": "Phân quyền và quản lý vai trò"
+    },
+    "manage_problems": {
+      "name": "Quản lý bài tập",
+      "description": "Tạo, sửa, xóa bài tập"
+    },
+    "manage_exams": {
+      "name": "Quản lý đề thi",
+      "description": "Tạo, sửa, xóa đề thi"
+    },
+    "view_reports": {
+      "name": "Xem báo cáo",
+      "description": "Xem báo cáo thống kê"
+    },
+    "view_submissions": {
+      "name": "Xem bài nộp",
+      "description": "Xem bài làm của sinh viên"
+    },
+    "manage_students": {
+      "name": "Quản lý sinh viên",
+      "description": "Thêm, sửa thông tin sinh viên"
+    }
+  }
+}
