@@ -314,11 +314,12 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/admin/js/admin.js"></script>
     <script src="/admin/js/sidebar.js"></script>
+    <script src="/admin/js/pagination.js"></script>
+    <script src="/admin/js/admin.js"></script>
     <script>
       var currentTab = "students";
-      
+
       // Capture original functions from admin.js
       const _origOpenStudentModal = window.openStudentModal;
       const _origEditStudent = window.editStudent;
@@ -326,21 +327,21 @@
       // Override to use Bootstrap Modal
       window.openStudentModal = function () {
         if (_origOpenStudentModal) _origOpenStudentModal();
-        
+
         const modalEl = document.getElementById("student-modal");
         // Clear manual display style set by admin.js
-        modalEl.style.display = ""; 
-        
+        modalEl.style.display = "";
+
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
       };
 
       window.editStudent = function (username) {
         if (_origEditStudent) _origEditStudent(username);
-        
+
         const modalEl = document.getElementById("student-modal");
         modalEl.style.display = "";
-        
+
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
       };
@@ -350,13 +351,15 @@
         const modalEl = document.getElementById("student-modal");
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
-        
+
         // Also clear manual display just in case
         modalEl.style.display = "";
-        
+
         // Remove backdrop manually if needed (sometimes verify)
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        document.body.classList.remove('modal-open');
+        document
+          .querySelectorAll(".modal-backdrop")
+          .forEach((el) => el.remove());
+        document.body.classList.remove("modal-open");
       };
     </script>
     <!-- Icons -->

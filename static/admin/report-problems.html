@@ -49,7 +49,9 @@
         <div id="tab-reports_problems" class="admin-tab">
           <header class="mb-4">
             <h2 class="h3 fw-bold text-white mb-1">Thống kê bài tập</h2>
-            <p class="text-muted small">Phân tích mức độ tương tác và độ khó của các bài tập</p>
+            <p class="text-muted small">
+              Phân tích mức độ tương tác và độ khó của các bài tập
+            </p>
           </header>
 
           <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
@@ -57,7 +59,9 @@
               <div class="row g-3">
                 <div class="col-md">
                   <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-muted">
+                    <span
+                      class="input-group-text bg-dark border-secondary text-muted"
+                    >
                       <i class="bi bi-search"></i>
                     </span>
                     <input
@@ -91,19 +95,39 @@
               <table class="table table-dark table-hover mb-0">
                 <thead class="bg-dark text-muted small text-uppercase fw-bold">
                   <tr>
-                    <th class="px-4 py-3 border-secondary" style="cursor: pointer" onclick="onSort('reports_problems', 'id')">
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('reports_problems', 'id')"
+                    >
                       ID <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
-                    <th class="px-4 py-3 border-secondary" style="cursor: pointer" onclick="onSort('reports_problems', 'title')">
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('reports_problems', 'title')"
+                    >
                       Tên bài tập <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
-                    <th class="px-4 py-3 border-secondary" style="cursor: pointer" onclick="onSort('reports_problems', 'difficulty')">
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('reports_problems', 'difficulty')"
+                    >
                       Mức độ <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
-                    <th class="px-4 py-3 border-secondary" style="cursor: pointer" onclick="onSort('reports_problems', 'attempt_count')">
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('reports_problems', 'attempt_count')"
+                    >
                       Tổng lượt nộp <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
-                    <th class="px-4 py-3 border-secondary" style="cursor: pointer" onclick="onSort('reports_problems', 'pass_count')">
+                    <th
+                      class="px-4 py-3 border-secondary"
+                      style="cursor: pointer"
+                      onclick="onSort('reports_problems', 'pass_count')"
+                    >
                       Số SV đã giải <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
                   </tr>
@@ -112,7 +136,10 @@
               </table>
             </div>
           </div>
-          <div class="mt-4 d-flex justify-content-center" id="pagination-reports_problems"></div>
+          <div
+            class="mt-4 d-flex justify-content-center"
+            id="pagination-reports_problems"
+          ></div>
         </div>
       </main>
     </div>
@@ -121,8 +148,12 @@
     <script>
       var currentTab = "reports_problems";
     </script>
-    <script src="/admin/js/admin.js"></script>
     <script src="/admin/js/sidebar.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <script src="/admin/js/pagination.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
   </body>
 </html>

@@ -34,7 +34,7 @@ const state = {
     data: [],
     filtered: [],
     page: 1,
-    limit: 100,
+    limit: 10,
     search: "",
     sortKey: "solved_count",
     sortDir: "desc",
@@ -44,7 +44,7 @@ const state = {
     data: [],
     filtered: [],
     page: 1,
-    limit: 100,
+    limit: 10,
     search: "",
     sortKey: "attempt_count",
     sortDir: "desc",
@@ -64,7 +64,7 @@ const state = {
     data: [],
     filtered: [],
     page: 1,
-    limit: 100,
+    limit: 10,
     search: "",
     sortKey: "score",
     sortDir: "desc",
@@ -436,16 +436,52 @@ function updateFilteredData(tab) {
 // Exam reports drill-down state is now derived from URL and page context
 // examReportView, selectedExamId, allExamSubmissions are initialized at top or in pages
 
+// Pagination instances registry
+const paginationInstances = {};
+
 function renderTable(tab) {
   const s = state[tab];
   if (!s) return;
 
+  // Initialize pagination if not exists
+  if (!paginationInstances[tab]) {
+    paginationInstances[tab] = new PaginationHelper(`pagination-${tab}`, {
+      pageSize: s.limit || 10,
+      renderCallback: (pageData) => renderTableBody(tab, pageData),
+      pageSizeOptions: [5, 10, 20, 50, 100],
+      instanceName: `window.paginationInstances['${tab}']`
+    });
+    // Store instance globally if needed for debugging or external access
+    if (!window.paginationInstances) window.paginationInstances = {};
+    window.paginationInstances[tab] = paginationInstances[tab];
+  }
+
+  // Update data for pagination
+  // Note: PaginationHelper.setData() will trigger render() which calls renderTableBody()
+  // It also resets page to 1, which is desired behavior when data/filter changes.
+  // However, if we are just re-rendering existing data (e.g. after sort), we might want to stay on current page?
+  // Current admin.js implementation for sort didn't reset page. 
+  // PaginationHelper.setData resets page to 1.
+  // To preserve page on sort, we'd need to modify PaginationHelper or handle it here.
+  // For now, let's allow reset to page 1 on sort/filter for simplicity and consistency with search.
+  
+  // Actually, wait. onSort calls updateFilteredData -> renderTable.
+  // If we just sorted, we usually want to see the *same* page but sorted, OR reset to 1.
+  // Most grids reset to 1 on sort to avoid confusion if items move out of current page. 
+  // Let's stick to reset to 1.
+  
+  paginationInstances[tab].setData(s.filtered);
+}
+
+function renderTableBody(tab, pageData) {
+  const s = state[tab];
   const body = document.getElementById(`${tab}-body`);
   if (!body) return;
 
-  const start = (s.page - 1) * s.limit;
-  const end = start + s.limit;
-  const pageData = s.filtered.slice(start, end);
+  // No longer need to slice data, pageData is already sliced
+  // const start = (s.page - 1) * s.limit;
+  // const end = start + s.limit;
+  // const pageData = s.filtered.slice(start, end);
 
   if (tab === "problems") {
     body.innerHTML = pageData
@@ -536,7 +572,6 @@ function renderTable(tab) {
         )
         .join("") ||
       '<tr><td colspan="5" style="text-align:center">Chưa có dữ liệu</td></tr>';
-    renderPagination(tab);
     updateSortUI(tab);
   } else if (tab === "exams") {
     body.innerHTML = pageData
@@ -563,7 +598,6 @@ function renderTable(tab) {
     `
       )
       .join("");
-    renderPagination(tab);
     updateSortUI(tab);
   } else if (tab === "reports_exams") {
     const head = document.getElementById("reports_exams-head");
@@ -592,7 +626,6 @@ function renderTable(tab) {
                 </td>
             </tr>
         `).join("") || '<tr><td colspan="5" class="text-center">Chưa có kỳ thi nào</td></tr>';
-      renderPagination(tab);
       updateSortUI(tab);
     } else if (examReportView === "students") {
       const titleEl = document.getElementById("exam-title-breadcrumb");
@@ -634,7 +667,6 @@ function renderTable(tab) {
                 </tr>
             `;
       }).join("") || '<tr><td colspan="5" class="text-center">Chưa có sinh viên tham gia</td></tr>';
-      renderPagination(tab);
       updateSortUI(tab);
     }
   }
@@ -736,53 +768,19 @@ function showSpecificCode(index) {
   document.getElementById("code-timestamp").textContent = "Nộp lúc: " + s.timestamp;
 }
 
-function renderPagination(tab) {
-  const s = state[tab];
-  if (!s) return;
-
-  const container = document.getElementById(`pagination-${tab}`);
-  if (!container) return;
-
-  const totalPages = Math.ceil(s.filtered.length / s.limit);
-  if (totalPages <= 1) {
-    container.innerHTML = "";
-    return;
-  }
-
-  let html = `
-        <div class="pagination-info">Hiển thị ${Math.min(s.filtered.length, (s.page - 1) * s.limit + 1)}-${Math.min(s.filtered.length, s.page * s.limit)} trong số ${s.filtered.length}</div>
-        <div class="pagination-controls">
-            <button class="page-btn" onclick="changePage('${tab}', 1)" ${s.page === 1 ? "disabled" : ""}>&laquo;</button>
-            <button class="page-btn" onclick="changePage('${tab}', ${s.page - 1})" ${s.page === 1 ? "disabled" : ""}>Trước</button>
-    `;
-
-  // Show few pages around current
-  const startPage = Math.max(1, s.page - 2);
-  const endPage = Math.min(totalPages, s.page + 2);
-
-  for (let i = startPage; i <= endPage; i++) {
-    html += `<button class="page-btn ${i === s.page ? "active" : ""}" onclick="changePage('${tab}', ${i})">${i}</button>`;
-  }
-
-  html += `
-            <button class="page-btn" onclick="changePage('${tab}', ${s.page + 1})" ${s.page === totalPages ? "disabled" : ""}>Sau</button>
-            <button class="page-btn" onclick="changePage('${tab}', ${totalPages})" ${s.page === totalPages ? "disabled" : ""}>&raquo;</button>
-        </div>
-    `;
-  container.innerHTML = html;
-}
-
-function changePage(tab, page) {
-  state[tab].page = page;
-  renderTable(tab);
-}
+// Old manual pagination functions removed
+// function renderPagination(tab) { ... }
+// function changePage(tab, page) { ... }
 
 function onSearch(tab) {
   state[tab].search = document.getElementById(`search-${tab}`).value;
-  state[tab].page = 1;
+  // Page reset is handled by setData() in renderTable
   updateFilteredData(tab);
   renderTable(tab);
 }
+
+// ... rest of file
+
 
 function onSort(tab, key) {
   if (state[tab].sortKey === key) {
@@ -825,8 +823,6 @@ function onFilter(tab) {
       "filter-reports_problems-difficulty",
     ).value;
   }
-  state[tab].page = 1;
-  updateFilteredData(tab);
   renderTable(tab);
 }
 

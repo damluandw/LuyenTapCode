@@ -38,5 +38,81 @@
     "display_name": "Nguyễn Văn B",
     "class_name": "64CNTT1",
     "custom_permissions": []
+  },
+  {
+    "username": "sv03",
+    "display_name": "Nguyễn Văn C",
+    "class_name": "64CNTT1",
+    "password": "123",
+    "role": "student"
+  },
+  {
+    "username": "sv04",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn A",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv05",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn B",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv06",
+    "display_name": "Nguyễn Văn C",
+    "class_name": "64CNTT1",
+    "password": "123",
+    "role": "student"
+  },
+  {
+    "username": "sv07",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn A",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv08",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn B",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv09",
+    "display_name": "Nguyễn Văn C",
+    "class_name": "64CNTT1",
+    "password": "123",
+    "role": "student"
+  },
+  {
+    "username": "sv10",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn A",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv11",
+    "password": "123",
+    "role": "student",
+    "display_name": "Nguyễn Văn B",
+    "class_name": "64CNTT1",
+    "custom_permissions": []
+  },
+  {
+    "username": "sv12",
+    "display_name": "Nguyễn Văn C",
+    "class_name": "64CNTT1",
+    "password": "123",
+    "role": "student"
   }
 ]

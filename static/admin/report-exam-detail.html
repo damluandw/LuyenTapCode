@@ -37,7 +37,9 @@
   <body>
     <div class="admin-wrapper">
       <aside class="admin-sidebar shadow-sm" id="sidebar">
-        <div class="p-4 text-center border-bottom border-secondary border-opacity-25">
+        <div
+          class="p-4 text-center border-bottom border-secondary border-opacity-25"
+        >
           <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
         </div>
       </aside>
@@ -45,20 +47,37 @@
       <main class="admin-main">
         <div id="tab-reports_exams" class="admin-tab">
           <header class="mb-4">
-             <nav aria-label="breadcrumb">
+            <nav aria-label="breadcrumb">
               <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/report-exams.html" class="text-accent text-decoration-none">Lịch sử thi</a></li>
-                <li class="breadcrumb-item active text-white" id="exam-title-breadcrumb">Đang tải...</li>
+                <li class="breadcrumb-item">
+                  <a
+                    href="/admin/report-exams.html"
+                    class="text-accent text-decoration-none"
+                    >Lịch sử thi</a
+                  >
+                </li>
+                <li
+                  class="breadcrumb-item active text-white"
+                  id="exam-title-breadcrumb"
+                >
+                  Đang tải...
+                </li>
               </ol>
             </nav>
-            <h2 class="h4 fw-bold text-white mb-1" id="exam-detail-title">Kết quả thi chi tiết</h2>
-            <p class="text-muted small">Danh sách sinh viên và điểm số trong kỳ thi</p>
+            <h2 class="h4 fw-bold text-white mb-1" id="exam-detail-title">
+              Kết quả thi chi tiết
+            </h2>
+            <p class="text-muted small">
+              Danh sách sinh viên và điểm số trong kỳ thi
+            </p>
           </header>
 
           <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
             <div class="p-3">
               <div class="input-group">
-                <span class="input-group-text bg-dark border-secondary text-muted">
+                <span
+                  class="input-group-text bg-dark border-secondary text-muted"
+                >
                   <i class="bi bi-search"></i>
                 </span>
                 <input
@@ -75,13 +94,22 @@
           <div class="card shadow-sm border-0 overflow-hidden">
             <div class="table-responsive">
               <table class="table table-dark table-hover mb-0">
-                <thead class="bg-dark text-muted small text-uppercase fw-bold" id="reports_exams-head">
+                <thead
+                  class="bg-dark text-muted small text-uppercase fw-bold"
+                  id="reports_exams-head"
+                >
                   <tr>
                     <th class="px-4 py-3 border-secondary">Sinh viên</th>
-                    <th class="px-4 py-3 border-secondary text-center">Số bài giải</th>
-                    <th class="px-4 py-3 border-secondary text-center">Tổng điểm</th>
+                    <th class="px-4 py-3 border-secondary text-center">
+                      Số bài giải
+                    </th>
+                    <th class="px-4 py-3 border-secondary text-center">
+                      Tổng điểm
+                    </th>
                     <th class="px-4 py-3 border-secondary">Tiến độ</th>
-                    <th class="px-4 py-3 border-secondary text-end">Hành động</th>
+                    <th class="px-4 py-3 border-secondary text-end">
+                      Hành động
+                    </th>
                   </tr>
                 </thead>
                 <tbody id="reports_exams-body" class="border-top-0">
@@ -90,7 +118,10 @@
               </table>
             </div>
           </div>
-          <div class="mt-4 d-flex justify-content-center" id="pagination-reports_exams"></div>
+          <div
+            class="mt-4 d-flex justify-content-center"
+            id="pagination-reports_exams"
+          ></div>
         </div>
       </main>
     </div>
@@ -100,10 +131,14 @@
       var currentTab = "reports_exams";
       var examReportView = "students"; // Force detail view
       const urlParams = new URLSearchParams(window.location.search);
-      var selectedExamId = urlParams.get('eid');
+      var selectedExamId = urlParams.get("eid");
     </script>
-    <script src="/admin/js/admin.js"></script>
     <script src="/admin/js/sidebar.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <script src="/admin/js/pagination.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
   </body>
 </html>

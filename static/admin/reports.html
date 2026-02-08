@@ -239,10 +239,27 @@
 
           <!-- Sub-tab: Exam Reports -->
           <div id="tab-reports_exams" style="display: none">
-            <nav aria-label="breadcrumb" class="mb-3" id="exam-report-nav" style="display:none">
+            <nav
+              aria-label="breadcrumb"
+              class="mb-3"
+              id="exam-report-nav"
+              style="display: none"
+            >
               <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="#" onclick="showExamList()" class="text-accent text-decoration-none">Kỳ thi</a></li>
-                <li class="breadcrumb-item active text-white" id="current-exam-breadcrumb">Chi tiết sinh viên</li>
+                <li class="breadcrumb-item">
+                  <a
+                    href="#"
+                    onclick="showExamList()"
+                    class="text-accent text-decoration-none"
+                    >Kỳ thi</a
+                  >
+                </li>
+                <li
+                  class="breadcrumb-item active text-white"
+                  id="current-exam-breadcrumb"
+                >
+                  Chi tiết sinh viên
+                </li>
               </ol>
             </nav>
 
@@ -274,16 +291,29 @@
                   >
                     <tr>
                       <th class="px-4 py-3 border-secondary">Kỳ thi</th>
-                      <th class="px-4 py-3 border-secondary text-center">Số SV tham gia</th>
-                      <th class="px-4 py-3 border-secondary text-center">Số bài tập</th>
-                      <th class="px-4 py-3 border-secondary text-center">Tổng điểm tối đa</th>
-                      <th class="px-4 py-3 border-secondary text-end">Hành động</th>
+                      <th class="px-4 py-3 border-secondary text-center">
+                        Số SV tham gia
+                      </th>
+                      <th class="px-4 py-3 border-secondary text-center">
+                        Số bài tập
+                      </th>
+                      <th class="px-4 py-3 border-secondary text-center">
+                        Tổng điểm tối đa
+                      </th>
+                      <th class="px-4 py-3 border-secondary text-end">
+                        Hành động
+                      </th>
                     </tr>
                   </thead>
                   <tbody id="reports_exams-body" class="border-top-0"></tbody>
                 </table>
               </div>
             </div>
+            </div>
+            <div
+              class="mt-4 d-flex justify-content-center"
+              id="pagination-reports_exams"
+            ></div>
           </div>
         </div>
       </main>
@@ -295,26 +325,47 @@
         <div class="modal-content bg-dark text-white border-secondary">
           <div class="modal-header border-secondary">
             <h5 class="modal-title" id="codeModalLabel">Chi tiết bài nộp</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body p-0">
-             <div class="p-3 border-bottom border-secondary bg-dark">
-                <div class="row">
-                   <div class="col-md-6">
-                      <div class="small text-muted">Sinh viên</div>
-                      <div id="code-student-name" class="fw-bold">--</div>
-                   </div>
-                   <div class="col-md-6 text-md-end">
-                      <div class="small text-muted">Bài tập</div>
-                      <div id="code-problem-title" class="fw-bold">--</div>
-                   </div>
+            <div class="p-3 border-bottom border-secondary bg-dark">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="small text-muted">Sinh viên</div>
+                  <div id="code-student-name" class="fw-bold">--</div>
                 </div>
-             </div>
-             <pre id="code-display" class="m-0 p-3" style="max-height: 500px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: #0d1117;"></pre>
+                <div class="col-md-6 text-md-end">
+                  <div class="small text-muted">Bài tập</div>
+                  <div id="code-problem-title" class="fw-bold">--</div>
+                </div>
+              </div>
+            </div>
+            <pre
+              id="code-display"
+              class="m-0 p-3"
+              style="
+                max-height: 500px;
+                overflow-y: auto;
+                font-family: &quot;Fira Code&quot;, monospace;
+                font-size: 0.9rem;
+                background: #0d1117;
+              "
+            ></pre>
           </div>
           <div class="modal-footer border-secondary">
             <span id="code-timestamp" class="me-auto text-muted small">--</span>
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Đóng
+            </button>
           </div>
         </div>
       </div>
@@ -325,8 +376,9 @@
     <script>
       var currentTab = "reports";
     </script>
-    <script src="/admin/js/admin.js"></script>
     <script src="/admin/js/sidebar.js"></script>
+    <script src="/admin/js/pagination.js"></script>
+    <script src="/admin/js/admin.js"></script>
     <script>
       // Handle sub-reports via URL t param
       const urlParams = new URLSearchParams(window.location.search);
