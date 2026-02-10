@@ -49,6 +49,10 @@ function injectSidebar() {
                 <i class="bi bi-journal-text"></i> Quản lý kỳ thi
             </a>
             
+            <a href="/admin/users.html" class="admin-nav-item ${path.includes('/admin/users') ? 'active' : ''}">
+                <i class="bi bi-people"></i> Quản lý người dùng
+            </a>
+            
             <div class="admin-nav-divider my-3"></div>
             
             <a href="/admin/roles" class="admin-nav-item ${path === '/admin/roles' ? 'active' : ''}">
@@ -61,6 +65,9 @@ function injectSidebar() {
         </div>
         
         <div class="mt-auto p-3 border-top border-secondary border-opacity-25">
+            <a href="/profile" class="admin-nav-item ${path === '/profile' ? 'active' : ''}">
+                <i class="bi bi-person-circle"></i> Hồ sơ cá nhân
+            </a>
             <a href="/" class="admin-nav-item text-muted">
                 <i class="bi bi-arrow-left-circle"></i> Về trang Student
             </a>

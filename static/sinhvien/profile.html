@@ -234,24 +234,12 @@
 
           if (data.username) {
             document.getElementById("username").value = data.username;
-            document.getElementById("display_name").value =
-              data.display_name || "";
+            document.getElementById("display_name").value = data.display_name || "";
+            document.getElementById("class_name").value = data.class_name || "";
+            
             const navDisplayEl = document.getElementById("nav-user-display");
             if (navDisplayEl)
-              navDisplayEl.textContent = data.display_name || "Sinh viên";
-
-            // Load full user data to get class_name
-            const usersRes = await fetch("/api/admin/students");
-            if (usersRes.ok) {
-              const users = await usersRes.json();
-              const currentUser = users.find(
-                (u) => u.username === data.username,
-              );
-              if (currentUser && currentUser.class_name) {
-                document.getElementById("class_name").value =
-                  currentUser.class_name;
-              }
-            }
+              navDisplayEl.textContent = data.display_name || data.username;
           }
         } catch (e) {
           console.error("Failed to load user info:", e);

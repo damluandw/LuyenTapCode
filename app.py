@@ -256,8 +256,12 @@ def student_dashboard_page():
 
 @app.route("/profile")
 @login_required
-def student_profile_page():
-    return app.send_static_file("sinhvien/profile.html")
+def profile_page():
+    role = session.get("role")
+    if role == "student":
+        return app.send_static_file("sinhvien/profile.html")
+    else:
+        return app.send_static_file("admin/profile.html")
 
 @app.route("/admin/roles")
 @login_required
@@ -316,11 +320,15 @@ def api_logout():
 @app.route("/api/auth/me")
 def api_me():
     if 'username' in session:
-        return jsonify({
-            "username": session['username'],
-            "role": session['role'],
-            "display_name": session.get('display_name')
-        })
+        users = load_json("users.json")
+        user = next((u for u in users if u["username"] == session["username"]), None)
+        if user:
+            return jsonify({
+                "username": user['username'],
+                "role": user['role'],
+                "display_name": user.get('display_name'),
+                "class_name": user.get('class_name', '')
+            })
     return jsonify({"error": "Not logged in"}), 401
 
 @app.route("/api/auth/update-info", methods=["PUT"])
@@ -1425,6 +1433,91 @@ def handle_submissions():
             "test_attempts": user_attempts
         })
 
+
+@app.route("/api/admin/users", methods=["GET"])
+@login_required
+@permission_required("manage_users")
+def get_all_users():
+    """Get all users with basic info for management"""
+    users = load_json("users.json")
+    # Mask passwords if not super_admin? Or just return as is for simplicity in this project
+    return jsonify([{
+        "username": u["username"],
+        "display_name": u.get("display_name", u["username"]),
+        "role": u.get("role", "student"),
+        "class_name": u.get("class_name", "--"),
+        "password": u.get("password")
+    } for u in users])
+
+@app.route("/api/admin/users/<username>", methods=["PUT", "DELETE"])
+@login_required
+@permission_required("manage_users")
+def modify_user(username):
+    """Update profile or delete any user"""
+    # Define role hierarchy (higher value = higher privilege)
+    ROLE_RANK = {
+        "super_admin": 100,
+        "admin": 80,
+        "instructor": 60,
+        "teaching_assistant": 40,
+        "student": 20
+    }
+    
+    users = load_json("users.json")
+    user_idx = next((i for i, u in enumerate(users) if u["username"] == username), -1)
+    
+    if user_idx == -1:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+        
+    current_user = next((u for u in users if u["username"] == session["username"]), None)
+    if not current_user:
+        return jsonify({"status": "error", "message": "Unauthorized"}), 401
+        
+    current_user_role = current_user.get("role", "student")
+    target_user = users[user_idx]
+    target_user_role = target_user.get("role", "student")
+    
+    current_rank = ROLE_RANK.get(current_user_role, 0)
+    target_rank = ROLE_RANK.get(target_user_role, 0)
+    
+    # Hierarchy check: current user rank must be >= target user rank
+    # Note: super_admin can modify other super_admins (as before)
+    if current_rank < target_rank:
+        return jsonify({"status": "error", "message": "Bạn không có quyền chỉnh sửa tài khoản có cấp bậc cao hơn"}), 403
+
+    if request.method == "DELETE":
+        if username == session["username"]:
+            return jsonify({"status": "error", "message": "Cannot delete yourself"}), 400
+        users.pop(user_idx)
+        save_json("users.json", users)
+        return jsonify({"status": "success"})
+    
+    # PUT - Update user
+    data = request.json
+    target_user = users[user_idx]
+    
+    # Fields allowed to be updated
+    if "display_name" in data: target_user["display_name"] = data["display_name"]
+    if "password" in data: target_user["password"] = data["password"]
+    if "class_name" in data: target_user["class_name"] = data["class_name"]
+    
+    # Role and Permission updates (require manage_roles permission)
+    if has_permission(session["username"], "manage_roles"):
+        if "role" in data: 
+            # Prevent non-superadmin from promoting others to superadmin
+            if data["role"] == "super_admin" and current_user_role != "super_admin":
+                pass # Ignore or error
+            else:
+                target_user["role"] = data["role"]
+        if "custom_permissions" in data: target_user["custom_permissions"] = data["custom_permissions"]
+    
+    save_json("users.json", users)
+    
+    # Update session if current user updated their own info
+    if username == session["username"]:
+        if "display_name" in data: session["display_name"] = data["display_name"]
+        
+    return jsonify({"status": "success"})
 
 @app.route("/api/admin/exams/<int:eid>/submissions")
 @login_required

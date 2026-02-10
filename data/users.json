@@ -1,55 +1,48 @@
 [
   {
     "username": "admin",
-    "password": "admin",
+    "password": "123",
     "role": "super_admin",
-    "display_name": "Quản trị viên cấp cao",
-    "custom_permissions": []
+    "display_name": "Quản trị viên cấp cao"
   },
   {
     "username": "gv01",
     "password": "123",
     "role": "instructor",
-    "display_name": "Quản trị viên cấp cao",
-    "custom_permissions": []
+    "display_name": "Giảng viên"
   },
   {
     "username": "qtv",
     "password": "123",
     "role": "admin",
-    "display_name": "quản trị viên",
-    "custom_permissions": []
+    "display_name": "quản trị viên"
   },
   {
     "username": "trogiang",
     "password": "123",
     "role": "teaching_assistant",
-    "display_name": "Trợ giảng",
-    "custom_permissions": []
+    "display_name": "Trợ giảng"
   },
   {
     "username": "student",
     "password": "123",
     "role": "student",
     "display_name": "Sinh viên mẫu",
-    "class_name": "64CNTT2",
-    "custom_permissions": []
+    "class_name": "64CNTT2"
   },
   {
     "username": "sv01",
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn A",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv02",
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn B",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv03",
@@ -63,16 +56,14 @@
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn A",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv05",
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn B",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv06",
@@ -86,16 +77,14 @@
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn A",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv08",
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn B",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv09",
@@ -109,22 +98,13 @@
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn A",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
+    "class_name": "64CNTT1"
   },
   {
     "username": "sv11",
     "password": "123",
     "role": "student",
     "display_name": "Nguyễn Văn B",
-    "class_name": "64CNTT1",
-    "custom_permissions": []
-  },
-  {
-    "username": "sv12",
-    "display_name": "Nguyễn Văn C",
-    "class_name": "64CNTT1",
-    "password": "123",
-    "role": "student"
+    "class_name": "64CNTT1"
   }
 ]

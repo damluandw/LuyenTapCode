@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý người dùng - Admin</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <link rel="stylesheet" href="/admin/css/admin.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+      }
+      .admin-sidebar {
+        width: 260px;
+        background: var(--card-bg);
+        border-right: 1px solid var(--glass-border);
+        flex-shrink: 0;
+      }
+      .admin-main {
+        flex: 1;
+        padding: 2rem;
+        background: var(--bg-dark);
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar shadow-sm">
+        <!-- Sidebar injected by sidebar.js -->
+        <div class="p-4 text-center border-bottom border-secondary border-opacity-25">
+          <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <div id="tab-users" class="admin-tab">
+          <header class="mb-4 d-flex justify-content-between align-items-center">
+            <div>
+              <h2 class="h3 fw-bold text-white mb-1">Quản lý người dùng</h2>
+              <p class="text-muted small">Quản lý toàn bộ tài khoản trong hệ thống</p>
+            </div>
+          </header>
+
+          <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
+            <div class="p-3">
+              <div class="row g-3">
+                <div class="col-md">
+                  <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted">
+                      <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control bg-dark border-secondary text-light"
+                      id="search-users"
+                      placeholder="Tìm kiếm theo tên, username..."
+                      oninput="onSearch('users')"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-dark table-hover mb-0">
+                <thead class="bg-dark text-muted small text-uppercase fw-bold">
+                  <tr>
+                    <th class="px-4 py-3 border-secondary">Username</th>
+                    <th class="px-4 py-3 border-secondary">Tên hiển thị</th>
+                    <th class="px-4 py-3 border-secondary">Vai trò</th>
+                    <th class="px-4 py-3 border-secondary">Lớp / Nhóm</th>
+                    <th class="px-4 py-3 border-secondary">Mật khẩu</th>
+                    <th class="px-4 py-3 border-secondary text-end">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody id="users-body" class="border-top-0">
+                  <!-- Loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mt-4 d-flex justify-content-center" id="pagination-users"></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title" id="userModalTitle">Chỉnh sửa người dùng</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="userForm">
+              <div class="mb-3">
+                <label class="form-label text-muted small">Username</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-username" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted small">Tên hiển thị</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-display_name" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted small">Mật khẩu</label>
+                <div class="input-group">
+                   <input type="text" class="form-control bg-dark text-white border-secondary" id="user-password" required>
+                   <button class="btn btn-outline-secondary" type="button" onclick="generateRandomPass()">Ngẫu nhiên</button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted small">Vai trò</label>
+                <select class="form-select bg-dark text-white border-secondary" id="user-role">
+                  <option value="student">Student</option>
+                  <option value="instructor">Instructor</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label text-muted small">Lớp / Nhóm</label>
+                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-class_name">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="button" class="btn btn-primary" onclick="saveUser()">Lưu thay đổi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      var currentTab = "users";
+    </script>
+    <script src="/admin/js/sidebar.js"></script>
+    <script src="/admin/js/pagination.js"></script>
+    <script src="/admin/js/admin.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  </body>
+</html>

@@ -70,6 +70,16 @@ const state = {
     sortDir: "desc",
     filters: {},
   },
+  users: {
+    data: [],
+    filtered: [],
+    page: 1,
+    limit: 10,
+    search: "",
+    sortKey: "username",
+    sortDir: "asc",
+    filters: {},
+  },
 };
 
 if (typeof currentTab === 'undefined') {
@@ -177,7 +187,7 @@ function initRouting() {
     tab = tab.replace('.html', '');
   }
 
-  const validTabs = ["dashboard", "problems", "students", "reports", "exams", "submissions", "report-students", "report-problems", "report-exams", "report-exam-detail", "report-exam-submissions"];
+  const validTabs = ["dashboard", "problems", "students", "reports", "exams", "submissions", "report-students", "report-problems", "report-exams", "report-exam-detail", "report-exam-submissions", "users"];
   if (validTabs.includes(tab)) {
     showTab(tab, false);
   } else if (path === "/admin") {
@@ -324,6 +334,7 @@ async function loadData() {
       students: "/api/admin/students",
       submissions: "/api/submissions",
       exams: "/api/admin/exams",
+      users: "/api/admin/users",
     };
 
     try {
@@ -423,6 +434,13 @@ function updateFilteredData(tab) {
         const matchesExam = selectedExamId === null || item.examId == selectedExamId;
         return matchesSearch && matchesExam;
       }
+    } else if (tab === "users") {
+      matchesSearch =
+        (item.username || "").toLowerCase().includes(query) ||
+        (item.display_name || "").toLowerCase().includes(query) ||
+        (item.role || "").toLowerCase().includes(query) ||
+        (item.class_name && item.class_name.toLowerCase().includes(query));
+      return matchesSearch;
     }
     return true;
   });
@@ -528,7 +546,36 @@ function renderTableBody(tab, pageData) {
         `,
       )
       .join("");
-  } else if (tab === "submissions") {
+  } else if (tab === "users") {
+    body.innerHTML = pageData
+      .map(
+        (u) => `
+            <tr>
+                <td class="px-4 py-3 fw-medium">${u.username}</td>
+                <td class="px-4 py-3">${u.display_name}</td>
+                <td class="px-4 py-3">
+                    <span class="badge ${u.role === 'super_admin' ? 'bg-danger' : u.role === 'instructor' ? 'bg-primary' : 'bg-secondary'}">
+                        ${u.role.toUpperCase()}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-muted">${u.class_name || '--'}</td>
+                <td class="px-4 py-3 font-monospace small">${u.password}</td>
+                <td class="px-4 py-3 text-end">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary" onclick="editUser('${u.username}')" title="Sửa">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.username}')" title="Xóa">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `,
+      )
+      .join("") || '<tr><td colspan="6" class="text-center p-4 text-muted">Không tìm thấy người dùng nào</td></tr>';
+  }
+  else if (tab === "submissions") {
     body.innerHTML = pageData
       .map(
         (s, i) => `
@@ -962,11 +1009,96 @@ async function viewStudentStats(username) {
 
 let editingUsername = null;
 
-function editStudent(username) {
+async function editUser(username) {
+  const users = state.users.data;
+  const user = users.find((u) => u.username === username);
+  if (!user) {
+    alert("Không tìm thấy thông tin người dùng: " + username);
+    return;
+  }
+
   editingUsername = username;
+  document.getElementById("userModalTitle").textContent = "Chỉnh sửa người dùng: " + username;
+  document.getElementById("user-username").value = user.username;
+  document.getElementById("user-display_name").value = user.display_name || "";
+  document.getElementById("user-password").value = user.password || "";
+  document.getElementById("user-class_name").value = user.class_name || "";
+
+  // Dynamic roles loading
+  const roleSelect = document.getElementById("user-role");
+  try {
+    const res = await fetch("/api/admin/roles");
+    const roles = await res.json();
+    roleSelect.innerHTML = "";
+    for (const [key, role] of Object.entries(roles)) {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = role.name || key;
+      if (key === user.role) option.selected = true;
+      roleSelect.appendChild(option);
+    }
+  } catch (err) {
+    console.error("Failed to load roles:", err);
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById("userModal"));
+  modal.show();
+}
+
+function generateRandomPass() {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let pass = "";
+  for (let i = 0; i < 6; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  document.getElementById("user-password").value = pass;
+}
+
+function saveUser() {
+  const data = {
+    display_name: document.getElementById("user-display_name").value,
+    password: document.getElementById("user-password").value,
+    role: document.getElementById("user-role").value,
+    class_name: document.getElementById("user-class_name").value,
+  };
+
+  fetch(`/api/admin/users/${editingUsername}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === "success") {
+        const modalEl = document.getElementById("userModal");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+        loadData();
+      } else {
+        alert(res.message || "Lỗi lưu dữ liệu");
+      }
+    });
+}
+
+function deleteUser(username) {
+  if (!confirm(`Bạn có chắc muốn xóa tài khoản ${username}?`)) return;
+
+  fetch(`/api/admin/users/${username}`, { method: "DELETE" })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.status === "success") {
+        loadData();
+      } else {
+        alert(res.message || "Lỗi xóa dữ liệu");
+      }
+    });
+}
+
+function editStudent(username) {
   const student = state.students.data.find((s) => s.username === username);
   if (!student) return;
 
+  editingUsername = username;
   document.getElementById("student-modal-title").textContent =
     "Sửa tài khoản sinh viên";
   document.getElementById("s-user").value = student.username;

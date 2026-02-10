@@ -2,7 +2,9 @@
   "roles": {
     "super_admin": {
       "name": "Quản trị viên cấp cao",
-      "permissions": ["*"],
+      "permissions": [
+        "*"
+      ],
       "description": "Toàn quyền quản lý hệ thống"
     },
     "admin": {
@@ -11,6 +13,7 @@
         "manage_problems",
         "manage_exams",
         "manage_students",
+        "manage_users",
         "view_reports",
         "view_submissions"
       ],
@@ -28,7 +31,10 @@
     },
     "teaching_assistant": {
       "name": "Trợ giảng",
-      "permissions": ["view_reports", "view_submissions"],
+      "permissions": [
+        "view_reports",
+        "view_submissions"
+      ],
       "description": "Xem báo cáo và hỗ trợ sinh viên"
     },
     "student": {
