@@ -1266,29 +1266,58 @@ def handle_submissions():
         # Consistent timeRemaining and code handling
         if "timeRemaining" not in data and "time_remaining" in data:
             data["timeRemaining"] = data.pop("time_remaining")
-            
-        submissions = load_json("submissions.json")
-        submissions.append(data)
-        save_json("submissions.json", submissions)
+        
+        # Determine which file to save to based on submission_type
+        submission_type = data.get("submission_type", "submit")  # Default to submit for backward compatibility
+        
+        if submission_type == "check":
+            # Save to test_attempts.json
+            attempts = load_json("test_attempts.json")
+            attempts.append(data)
+            save_json("test_attempts.json", attempts)
+        else:
+            # Save to submissions.json (final submission)
+            submissions = load_json("submissions.json")
+            submissions.append(data)
+            save_json("submissions.json", submissions)
+        
         return jsonify({"status": "success"})
     
     # GET: Fetch tracking info
     submissions = load_json("submissions.json")
-    # Allow all non-student roles to view all submissions
+    test_attempts = load_json("test_attempts.json")
+    
+    # Allow all non-student roles to view all data
     if session.get("role") != "student":
-        return jsonify(submissions)
+        return jsonify({
+            "submissions": submissions,
+            "test_attempts": test_attempts
+        })
     else:
         # Student only sees their own
         user_subs = [s for s in submissions if s["username"] == session["username"]]
-        return jsonify(user_subs)
+        user_attempts = [a for a in test_attempts if a["username"] == session["username"]]
+        return jsonify({
+            "submissions": user_subs,
+            "test_attempts": user_attempts
+        })
+
 
 @app.route("/api/admin/exams/<int:eid>/submissions")
 @login_required
 @instructor_required
 def get_exam_submissions(eid):
     submissions = load_json("submissions.json")
+    test_attempts = load_json("test_attempts.json")
+    
     exam_subs = [s for s in submissions if str(s.get("examId")) == str(eid)]
-    return jsonify(exam_subs)
+    exam_attempts = [a for a in test_attempts if str(a.get("examId")) == str(eid)]
+    
+    return jsonify({
+        "submissions": exam_subs,
+        "test_attempts": exam_attempts
+    })
+
 
 @socketio.on('connect')
 def handle_connect():

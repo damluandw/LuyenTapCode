@@ -345,6 +345,14 @@ function setupEventListeners() {
         }
         if (data.results) {
             renderResults(data.results);
+
+            // Save test attempt when checking (not submitting)
+            if (!isSubmitting) {
+                const allPassed = data.results.every(r => r.passed);
+                saveTestAttempt(allPassed);
+            }
+
+            // Handle actual submission if this was triggered by submit button
             if (isSubmitting) {
                 isSubmitting = false;
                 const allPassed = data.results.every(r => r.passed);
@@ -528,7 +536,8 @@ async function performActualSubmission(allPassed) {
                 mode: 'exam',
                 examId: examId,
                 allPassed: allPassed,
-                timeRemaining: currentTimeRemaining
+                timeRemaining: currentTimeRemaining,
+                submission_type: 'submit'  // Mark as final submission
             })
         });
 
@@ -559,6 +568,31 @@ async function performActualSubmission(allPassed) {
         btn.innerHTML = originalContent;
     }
 }
+
+// Save test attempt when student clicks "Check" button
+async function saveTestAttempt(allPassed) {
+    try {
+        await fetch('/api/submissions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                problemId: currentProblem.id,
+                problemTitle: currentProblem.title,
+                language: document.getElementById('language-select').value,
+                code: editor.getValue(),
+                mode: 'exam',
+                examId: examId,
+                allPassed: allPassed,
+                timeRemaining: currentTimeRemaining,
+                submission_type: 'check'  // Mark as test attempt
+            })
+        });
+    } catch (error) {
+        console.error("Error saving test attempt:", error);
+        // Don't show error to user, this is just for tracking
+    }
+}
+
 
 function renderResults(results) {
     const panel = document.getElementById('tab-results');

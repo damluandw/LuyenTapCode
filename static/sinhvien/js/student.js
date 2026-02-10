@@ -134,7 +134,7 @@ require(["vs/editor/editor.main"], async function () {
       } else {
         toggleIcon.classList.replace('bi-chevron-right', 'bi-chevron-left');
       }
-      
+
       // Trigger editor layout recalculation
       if (editor) {
         setTimeout(() => editor.layout(), 300); // Wait for CSS transition
@@ -362,7 +362,7 @@ function setupEventListeners() {
 
     const resultsPanel = document.getElementById("tab-results");
     if (!resultsPanel) return;
-    
+
     if (data.error) {
       resultsPanel.innerHTML = `<div class="p-3 w-100"><div class="result-card failed"><div style="color: #f85149; font-weight: bold; margin-bottom: 5px;">Lỗi thực thi:</div><pre style="white-space: pre-wrap; margin: 0; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #f85149;">${escapeHtml(data.error)}</pre></div></div>`;
       return;
@@ -456,17 +456,17 @@ function updateEditorLanguage(lang) {
 function setupTabs() {
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-        const type = btn.dataset.content ? 'content' : 'tab';
-        if (type === 'content') {
-            // Left pane tabs
-            document.querySelectorAll(".problem-pane .tab-btn").forEach(b => b.classList.remove('active'));
-            document.querySelectorAll(".pane-content").forEach(p => p.classList.add('d-none'));
-            btn.classList.add('active');
-            document.getElementById(`problem-${btn.dataset.content}`).classList.remove('d-none');
-        } else {
-            // Bottom pane tabs (Console/Results)
-            switchTab(btn.dataset.tab);
-        }
+      const type = btn.dataset.content ? 'content' : 'tab';
+      if (type === 'content') {
+        // Left pane tabs
+        document.querySelectorAll(".problem-pane .tab-btn").forEach(b => b.classList.remove('active'));
+        document.querySelectorAll(".pane-content").forEach(p => p.classList.add('d-none'));
+        btn.classList.add('active');
+        document.getElementById(`problem-${btn.dataset.content}`).classList.remove('d-none');
+      } else {
+        // Bottom pane tabs (Console/Results)
+        switchTab(btn.dataset.tab);
+      }
     });
   });
 
@@ -484,7 +484,7 @@ function switchTab(tabId) {
   document.querySelectorAll(".console-section .tab-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.tab === tabId);
   });
-  
+
   // Sync panes in the console section
   document.querySelectorAll(".console-section .tab-pane").forEach((pane) => {
     pane.classList.toggle("active", pane.id === `tab-${tabId}`);
@@ -503,7 +503,7 @@ function renderResults(results) {
   const panel = document.getElementById('tab-results');
   if (!panel) return;
   panel.innerHTML = '';
-  
+
   if (!results || results.length === 0) {
     panel.innerHTML = '<div class="p-4 w-100 text-center text-muted">Không tìm thấy test case nào cho bài này.</div>';
     return;
@@ -515,7 +515,7 @@ function renderResults(results) {
     const card = document.createElement('div');
     card.className = `result-card ${res.passed ? 'passed' : 'failed'}`;
     const actualText = (res.actual || "").toString().trim() || '(không có đầu ra)';
-    
+
     card.innerHTML = `
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                 <strong>Test Case #${index + 1}</strong>
@@ -532,14 +532,18 @@ function renderResults(results) {
   });
 
   if (allPassed && currentProblem) {
-    // Log success to server
+    // Save as test attempt (not final submission) for exercise mode
     fetch('/api/submissions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         problemId: currentProblem.id,
         problemTitle: currentProblem.title,
-        language: document.getElementById('language-select').value
+        language: document.getElementById('language-select').value,
+        code: editor.getValue(),
+        mode: 'practice',
+        allPassed: true,
+        submission_type: 'check'  // Mark as test attempt, not final submission
       })
     });
   }

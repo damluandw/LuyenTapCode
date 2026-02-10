@@ -14,13 +14,24 @@
     },
     "isActive": true,
     "openTime": "2026-02-07T01:04",
-    "closeTime": "2026-02-09T01:15",
+    "closeTime": "2026-02-11T01:15",
     "allowedLanguages": [
       "c"
     ],
     "allowedStudents": [
       "sv02",
-      "student"
+      "student",
+      "sv01",
+      "sv03",
+      "sv04",
+      "sv05",
+      "sv06",
+      "sv07",
+      "sv08",
+      "sv09",
+      "sv10",
+      "sv11",
+      "sv12"
     ],
     "id": 1
   },

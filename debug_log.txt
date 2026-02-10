@@ -183,3 +183,28 @@ Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=True, Result=True
 User: sv03, Role: student
 Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student'], UserIn=False, Result=False
 Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student'], UserIn=False, Result=False
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False

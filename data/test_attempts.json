@@ -1,0 +1,79 @@
+[
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "python",
+    "username": "sv01",
+    "timestamp": "2026-02-07 15:38:15"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "cpp",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:56:43"
+  },
+  {
+    "problemId": 7,
+    "problemTitle": "Chuyển giờ sang phút",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:58:56"
+  },
+  {
+    "problemId": 21,
+    "problemTitle": "In từ 1 đến N",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:59:29"
+  },
+  {
+    "problemId": 30,
+    "problemTitle": "Dãy Fibonacci",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:00:36"
+  },
+  {
+    "problemId": 30,
+    "problemTitle": "Dãy Fibonacci",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:00:40"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "timeRemaining": 1739,
+    "submission_type": "check",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:23:15"
+  },
+  {
+    "problemId": 6,
+    "problemTitle": "Bình phương số",
+    "language": "c",
+    "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n * n);\n    return 0;\n}",
+    "mode": "practice",
+    "allPassed": true,
+    "submission_type": "check",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:31:39"
+  },
+  {
+    "problemId": 9,
+    "problemTitle": "Gấp đôi số",
+    "language": "c",
+    "code": "#include <stdio.h>\n\nint main() {\n    int n;\n    scanf(\"%d\", &n);\n    printf(\"%d\", n * 2);\n    return 0;\n}",
+    "mode": "practice",
+    "allPassed": true,
+    "submission_type": "check",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:32:13"
+  }
+]
