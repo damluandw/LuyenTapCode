@@ -127,8 +127,15 @@ def login_required(f):
 def instructor_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'role' not in session or session['role'] != 'instructor':
+        role = session.get('role')
+        
+        # Allow any role that is NOT 'student'
+        if not role or role == 'student':
+            # For page requests, redirect to unauthorized page
+            if '/admin' in request.path or '/dashboard' in request.path:
+                return redirect(url_for('unauthorized_page'))
             return jsonify({"error": "Admin access required"}), 403
+        
         return f(*args, **kwargs)
     return decorated_function
 
@@ -138,11 +145,17 @@ def permission_required(permission):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'username' not in session:
+                # For page requests, redirect to login
+                if request.path.startswith('/admin') or request.path.startswith('/dashboard'):
+                    return redirect(url_for('login_page'))
                 return jsonify({"error": "Authentication required"}), 401
             
             if not has_permission(session['username'], permission):
+                # For page requests, redirect to unauthorized page
+                if request.path.startswith('/admin') or request.path.startswith('/dashboard'):
+                    return redirect(url_for('unauthorized_page'))
                 return jsonify({"error": "Permission denied"}), 403
-            
+
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -150,7 +163,7 @@ def permission_required(permission):
 @app.route("/")
 @login_required
 def index():
-    # Redirect based on role - check if user has any admin permissions
+    # Redirect based on role
     if 'username' in session:
         role = session.get('role', 'student')
         if role != 'student':
@@ -166,6 +179,8 @@ def exercise_page():
 
 @app.route("/login")
 def login_page():
+    if 'username' in session:
+        return redirect(url_for('index'))
     return app.send_static_file("login.html")
 
 @app.route("/admin")
@@ -201,7 +216,7 @@ def admin_exams_list_page():
 
 @app.route("/admin/submissions")
 @login_required
-@instructor_required
+@permission_required("view_submissions")
 def admin_submissions_page():
     return app.send_static_file("admin/submissions.html")
 
@@ -236,6 +251,7 @@ def student_history_page():
 @app.route("/dashboard")
 @login_required
 def student_dashboard_page():
+    # This is the STUDENT dashboard - all logged-in users can access
     return app.send_static_file("sinhvien/dashboard.html")
 
 @app.route("/profile")
@@ -254,6 +270,10 @@ def admin_roles_page():
 @permission_required("manage_roles")
 def admin_user_permissions_page():
     return app.send_static_file("admin/user-permissions.html")
+
+@app.route("/unauthorized")
+def unauthorized_page():
+    return app.send_static_file("unauthorized.html")
 
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -1254,7 +1274,8 @@ def handle_submissions():
     
     # GET: Fetch tracking info
     submissions = load_json("submissions.json")
-    if session["role"] == "instructor":
+    # Allow all non-student roles to view all submissions
+    if session.get("role") != "student":
         return jsonify(submissions)
     else:
         # Student only sees their own
@@ -1772,4 +1793,4 @@ if __name__ == "__main__":
     
     print("=" * 50)
     
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)

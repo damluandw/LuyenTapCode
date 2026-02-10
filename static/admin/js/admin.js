@@ -464,12 +464,12 @@ function renderTable(tab) {
   // PaginationHelper.setData resets page to 1.
   // To preserve page on sort, we'd need to modify PaginationHelper or handle it here.
   // For now, let's allow reset to page 1 on sort/filter for simplicity and consistency with search.
-  
+
   // Actually, wait. onSort calls updateFilteredData -> renderTable.
   // If we just sorted, we usually want to see the *same* page but sorted, OR reset to 1.
   // Most grids reset to 1 on sort to avoid confusion if items move out of current page. 
   // Let's stick to reset to 1.
-  
+
   paginationInstances[tab].setData(s.filtered);
 }
 

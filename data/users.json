@@ -11,9 +11,21 @@
     "password": "123",
     "role": "instructor",
     "display_name": "Quản trị viên cấp cao",
-    "custom_permissions": [
-      "manage_students"
-    ]
+    "custom_permissions": []
+  },
+  {
+    "username": "qtv",
+    "password": "123",
+    "role": "admin",
+    "display_name": "quản trị viên",
+    "custom_permissions": []
+  },
+  {
+    "username": "trogiang",
+    "password": "123",
+    "role": "teaching_assistant",
+    "display_name": "Trợ giảng",
+    "custom_permissions": []
   },
   {
     "username": "student",

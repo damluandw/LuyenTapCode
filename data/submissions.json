@@ -29,5 +29,40 @@
     "language": "python",
     "username": "sv01",
     "timestamp": "2026-02-07 15:38:15"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "cpp",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:56:43"
+  },
+  {
+    "problemId": 7,
+    "problemTitle": "Chuyển giờ sang phút",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:58:56"
+  },
+  {
+    "problemId": 21,
+    "problemTitle": "In từ 1 đến N",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 08:59:29"
+  },
+  {
+    "problemId": 30,
+    "problemTitle": "Dãy Fibonacci",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:00:36"
+  },
+  {
+    "problemId": 30,
+    "problemTitle": "Dãy Fibonacci",
+    "language": "c",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:00:40"
   }
 ]
