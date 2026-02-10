@@ -7,6 +7,7 @@ let examId = new URLSearchParams(window.location.search).get('id') || 1;
 let examDuration = 60 * 60; // Default 60 mins
 let isSubmitting = false; // Flag to trigger submission after test completion
 let currentTimeRemaining = 0;
+let timeElapsedFromServer = 0;
 
 // Monaco Loading
 require.config({
@@ -80,7 +81,7 @@ require(["vs/editor/editor.main"], async function () {
     });
 
     terminal = new Terminal();
-    fetchExamData();
+    await fetchExamData(); // Wait for data to get correct time
     checkUser();
     setupTabs();
     setupEventListeners();
@@ -187,6 +188,7 @@ async function fetchExamData() {
 
         document.getElementById('exam-title').textContent = data.info.title;
         examDuration = (data.info.duration || 60) * 60;
+        timeElapsedFromServer = data.info.timeElapsed || 0;
         allProblems = data.problems;
 
         // Filter languages if restricted
@@ -368,7 +370,10 @@ function setupEventListeners() {
 
 function startTimer() {
     const timerEl = document.getElementById('timer');
-    const startTime = Date.now();
+
+    // We calculate the start time based on when the server says we started
+    // If the student reloads, we subtract the elapsed time from now to get a consistent "start" point
+    const startTime = Date.now() - (timeElapsedFromServer * 1000);
 
     const interval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);

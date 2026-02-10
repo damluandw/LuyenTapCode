@@ -27,14 +27,14 @@
     "problemId": 3,
     "problemTitle": "Đổi đơn vị độ dài",
     "language": "c",
-    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n    return 0;\r\n}",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n}",
     "mode": "exam",
     "examId": "1",
     "allPassed": true,
-    "timeRemaining": 1736,
+    "timeRemaining": 337,
     "submission_type": "submit",
     "username": "sv03",
-    "timestamp": "2026-02-10 09:23:18"
+    "timestamp": "2026-02-10 13:15:06"
   },
   {
     "problemId": 4,
@@ -44,35 +44,9 @@
     "mode": "exam",
     "examId": "1",
     "allPassed": true,
-    "timeRemaining": 1722,
+    "timeRemaining": 290,
     "submission_type": "submit",
     "username": "sv03",
-    "timestamp": "2026-02-10 09:23:31"
-  },
-  {
-    "problemId": 3,
-    "problemTitle": "Đổi đơn vị độ dài",
-    "language": "c",
-    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n    return 0;\r\n}",
-    "mode": "exam",
-    "examId": "1",
-    "allPassed": true,
-    "timeRemaining": 1768,
-    "submission_type": "submit",
-    "username": "sv03",
-    "timestamp": "2026-02-10 09:33:09"
-  },
-  {
-    "problemId": 4,
-    "problemTitle": "Trung bình cộng 3 số",
-    "language": "c",
-    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    int a, b, c;\r\n    scanf(\"%d %d %d\", &a, &b, &c);\r\n    printf(\"%d\", (a + b + c) / 3);\r\n    return 0;\r\n}",
-    "mode": "exam",
-    "examId": "1",
-    "allPassed": true,
-    "timeRemaining": 1745,
-    "submission_type": "submit",
-    "username": "sv03",
-    "timestamp": "2026-02-10 09:33:31"
+    "timestamp": "2026-02-10 13:15:54"
   }
 ]

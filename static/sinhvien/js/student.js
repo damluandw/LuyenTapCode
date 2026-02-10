@@ -277,12 +277,20 @@ function setProblem(p) {
 
   document.getElementById("current-difficulty").textContent = p.difficulty;
   if (editor) {
-    // Default to empty or specific comment
-    let startCode = "";
-    if (p.starter_code && p.starter_code[document.getElementById("language-select").value]) {
-      startCode = p.starter_code[document.getElementById("language-select").value];
+    if (p.last_submission && p.last_submission.code) {
+      editor.setValue(p.last_submission.code);
+      if (p.last_submission.language) {
+        document.getElementById("language-select").value = p.last_submission.language;
+        updateEditorLanguage(p.last_submission.language);
+      }
+    } else {
+      // Default to starter code or empty
+      let startCode = "";
+      if (p.starter_code && p.starter_code[document.getElementById("language-select").value]) {
+        startCode = p.starter_code[document.getElementById("language-select").value];
+      }
+      editor.setValue(startCode);
     }
-    editor.setValue(startCode);
   }
   switchTab("desc");
 
@@ -543,7 +551,7 @@ function renderResults(results) {
         code: editor.getValue(),
         mode: 'practice',
         allPassed: true,
-        submission_type: 'check'  // Mark as test attempt, not final submission
+        submission_type: 'submit'  // Use 'submit' to ensure it's saved in submissions.json and retrievable
       })
     });
   }

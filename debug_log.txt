@@ -218,3 +218,85 @@ Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
 User: sv03, Role: student
 Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
 Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: admin, Role: super_admin
+
+--- API Call: /api/exams/active ---
+User: admin, Role: super_admin
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv03, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv04, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+
+--- API Call: /api/exams/active ---
+User: sv04, Role: student
+Exam 1 (Kỳ thi 1): Allowed=['sv02', 'student', 'sv01', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True
+Exam 2 (Kỳ thi 2): Allowed=['student', 'sv01'], UserIn=False, Result=False
+Exam 3 (Kỳ thi 3): Allowed=['student', 'sv01', 'sv02', 'sv03', 'sv04', 'sv05', 'sv06', 'sv07', 'sv08', 'sv09', 'sv10', 'sv11', 'sv12'], UserIn=True, Result=True

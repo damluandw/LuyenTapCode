@@ -404,6 +404,23 @@ def get_problem_detail(pid):
     problem = next((p for p in problems if p["id"] == pid), None)
     if not problem:
         return jsonify({"error": "Problem not found"}), 404
+        
+    # Fetch student's latest submission for this problem (practice mode)
+    submissions = load_json("submissions.json")
+    username = session.get("username")
+    
+    # Filter for this user, this problem, and NOT exam mode
+    user_subs = [s for s in submissions if s["username"] == username and s["problemId"] == pid and s.get("mode") != "exam"]
+    
+    if user_subs:
+        # Get latest
+        latest = sorted(user_subs, key=lambda x: x.get("timestamp", ""))[-1]
+        problem["last_submission"] = {
+            "code": latest.get("code", ""),
+            "allPassed": latest.get("allPassed", False),
+            "language": latest.get("language", "python")
+        }
+    
     return jsonify(problem)
 
 # Administrative APIs - Statistics
@@ -623,6 +640,23 @@ def get_exam_detail(eid):
             return jsonify({"error": "Kỳ thi đã kết thúc vào lúc: " + close_time.replace("T", " ")}), 403
         if not exam.get("isActive", True):
             return jsonify({"error": "Kỳ thi hiện đang đóng."}), 403
+            
+        # Manage student start time
+        starts = load_json("user_exam_starts.json") or {}
+        if not isinstance(starts, dict): starts = {}
+        
+        key = f"{session['username']}_{eid}"
+        if key not in starts:
+            starts[key] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            save_json("user_exam_starts.json", starts)
+        
+        start_time_str = starts[key]
+        exam["userStartTime"] = start_time_str
+        
+        # Calculate time elapsed
+        start_dt = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
+        elapsed = (datetime.now() - start_dt).total_seconds()
+        exam["timeElapsed"] = int(elapsed)
         
     all_problems = load_json("problems.json")
     exam_problems = [p for p in all_problems if p["id"] in exam["problemIds"]]
@@ -659,6 +693,62 @@ def get_exam_detail(eid):
         "info": exam,
         "problems": exam_problems
     })
+
+@app.route("/api/submissions", methods=["POST"])
+@login_required
+def save_submission():
+    data = request.json
+    username = session.get("username")
+    submission_type = data.get("submission_type", "check") # 'check' or 'submit'
+    
+    submission = {
+        "problemId": data.get("problemId"),
+        "problemTitle": data.get("problemTitle"),
+        "language": data.get("language"),
+        "code": data.get("code"),
+        "mode": data.get("mode", "practice"),
+        "examId": data.get("examId"),
+        "allPassed": data.get("allPassed", False),
+        "timeRemaining": data.get("timeRemaining"),
+        "submission_type": submission_type,
+        "username": username,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    if submission_type == "check":
+        # Save to test_attempts.json
+        attempts = load_json("test_attempts.json")
+        attempts.append(submission)
+        # Keep only last 1000 items to avoid bloat
+        if len(attempts) > 1000: attempts = attempts[-1000:]
+        save_json("test_attempts.json", attempts)
+    else:
+        # Save or overwrite in submissions.json
+        submissions = load_json("submissions.json")
+        
+        # Overwrite logic: if same user, same problem, and (if exam mode) same exam
+        # We want to keep only the latest submission for that context
+        if submission["mode"] == "exam":
+            submissions = [
+                s for s in submissions 
+                if not (s["username"] == username and 
+                       str(s.get("examId")) == str(submission["examId"]) and 
+                       s["problemId"] == submission["problemId"])
+            ]
+        else:
+            # For practice mode, maybe we also want to overwrite? 
+            # Let's overwrite practice too as requested "Mở lại bài sẽ hiển thị code đã làm"
+            submissions = [
+                s for s in submissions 
+                if not (s["username"] == username and 
+                       s["problemId"] == submission["problemId"] and
+                       s.get("mode") != "exam")
+            ]
+            
+        submissions.append(submission)
+        save_json("submissions.json", submissions)
+        
+    return jsonify({"status": "success"})
 
 # Student Dashboard APIs
 @app.route("/api/student/exams/summary")
