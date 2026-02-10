@@ -126,6 +126,7 @@
                       Thời gian <i class="bi bi-arrow-down-up ms-1"></i>
                     </th>
                     <th class="px-4 py-3 border-secondary">Kết quả</th>
+                    <th class="px-4 py-3 border-secondary">Hành động</th>
                   </tr>
                 </thead>
                 <tbody id="submissions-body" class="border-top-0">
@@ -140,6 +141,25 @@
           ></div>
         </div>
       </main>
+    </div>
+
+    <!-- Code View Modal -->
+    <div class="modal fade" id="codeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title" id="codeModalLabel">Chi tiết mã nguồn</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-0">
+             <!-- Injected via JS -->
+          </div>
+          <div class="modal-footer border-secondary">
+            <span id="code-timestamp" class="me-auto text-muted small">--</span>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Bootstrap JS Bundle -->

@@ -330,16 +330,22 @@ async function loadData() {
       const res = await fetch(endpoints[currentTab]);
       let data = await res.json();
 
-      // Map English difficulty to Vietnamese for Problems tab
-      if (currentTab === "problems") {
-        const diffMap = { Easy: "Dễ", Medium: "Trung bình", Hard: "Khó" };
-        data = data.map((p) => ({
-          ...p,
-          difficulty: diffMap[p.difficulty] || p.difficulty,
-        }));
+      // Handle submissions data which is now an object {submissions: [], test_attempts: []}
+      if (currentTab === "submissions") {
+        state[currentTab].rawData = data;
+        state[currentTab].data = data.submissions || [];
+      } else {
+        // Map English difficulty to Vietnamese for Problems tab
+        if (currentTab === "problems") {
+          const diffMap = { Easy: "Dễ", Medium: "Trung bình", Hard: "Khó" };
+          data = data.map((p) => ({
+            ...p,
+            difficulty: diffMap[p.difficulty] || p.difficulty,
+          }));
+        }
+        state[currentTab].data = data;
       }
 
-      state[currentTab].data = data;
       state[currentTab].page = 1; // Reset to first page on reload
       updateFilteredData(currentTab);
       renderTable(currentTab);
@@ -352,6 +358,8 @@ async function loadData() {
 function updateFilteredData(tab) {
   const s = state[tab];
   const query = s.search.toLowerCase();
+
+  if (!s.data) return;
 
   // Filter
   s.filtered = s.data.filter((item) => {
@@ -383,9 +391,9 @@ function updateFilteredData(tab) {
       return matchesSearch;
     } else if (tab === "submissions") {
       matchesSearch =
-        item.username.toLowerCase().includes(query) ||
-        item.problemTitle.toLowerCase().includes(query) ||
-        item.language.toLowerCase().includes(query);
+        (item.username || "").toLowerCase().includes(query) ||
+        (item.problemTitle || "").toLowerCase().includes(query) ||
+        (item.language || "").toLowerCase().includes(query);
 
       const matchesLang =
         s.filters.lang === "all" || item.language === s.filters.lang;
@@ -523,13 +531,18 @@ function renderTableBody(tab, pageData) {
   } else if (tab === "submissions") {
     body.innerHTML = pageData
       .map(
-        (s) => `
+        (s, i) => `
             <tr>
                 <td>${s.username}</td>
                 <td>ID: ${s.problemId} - ${s.problemTitle}</td>
-                <td>${s.language}</td>
+                <td><span class="badge bg-secondary">${s.language}</span></td>
                 <td style="font-size:0.8rem">${s.timestamp}</td>
-                <td><span class="status-badge badge-success">SỐNG</span></td>
+                <td>
+                   <span class="status-badge ${s.allPassed ? 'badge-success' : 'badge-danger'}">${s.allPassed ? 'ĐẠT' : 'KHÔNG ĐẠT'}</span>
+                </td>
+                <td>
+                    <button class="secondary-btn" onclick="showGeneralCode(${i})">Xem mã nguồn</button>
+                </td>
             </tr>
         `,
       )
@@ -719,21 +732,44 @@ async function loadExamSubmissions(eid, username) {
     for (const pid in problems) {
       const subs = problems[pid];
       const latest = subs[subs.length - 1];
+      const globalIndex = allExamSubmissions.indexOf(latest);
+
       html += `
-                <div class="list-group-item bg-dark text-white border-secondary p-4">
+                <div class="list-group-item bg-dark text-white border-secondary p-4 mb-3 rounded shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h5 class="mb-1">${latest.problemTitle}</h5>
-                            <span class="badge bg-secondary">${latest.language}</span>
-                            <span class="small text-muted ms-2">${latest.timestamp}</span>
+                            <h5 class="mb-1 text-accent">${latest.problemTitle}</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary">${latest.language.toUpperCase()}</span>
+                                <span class="small text-muted"><i class="bi bi-clock me-1"></i>${latest.timestamp}</span>
+                            </div>
                         </div>
                         <span class="status-badge ${latest.allPassed ? 'badge-success' : 'badge-danger'}">
-                            ${latest.allPassed ? 'Đạt' : 'Chưa đạt'}
+                            ${latest.allPassed ? '<i class="bi bi-check-circle me-1"></i>Đạt' : '<i class="bi bi-x-circle me-1"></i>Chưa đạt'}
                         </span>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-accent" onclick="showSpecificCode(${allExamSubmissions.indexOf(latest)})">Xem mã nguồn</button>
-                        ${subs.length > 1 ? `<small class="text-muted align-self-center">Có ${subs.length} lần nộp</small>` : ''}
+                    
+                    <div class="code-preview-container mb-3">
+                        <div class="d-flex justify-content-between align-items-center bg-black bg-opacity-25 p-2 rounded-top border border-secondary border-bottom-0">
+                            <span class="small text-muted font-monospace">Mã nguồn (Lần nộp cuối)</span>
+                            <button class="btn btn-sm btn-link text-accent text-decoration-none p-0" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#code-collapse-${pid}">
+                                <i class="bi bi-code-slash me-1"></i>Hiện/Ẩn
+                            </button>
+                        </div>
+                        <div class="collapse show" id="code-collapse-${pid}">
+                            <pre class="m-0 p-3 bg-black rounded-bottom border border-secondary" 
+                                 style="max-height: 300px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #e6edf3;">${document.createTextNode(latest.code || "// Không có mã nguồn").wholeText}</pre>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                           <button class="btn btn-sm btn-outline-accent" onclick="showSpecificCode(${globalIndex})">
+                               <i class="bi bi-arrows-fullscreen me-1"></i>Xem toàn màn hình
+                           </button>
+                        </div>
+                        ${subs.length > 1 ? `<small class="text-muted"><i class="bi bi-history me-1"></i>Có ${subs.length} lần nộp</small>` : ''}
                     </div>
                 </div>
             `;
@@ -753,9 +789,23 @@ async function loadExamSubmissions(eid, username) {
 }
 
 
+function showGeneralCode(index) {
+  const s = state.submissions.filtered[index];
+  showCodeDetail(s);
+}
+
 function showSpecificCode(index) {
   const s = allExamSubmissions[index];
+  showCodeDetail(s);
+}
+
+function showCodeDetail(s) {
+  if (!s) return;
   const modalBody = document.querySelector("#codeModal .modal-body");
+  if (!modalBody) {
+    alert("Không tìm thấy Code Modal. Đảm bảo file HTML đã bao gồm modal này.");
+    return;
+  }
 
   modalBody.innerHTML = `
          <div class="p-3 border-bottom border-secondary bg-dark">
@@ -770,10 +820,14 @@ function showSpecificCode(index) {
                </div>
             </div>
          </div>
-         <pre id="code-display" class="m-0 p-3" style="max-height: 600px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: #0d1117;">${document.createTextNode(s.code || "// Không có mã nguồn").wholeText}</pre>
+         <pre id="code-display" class="m-0 p-3" style="max-height: 600px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: #0d1117; color: #e6edf3;">${document.createTextNode(s.code || "// Không có mã nguồn").wholeText}</pre>
     `;
 
-  document.getElementById("code-timestamp").textContent = "Nộp lúc: " + s.timestamp;
+  const tsEl = document.getElementById("code-timestamp");
+  if (tsEl) tsEl.textContent = "Nộp lúc: " + s.timestamp;
+
+  const modal = new bootstrap.Modal(document.getElementById('codeModal'));
+  modal.show();
 }
 
 // Old manual pagination functions removed
