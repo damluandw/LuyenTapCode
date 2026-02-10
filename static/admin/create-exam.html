@@ -206,6 +206,21 @@
             </div>
           </div>
         </div>
+
+        <div class="mt-4">
+          <label class="form-label-custom d-block">Bảo mật & Chống gian lận</label>
+          <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="exam-anti-cheat">
+              <label class="form-check-label text-light fw-bold" for="exam-anti-cheat">
+                Bật chế độ chống gian lận (Theo dõi chuyển tab/mất tập trung)
+              </label>
+              <div class="text-muted small mt-1">
+                Khi bật, hệ thống sẽ ghi lại nhật ký mỗi khi sinh viên chuyển sang tab khác hoặc thu nhỏ cửa sổ trình duyệt trong quá trình thi.
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Student Selection Card -->
@@ -365,6 +380,7 @@
               }
 
               selectedStudentUsernames = exam.allowedStudents || [];
+              document.getElementById("exam-anti-cheat").checked = exam.antiCheatEnabled || false;
             }
           }
 
@@ -729,6 +745,7 @@
           closeTime: closeTime,
           allowedLanguages: allowedLanguages,
           allowedStudents: selectedStudentUsernames,
+          antiCheatEnabled: document.getElementById("exam-anti-cheat").checked,
         };
 
         const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";

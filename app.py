@@ -750,6 +750,30 @@ def save_submission():
         
     return jsonify({"status": "success"})
 
+@app.route("/api/exams/<int:eid>/cheat-logs", methods=["POST"])
+@login_required
+def report_cheat(eid):
+    data = request.json
+    username = session.get("username")
+    
+    # Load existing logs or init new list
+    logs = load_json("cheat_logs.json") or []
+    if not isinstance(logs, list): logs = []
+    
+    log_entry = {
+        "examId": eid,
+        "username": username,
+        "event": data.get("event"), # e.g., 'visibilitychange', 'blur'
+        "problemId": data.get("problemId"),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "details": data.get("details", "")
+    }
+    
+    logs.append(log_entry)
+    save_json("cheat_logs.json", logs)
+    
+    return jsonify({"status": "success"})
+
 # Student Dashboard APIs
 @app.route("/api/student/exams/summary")
 @login_required
@@ -1084,12 +1108,17 @@ def get_reports():
             for pid in solved_ids:
                 score += points_map.get(str(pid), 0)
                 
+            # Count violations
+            cheat_logs = load_json("cheat_logs.json") or []
+            violation_count = len([l for l in cheat_logs if str(l.get("examId")) == str(exam_id) and l.get("username") == username])
+
             student_results.append({
                 "username": username,
                 "display_name": user["display_name"],
                 "class_name": user.get("class_name", "--"),
                 "solved_count": len(solved_ids),
-                "score": score
+                "score": score,
+                "violation_count": violation_count
             })
         
         exam_report.append({
@@ -1411,6 +1440,14 @@ def get_exam_submissions(eid):
         "submissions": exam_subs,
         "test_attempts": exam_attempts
     })
+
+@app.route("/api/admin/exams/<int:eid>/cheat-logs", methods=["GET"])
+@login_required
+@instructor_required
+def get_admin_exam_cheat_logs(eid):
+    logs = load_json("cheat_logs.json") or []
+    exam_logs = [l for l in logs if str(l.get("examId")) == str(eid)]
+    return jsonify(exam_logs)
 
 
 @socketio.on('connect')

@@ -103,7 +103,7 @@
       "sv11",
       "sv12"
     ],
-    "id": 3,
-    "startTime": "2026-02-10 12:11:16"
+    "antiCheatEnabled": true,
+    "id": 3
   }
 ]

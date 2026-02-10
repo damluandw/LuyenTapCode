@@ -48,5 +48,70 @@
     "submission_type": "submit",
     "username": "sv03",
     "timestamp": "2026-02-10 13:15:54"
+  },
+  {
+    "problemId": 4,
+    "problemTitle": "Trung bình cộng 3 số",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": false,
+    "timeRemaining": 1766,
+    "submission_type": "submit",
+    "username": "sv05",
+    "timestamp": "2026-02-10 14:28:35"
+  },
+  {
+    "problemId": 3,
+    "problemTitle": "Đổi đơn vị độ dài",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    float km;\r\n    scanf(\"%f\", &km);\r\n    printf(\"%.0f\", km * 1000);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "1",
+    "allPassed": true,
+    "timeRemaining": 1757,
+    "submission_type": "submit",
+    "username": "sv05",
+    "timestamp": "2026-02-10 14:28:44"
+  },
+  {
+    "problemId": 4,
+    "problemTitle": "Trung bình cộng 3 số",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    int a, b, c;\r\n    scanf(\"%d %d %d\", &a, &b, &c);\r\n    printf(\"%d\", (a + b + c) / 3);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "3",
+    "allPassed": true,
+    "timeRemaining": 3571,
+    "submission_type": "submit",
+    "username": "sv05",
+    "timestamp": "2026-02-10 14:31:39"
+  },
+  {
+    "problemId": 28,
+    "problemTitle": "Tổng chữ số",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    int n; scanf(\"%d\", &n);\r\n    int sum = 0;\r\n    while(n > 0) { sum += n % 10; n /= 10; }\r\n    printf(\"%d\", sum);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "3",
+    "allPassed": true,
+    "timeRemaining": 3465,
+    "submission_type": "submit",
+    "username": "sv05",
+    "timestamp": "2026-02-10 14:33:24"
+  },
+  {
+    "problemId": 33,
+    "problemTitle": "Max min mảng",
+    "language": "c",
+    "code": "#include <stdio.h>\r\n\r\nint main() {\r\n    int n; scanf(\"%d\", &n);\r\n    int a[100];\r\n    for(int i=0; i<n; i++) scanf(\"%d\", &a[i]);\r\n    int min=a[0], max=a[0];\r\n    for(int i=1; i<n; i++) {\r\n        if(a[i]<min) min=a[i];\r\n        if(a[i]>max) max=a[i];\r\n    }\r\n    printf(\"%d %d\", max, min);\r\n    return 0;\r\n}",
+    "mode": "exam",
+    "examId": "3",
+    "allPassed": true,
+    "timeRemaining": 1371,
+    "submission_type": "submit",
+    "username": "sv05",
+    "timestamp": "2026-02-10 15:08:17"
   }
 ]

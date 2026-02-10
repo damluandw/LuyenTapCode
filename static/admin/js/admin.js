@@ -642,8 +642,9 @@ function renderTableBody(tab, pageData) {
                   <th class="px-4 py-3 border-secondary">Sinh viên</th>
                   <th class="px-4 py-3 border-secondary text-center">Số bài giải</th>
                   <th class="px-4 py-3 border-secondary text-center">Tổng điểm</th>
+                  <th class="px-4 py-3 border-secondary text-center">Vi phạm</th>
                   <th class="px-4 py-3 border-secondary">Tiến độ</th>
-                  <th class="px-4 py-3 border-secondary text-end">Bài nộp</th>
+                  <th class="px-4 py-3 border-secondary text-end">Chi tiết</th>
               </tr>
           `;
       }
@@ -655,6 +656,11 @@ function renderTableBody(tab, pageData) {
                     <td><div class="fw-bold">${r.display_name}</div><div class="text-muted small">@${r.username} | ${r.class_name}</div></td>
                     <td class="text-center">${r.solved_count} / ${r.problem_count}</td>
                     <td class="text-center"><span class="status-badge" style="background:rgba(88,166,255,0.1);color:var(--accent);font-weight:bold">${r.score}</span> / ${r.total_possible}</td>
+                    <td class="text-center">
+                        ${r.violation_count > 0
+            ? `<span class="badge bg-danger cursor-pointer" onclick="viewCheatLogs('${r.username}', ${selectedExamId})">${r.violation_count} lỗi</span>`
+            : '<span class="text-muted small">Không</span>'}
+                    </td>
                     <td>
                         <div style="display:flex; align-items:center; gap:10px">
                             <div class="progress-bg" style="flex:1; height:6px"><div class="progress-fill" style="width:${percent}%"></div></div>
@@ -690,8 +696,10 @@ async function loadExamSubmissions(eid, username) {
 
   try {
     const res = await fetch(`/api/admin/exams/${eid}/submissions`);
-    allExamSubmissions = await res.json();
-    const studentSubs = allExamSubmissions.filter(s => s.username === username);
+    const data = await res.json();
+    // Handle both old array format and new object format {submissions: [], test_attempts: []}
+    allExamSubmissions = data.submissions || data;
+    const studentSubs = Array.isArray(allExamSubmissions) ? allExamSubmissions.filter(s => s.username === username) : [];
 
     if (breadcrumb) breadcrumb.textContent = "Bài nộp: " + username;
     if (headerTitle) headerTitle.textContent = "Bài nộp của " + username;
@@ -1034,6 +1042,85 @@ async function deleteExam(id) {
     loadData();
   } else {
     alert("Không thể xóa kỳ thi.");
+  }
+}
+
+async function viewCheatLogs(username, eid) {
+  const modalEl = document.getElementById("cheatModal");
+  const modalBody = document.getElementById("cheat-modal-body");
+  if (!modalBody || !modalEl) {
+    alert("Không tìm thấy modal hiển thị log.");
+    return;
+  }
+
+  modalBody.innerHTML = '<div class="text-center p-4">Đang tải nhật ký...</div>';
+  modalBody.style.maxHeight = "500px";
+  modalBody.style.overflowY = "auto";
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  try {
+    const res = await fetch(`/api/admin/exams/${eid}/cheat-logs`);
+    const logs = await res.json();
+    const userLogs = logs.filter(l => l.username === username);
+
+    if (userLogs.length === 0) {
+      modalBody.innerHTML = '<div class="alert alert-info border-0 bg-dark text-info">Không có bản ghi vi phạm nào cho sinh viên này.</div>';
+      return;
+    }
+
+    let html = `
+      <div class="table-responsive">
+        <table class="table table-dark table-striped align-middle mb-0">
+          <thead>
+            <tr class="text-muted small text-uppercase">
+              <th class="border-secondary">Thời gian</th>
+              <th class="border-secondary">Sự kiện</th>
+              <th class="border-secondary">Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+    userLogs.reverse().forEach(l => {
+      let badgeClass = 'bg-secondary';
+      let eventName = l.event;
+      if (l.event === 'visibilitychange') {
+        badgeClass = 'bg-danger';
+        eventName = 'Chuyển tab';
+      } else if (l.event === 'paste') {
+        badgeClass = 'bg-warning text-dark';
+        eventName = 'Dán code';
+      } else if (l.event === 'idle') {
+        badgeClass = 'bg-info text-dark';
+        eventName = 'Không tương tác';
+      } else if (l.event === 'blur') {
+        badgeClass = 'bg-danger bg-opacity-75';
+        eventName = 'Mất tập trung';
+      }
+
+      let detailContent = l.details || '';
+      if (l.event === 'paste') {
+        const parts = detailContent.split('\n');
+        if (parts.length > 1) {
+          const message = parts[0];
+          const code = parts.slice(1).join('\n');
+          detailContent = `${message}<pre class="mt-2 mb-0 p-2 bg-black bg-opacity-50 border border-secondary rounded text-info small" style="max-height: 200px; overflow: auto; font-family: 'Consolas', 'Monaco', monospace;">${code}</pre>`;
+        }
+      }
+
+      html += `
+            <tr>
+                <td class="small text-muted py-3">${l.timestamp}</td>
+                <td><span class="badge ${badgeClass}">${eventName}</span></td>
+                <td class="small">${detailContent}</td>
+            </tr>
+        `;
+    });
+    html += '</tbody></table></div>';
+    modalBody.innerHTML = html;
+  } catch (err) {
+    modalBody.innerHTML = `<div class="alert alert-danger border-0 bg-dark text-danger">Lỗi tải dữ liệu: ${err.message}</div>`;
   }
 }
 

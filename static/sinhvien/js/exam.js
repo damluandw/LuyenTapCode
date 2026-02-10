@@ -8,6 +8,7 @@ let examDuration = 60 * 60; // Default 60 mins
 let isSubmitting = false; // Flag to trigger submission after test completion
 let currentTimeRemaining = 0;
 let timeElapsedFromServer = 0;
+let antiCheatEnabled = false;
 
 // Monaco Loading
 require.config({
@@ -196,6 +197,12 @@ async function fetchExamData() {
 
         renderProblems();
         if (allProblems.length > 0) loadProblemDetail(allProblems[0].id);
+
+        // Setup Anti-Cheat if enabled
+        antiCheatEnabled = data.info.antiCheatEnabled || false;
+        if (antiCheatEnabled) {
+            setupAntiCheat();
+        }
     } catch (err) {
         console.error("Failed to load exam:", err);
     }
@@ -625,4 +632,65 @@ function renderResults(results) {
     `;
         panel.appendChild(card);
     });
+}
+
+let idleTimer;
+
+function resetIdleTimer() {
+    if (!antiCheatEnabled) return;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+        logCheatEvent('idle', 'Sinh viên không tương tác trong vòng 5 phút (có thể là không làm bài hoặc đang tìm tài liệu bên ngoài).');
+    }, 5 * 60 * 1000); // 5 minutes
+}
+
+function setupAntiCheat() {
+    console.log("Anti-Cheat system active.");
+
+    // Detect tab switch / window minimize
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === 'hidden') {
+            logCheatEvent('visibilitychange', 'Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt.');
+        } else {
+            alert("CẢNH BÁO: Hành vi chuyển tab của bạn đã được ghi lại. Vui lòng tập trung làm bài!");
+        }
+    });
+
+    // Detect lose focus (click out of window)
+    window.addEventListener("blur", () => {
+        logCheatEvent('blur', 'Sinh viên đã chuyển tiêu điểm sang cửa sổ khác.');
+    });
+
+    // Detect Paste in Editor
+    if (editor) {
+        editor.onDidPaste((e) => {
+            const pastedText = editor.getModel().getValueInRange(e.range);
+            logCheatEvent('paste', `Sinh viên đã dán nội dung vào trình soạn thảo: \n${pastedText}`);
+            alert("CẢNH BÁO: Hành vi dán code (Paste) của bạn đã được ghi lại!");
+        });
+    }
+
+    // Detect No Interaction (Idle)
+    ['mousemove', 'keydown', 'mousedown', 'scroll', 'touchstart'].forEach(evt => {
+        document.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+    resetIdleTimer();
+}
+
+async function logCheatEvent(event, details) {
+    if (!antiCheatEnabled) return;
+
+    try {
+        await fetch(`/api/exams/${examId}/cheat-logs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                event: event,
+                problemId: currentProblem ? currentProblem.id : null,
+                details: details
+            })
+        });
+    } catch (err) {
+        console.error("Failed to log cheat event:", err);
+    }
 }
