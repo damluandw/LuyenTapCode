@@ -414,13 +414,17 @@ def get_stats():
     problems = load_json("problems.json")
     users = load_json("users.json")
     submissions = load_json("submissions.json")
+    test_attempts = load_json("test_attempts.json")
     exams = load_json("tests.json")
     hits = load_json("hits.json")
     
-    # Language distribution
+    # Language distribution - combine both submissions and test_attempts
     langs = {}
     for s in submissions:
         lang = s.get("language", "unknown")
+        langs[lang] = langs.get(lang, 0) + 1
+    for a in test_attempts:
+        lang = a.get("language", "unknown")
         langs[lang] = langs.get(lang, 0) + 1
     
     # Exam stats
@@ -445,7 +449,7 @@ def get_stats():
         "total_hits": hits.get("total_hits", 0),
         "student_logins": hits.get("student_logins", 0),
         "languages": langs,
-        "recent_activity": submissions[-10:] if submissions else [],
+        "recent_activity": test_attempts[-10:] if test_attempts else [],  # Changed to test_attempts
         "exam_count": len(exams),
         "active_exam_count": len(active_exams),
         "exam_submission_count": len(exam_subs),

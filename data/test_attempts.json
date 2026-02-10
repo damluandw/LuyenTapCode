@@ -1,47 +1,5 @@
 [
   {
-    "problemId": 1,
-    "problemTitle": "Tính diện tích hình chữ nhật",
-    "language": "python",
-    "username": "sv01",
-    "timestamp": "2026-02-07 15:38:15"
-  },
-  {
-    "problemId": 3,
-    "problemTitle": "Đổi đơn vị độ dài",
-    "language": "cpp",
-    "username": "sv03",
-    "timestamp": "2026-02-10 08:56:43"
-  },
-  {
-    "problemId": 7,
-    "problemTitle": "Chuyển giờ sang phút",
-    "language": "c",
-    "username": "sv03",
-    "timestamp": "2026-02-10 08:58:56"
-  },
-  {
-    "problemId": 21,
-    "problemTitle": "In từ 1 đến N",
-    "language": "c",
-    "username": "sv03",
-    "timestamp": "2026-02-10 08:59:29"
-  },
-  {
-    "problemId": 30,
-    "problemTitle": "Dãy Fibonacci",
-    "language": "c",
-    "username": "sv03",
-    "timestamp": "2026-02-10 09:00:36"
-  },
-  {
-    "problemId": 30,
-    "problemTitle": "Dãy Fibonacci",
-    "language": "c",
-    "username": "sv03",
-    "timestamp": "2026-02-10 09:00:40"
-  },
-  {
     "problemId": 3,
     "problemTitle": "Đổi đơn vị độ dài",
     "language": "c",
@@ -75,5 +33,16 @@
     "submission_type": "check",
     "username": "sv03",
     "timestamp": "2026-02-10 09:32:13"
+  },
+  {
+    "problemId": 6,
+    "problemTitle": "Bình phương số",
+    "language": "csharp",
+    "code": "using System;\nusing System.Linq;\nusing System.Collections.Generic;\n\nclass Program {\n    static void Main() {\n        int n = int.Parse(Console.ReadLine());\n        Console.WriteLine(n * n);\n    }\n}",
+    "mode": "practice",
+    "allPassed": true,
+    "submission_type": "check",
+    "username": "sv03",
+    "timestamp": "2026-02-10 09:43:57"
   }
 ]
