@@ -323,12 +323,17 @@ def api_me():
         users = load_json("users.json")
         user = next((u for u in users if u["username"] == session["username"]), None)
         if user:
-            return jsonify({
+            response_data = {
                 "username": user['username'],
                 "role": user['role'],
                 "display_name": user.get('display_name'),
                 "class_name": user.get('class_name', '')
-            })
+            }
+            # Include all student fields if present
+            for field in STUDENT_FIELDS:
+                if field in user:
+                    response_data[field] = user[field]
+            return jsonify(response_data)
     return jsonify({"error": "Not logged in"}), 401
 
 @app.route("/api/auth/update-info", methods=["PUT"])
@@ -336,18 +341,22 @@ def api_me():
 def update_info():
     data = request.json
     username = session.get("username")
-    display_name = data.get("display_name")
-    class_name = data.get("class_name")
     
     users = load_json("users.json")
     found = False
     for user in users:
         if user["username"] == username:
-            if display_name:
-                user["display_name"] = display_name
-                session['display_name'] = display_name
-            if class_name:
-                user["class_name"] = class_name
+            if "display_name" in data:
+                user["display_name"] = data["display_name"]
+                session['display_name'] = data["display_name"]
+            if "class_name" in data:
+                user["class_name"] = data["class_name"]
+            
+            # Update detailed student fields
+            for field in STUDENT_FIELDS:
+                if field in data:
+                    user[field] = data[field]
+                    
             found = True
             break
     
@@ -1186,9 +1195,26 @@ def get_permissions_config():
 @app.route("/api/admin/roles", methods=["GET"])
 @login_required
 def get_roles():
-    """Get all available roles"""
+    """Get roles strictly lower than current user's rank"""
     perms = load_permissions()
-    return jsonify(perms.get("roles", {}))
+    roles = perms.get("roles", {})
+    
+    current_user_role = session.get("role", "student")
+    current_rank = ROLE_RANK.get(current_user_role, 0)
+    
+    # Filter roles: strictly lower than current user's rank
+    filtered_roles = {}
+    for k, v in roles.items():
+        role_rank = ROLE_RANK.get(k, 0)
+        if role_rank < current_rank or current_user_role == "super_admin":
+            # Even super_admin shouldn't see super_admin if we want "strictly lower"
+            # BUT super_admin often needs to manage other admins. 
+            # If the requirement is "only lower", then super_admin sees everyone EXCEPT super_admin.
+            if k == "super_admin" and current_user_role == "super_admin":
+                continue
+            filtered_roles[k] = {**v, "rank": role_rank}
+            
+    return jsonify(filtered_roles)
 
 @app.route("/api/admin/permissions", methods=["GET"])
 @login_required
@@ -1237,17 +1263,27 @@ def manage_user_permissions(username):
 @login_required
 @permission_required("manage_roles")
 def get_non_student_users():
-    """Get all non-student users for permission management"""
+    """Get all non-student users for permission management, filtered by rank"""
     users = load_json("users.json")
-    non_students = [
-        {
-            "username": u["username"],
-            "display_name": u.get("display_name", u["username"]),
-            "role": u.get("role", "student"),
-            "custom_permissions": u.get("custom_permissions", [])
-        }
-        for u in users if u.get("role") != "student"
-    ]
+    current_user_role = session.get("role", "student")
+    current_rank = ROLE_RANK.get(current_user_role, 0)
+    
+    non_students = []
+    for u in users:
+        role = u.get("role", "student")
+        if role == "student":
+            continue
+            
+        target_rank = ROLE_RANK.get(role, 0)
+        # Only show users with STRICTLY LOWER rank
+        if target_rank < current_rank:
+            non_students.append({
+                "username": u["username"],
+                "display_name": u.get("display_name", u["username"]),
+                "role": role,
+                "custom_permissions": u.get("custom_permissions", [])
+            })
+            
     return jsonify(non_students)
 
 @app.route("/api/admin/users/create", methods=["POST"])
@@ -1434,56 +1470,117 @@ def handle_submissions():
         })
 
 
-@app.route("/api/admin/users", methods=["GET"])
+# Role hierarchy (higher value = higher privilege)
+ROLE_RANK = {
+    "super_admin": 100,
+    "admin": 80,
+    "instructor": 60,
+    "teaching_assistant": 40,
+    "student": 20
+}
+
+# Detailed information fields for students
+STUDENT_FIELDS = [
+    "msv", "fullname", "dob", "phone", "email_school", "email_personal", 
+    "ethnicity", "id_card", "major", "address", "father_name", 
+    "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"
+]
+
+@app.route("/api/admin/users", methods=["GET", "POST"])
 @login_required
 @permission_required("manage_users")
-def get_all_users():
-    """Get all users with basic info for management"""
+def handle_admin_users():
+    """Get all visible users or create a new user"""
     users = load_json("users.json")
-    # Mask passwords if not super_admin? Or just return as is for simplicity in this project
-    return jsonify([{
-        "username": u["username"],
-        "display_name": u.get("display_name", u["username"]),
-        "role": u.get("role", "student"),
-        "class_name": u.get("class_name", "--"),
-        "password": u.get("password")
-    } for u in users])
+    current_user_role = session.get("role", "student")
+    current_rank = ROLE_RANK.get(current_user_role, 0)
+    
+    if request.method == "GET":
+        filtered_users = []
+        for u in users:
+            target_role = u.get("role", "student")
+            target_rank = ROLE_RANK.get(target_role, 0)
+            
+            # Only show users with STRICTLY LOWER rank
+            if target_rank < current_rank:
+                user_info = {
+                    "username": u["username"],
+                    "display_name": u.get("display_name", u["username"]),
+                    "role": target_role,
+                    "class_name": u.get("class_name", "--"),
+                    "password": "******" # Mask password
+                }
+                # Add student details to visibility if present
+                if target_role == "student":
+                    for field in STUDENT_FIELDS:
+                        if field in u:
+                            user_info[field] = u[field]
+                filtered_users.append(user_info)
+        return jsonify(filtered_users)
+    
+    # POST - Create new user
+    data = request.json
+    username = data.get("username", "").strip()
+    display_name = data.get("display_name", "").strip()
+    password = data.get("password", "")
+    role = data.get("role", "student")
+    class_name = data.get("class_name", "")
+    
+    if not username or not display_name or not password:
+        return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
+        
+    # Rank check for creation: MUST be strictly lower rank
+    target_rank = ROLE_RANK.get(role, 0)
+    if target_rank >= current_rank and current_user_role != "super_admin":
+        return jsonify({"status": "error", "message": "Bạn chỉ có thể tạo tài khoản có cấp bậc thấp hơn"}), 403
+        
+    if any(u["username"] == username for u in users):
+        return jsonify({"status": "error", "message": "Tên đăng nhập đã tồn tại"}), 400
+        
+    new_user = {
+        "username": username,
+        "password": password,
+        "display_name": display_name,
+        "role": role,
+        "class_name": class_name
+    }
+    # Add detailed fields if provided (mostly for students)
+    for field in STUDENT_FIELDS:
+        if field in data:
+            new_user[field] = data[field]
+    users.append(new_user)
+    save_json("users.json", users)
+    return jsonify({"status": "success", "message": "Tạo người dùng thành công"})
 
 @app.route("/api/admin/users/<username>", methods=["PUT", "DELETE"])
 @login_required
 @permission_required("manage_users")
 def modify_user(username):
     """Update profile or delete any user"""
-    # Define role hierarchy (higher value = higher privilege)
-    ROLE_RANK = {
-        "super_admin": 100,
-        "admin": 80,
-        "instructor": 60,
-        "teaching_assistant": 40,
-        "student": 20
-    }
-    
     users = load_json("users.json")
     user_idx = next((i for i, u in enumerate(users) if u["username"] == username), -1)
     
     if user_idx == -1:
         return jsonify({"status": "error", "message": "User not found"}), 404
         
-    current_user = next((u for u in users if u["username"] == session["username"]), None)
-    if not current_user:
-        return jsonify({"status": "error", "message": "Unauthorized"}), 401
-        
-    current_user_role = current_user.get("role", "student")
+    current_user_role = session.get("role", "student")
     target_user = users[user_idx]
     target_user_role = target_user.get("role", "student")
     
     current_rank = ROLE_RANK.get(current_user_role, 0)
     target_rank = ROLE_RANK.get(target_user_role, 0)
     
-    # Hierarchy check: current user rank must be >= target user rank
-    # Note: super_admin can modify other super_admins (as before)
-    if current_rank < target_rank:
-        return jsonify({"status": "error", "message": "Bạn không có quyền chỉnh sửa tài khoản có cấp bậc cao hơn"}), 403
+    # Hierarchy check: current user rank must be > target user rank
+    # Note: super_admin can modify other super_admins (as before) if they are both 100
+    # but the user requested strictly lower for VISIBILITY. 
+    # For MODIFICATION, we should stick to >= or > depending on the exact intent.
+    # User said: "cấp nhỏ hơn sẽ không thấy được tài khoản cấp cao hơn và cùng cấp" -> visibility is rank_a > rank_b
+    if current_rank <= target_rank and current_user_role != "super_admin":
+         return jsonify({"status": "error", "message": "Bạn không có quyền chỉnh sửa tài khoản có cấp bậc tương đương hoặc cao hơn"}), 403
+    
+    # Extra check for super_admin modifying other super_admins
+    if target_user_role == "super_admin" and current_user_role != "super_admin":
+        return jsonify({"status": "error", "message": "Chỉ quản trị viên cấp cao nhất mới có thể thực hiện"}), 403
 
     if request.method == "DELETE":
         if username == session["username"]:
@@ -1498,19 +1595,21 @@ def modify_user(username):
     
     # Fields allowed to be updated
     if "display_name" in data: target_user["display_name"] = data["display_name"]
-    if "password" in data: target_user["password"] = data["password"]
+    # Masked password handling: only update if not masked
+    if "password" in data and data["password"] != "******": 
+        target_user["password"] = data["password"]
     if "class_name" in data: target_user["class_name"] = data["class_name"]
     
-    # Role and Permission updates (require manage_roles permission)
-    if has_permission(session["username"], "manage_roles"):
-        if "role" in data: 
-            # Prevent non-superadmin from promoting others to superadmin
-            if data["role"] == "super_admin" and current_user_role != "super_admin":
-                pass # Ignore or error
-            else:
-                target_user["role"] = data["role"]
-        if "custom_permissions" in data: target_user["custom_permissions"] = data["custom_permissions"]
+    # Update student detailed fields
+    # We mainly expect these for students, but they can be applied if provided
+    for field in STUDENT_FIELDS:
+        if field in data:
+            target_user[field] = data[field]
     
+    # Role updates are disabled for security (requested by user)
+    # The role should be set once during creation and not changed thereafter
+    # to maintain strict permission boundaries.
+            
     save_json("users.json", users)
     
     # Update session if current user updated their own info

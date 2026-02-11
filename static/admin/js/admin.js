@@ -1020,22 +1020,110 @@ async function editUser(username) {
   editingUsername = username;
   document.getElementById("userModalTitle").textContent = "Chỉnh sửa người dùng: " + username;
   document.getElementById("user-username").value = user.username;
+  document.getElementById("user-username").readOnly = true;
   document.getElementById("user-display_name").value = user.display_name || "";
-  document.getElementById("user-password").value = user.password || "";
+  document.getElementById("user-password").value = "******";
   document.getElementById("user-class_name").value = user.class_name || "";
+
+  // Handle student extra fields
+  const isStudent = user.role === "student";
+  const studentExtraDiv = document.getElementById("student-extra-fields");
+  if (studentExtraDiv) {
+    studentExtraDiv.style.display = isStudent ? "block" : "none";
+    if (isStudent) {
+      const fields = ["msv", "fullname", "dob", "phone", "email_school", "email_personal", "ethnicity", "id_card", "major", "address", "father_name", "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"];
+      fields.forEach(f => {
+        const el = document.getElementById("user-" + f);
+        if (el) el.value = user[f] || "";
+      });
+    }
+  }
 
   // Dynamic roles loading
   const roleSelect = document.getElementById("user-role");
+  roleSelect.disabled = true; // Cannot change role during edit
+
+  // Show the user's current role even if it's not in the manageable list
+  roleSelect.innerHTML = "";
+  const currentOption = document.createElement("option");
+  currentOption.value = user.role;
+  currentOption.textContent = user.role.toUpperCase(); // Fallback label
+  currentOption.selected = true;
+  roleSelect.appendChild(currentOption);
+
   try {
     const res = await fetch("/api/admin/roles");
     const roles = await res.json();
+    // We don't overwrite the whole innerHTML here to keep the current role visible
+    // but we can add other roles if we ever want to enable it (currently disabled)
+    for (const [key, role] of Object.entries(roles)) {
+      if (key !== user.role) {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = role.name || key;
+        roleSelect.appendChild(option);
+      } else {
+        currentOption.textContent = role.name || key;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load roles:", err);
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById("userModal"));
+  modal.show();
+}
+
+async function addUser() {
+  editingUsername = null;
+  document.getElementById("userModalTitle").textContent = "Thêm người dùng mới";
+  document.getElementById("user-username").value = "";
+  document.getElementById("user-username").readOnly = false;
+  document.getElementById("user-display_name").value = "";
+  document.getElementById("user-password").value = "";
+  document.getElementById("user-class_name").value = "";
+
+  // Reset and hide student extra fields
+  const studentExtraDiv = document.getElementById("student-extra-fields");
+  if (studentExtraDiv) {
+    studentExtraDiv.style.display = "none";
+    const fields = ["msv", "fullname", "dob", "phone", "email_school", "email_personal", "ethnicity", "id_card", "major", "address", "father_name", "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"];
+    fields.forEach(f => {
+      const el = document.getElementById("user-" + f);
+      if (el) el.value = "";
+    });
+  }
+
+  // Dynamic roles loading: Backend already filters strictly lower than current user
+  const roleSelect = document.getElementById("user-role");
+  roleSelect.disabled = false;
+
+  // Add listener to toggle fields when role changes
+  roleSelect.onchange = (e) => {
+    if (studentExtraDiv) studentExtraDiv.style.display = e.target.value === "student" ? "block" : "none";
+  };
+  try {
+    const res = await fetch("/api/admin/roles");
+    const roles = await res.json();
+
     roleSelect.innerHTML = "";
+    let firstRole = null;
+
     for (const [key, role] of Object.entries(roles)) {
       const option = document.createElement("option");
       option.value = key;
       option.textContent = role.name || key;
-      if (key === user.role) option.selected = true;
       roleSelect.appendChild(option);
+      if (!firstRole) firstRole = key;
+    }
+
+    // Default to student if available in the filtered list
+    if (roles["student"]) {
+      roleSelect.value = "student";
+      if (studentExtraDiv) studentExtraDiv.style.display = "block";
+    } else if (firstRole) {
+      roleSelect.value = firstRole;
+      if (studentExtraDiv) studentExtraDiv.style.display = firstRole === "student" ? "block" : "none";
     }
   } catch (err) {
     console.error("Failed to load roles:", err);
@@ -1056,14 +1144,27 @@ function generateRandomPass() {
 
 function saveUser() {
   const data = {
+    username: document.getElementById("user-username").value,
     display_name: document.getElementById("user-display_name").value,
     password: document.getElementById("user-password").value,
     role: document.getElementById("user-role").value,
     class_name: document.getElementById("user-class_name").value,
   };
 
-  fetch(`/api/admin/users/${editingUsername}`, {
-    method: "PUT",
+  // Collect student extra fields if needed
+  if (data.role === "student") {
+    const fields = ["msv", "fullname", "dob", "phone", "email_school", "email_personal", "ethnicity", "id_card", "major", "address", "father_name", "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"];
+    fields.forEach(f => {
+      const el = document.getElementById("user-" + f);
+      if (el) data[f] = el.value.trim();
+    });
+  }
+
+  const url = editingUsername ? `/api/admin/users/${editingUsername}` : "/api/admin/users";
+  const method = editingUsername ? "PUT" : "POST";
+
+  fetch(url, {
+    method: method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
@@ -1075,7 +1176,7 @@ function saveUser() {
         if (modal) modal.hide();
         loadData();
       } else {
-        alert(res.message || "Lỗi lưu dữ liệu");
+        alert(res.message || res.error || "Lỗi lưu dữ liệu");
       }
     });
 }

@@ -46,9 +46,14 @@
       <main class="admin-main">
         <div id="tab-users" class="admin-tab">
           <header class="mb-4 d-flex justify-content-between align-items-center">
-            <div>
-              <h2 class="h3 fw-bold text-white mb-1">Quản lý người dùng</h2>
-              <p class="text-muted small">Quản lý toàn bộ tài khoản trong hệ thống</p>
+            <div class="d-flex align-items-center gap-3">
+              <div>
+                <h2 class="h3 fw-bold text-white mb-1">Quản lý người dùng</h2>
+                <p class="text-muted small mb-0">Quản lý toàn bộ tài khoản trong hệ thống</p>
+              </div>
+              <button class="btn btn-success btn-sm" onclick="addUser()">
+                <i class="bi bi-person-plus me-1"></i> Thêm người dùng
+              </button>
             </div>
           </header>
 
@@ -133,6 +138,80 @@
               <div class="mb-3">
                 <label class="form-label text-muted small">Lớp / Nhóm</label>
                 <input type="text" class="form-control bg-dark text-white border-secondary" id="user-class_name">
+              </div>
+
+              <!-- Extra Student Fields (Hidden by default, shown for students) -->
+              <div id="student-extra-fields" style="display: none;">
+                <hr class="border-secondary my-4">
+                <h6 class="text-primary mb-3"><i class="bi bi-mortarboard me-2"></i>Chi tiết Sinh viên</h6>
+                
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label text-muted small">Mã sinh viên</label>
+                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-msv">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-muted small">Họ và tên</label>
+                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-fullname">
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label text-muted small">Ngày sinh</label>
+                    <input type="date" class="form-control bg-dark text-white border-secondary" id="user-dob">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-muted small">Dân tộc</label>
+                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-ethnicity">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted small">Căn cước công dân</label>
+                  <input type="text" class="form-control bg-dark text-white border-secondary" id="user-id_card">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted small">Ngành học</label>
+                  <input type="text" class="form-control bg-dark text-white border-secondary" id="user-major">
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label class="form-label text-muted small">SĐT</label>
+                    <input type="tel" class="form-control bg-dark text-white border-secondary" id="user-phone">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-muted small">Email trường</label>
+                    <input type="email" class="form-control bg-dark text-white border-secondary" id="user-email_school">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted small">Email cá nhân</label>
+                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-email_personal">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted small">Địa chỉ</label>
+                  <textarea class="form-control bg-dark text-white border-secondary" id="user-address" rows="2"></textarea>
+                </div>
+
+                <h6 class="text-info mt-4 mb-3 small fw-bold">Thông tin Gia đình</h6>
+                <div class="border border-secondary rounded p-2 mb-3">
+                  <label class="form-label text-muted small d-block mb-1">Cha</label>
+                  <input type="text" class="form-control bg-dark text-white border-secondary mb-2" id="user-father_name" placeholder="Họ tên">
+                  <input type="tel" class="form-control bg-dark text-white border-secondary mb-2" id="user-father_phone" placeholder="SĐT">
+                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-father_email" placeholder="Email">
+                </div>
+
+                <div class="border border-secondary rounded p-2">
+                  <label class="form-label text-muted small d-block mb-1">Mẹ</label>
+                  <input type="text" class="form-control bg-dark text-white border-secondary mb-2" id="user-mother_name" placeholder="Họ tên">
+                  <input type="tel" class="form-control bg-dark text-white border-secondary mb-2" id="user-mother_phone" placeholder="SĐT">
+                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-mother_email" placeholder="Email">
+                </div>
               </div>
             </form>
           </div>
