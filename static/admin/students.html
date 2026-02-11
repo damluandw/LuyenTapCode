@@ -61,12 +61,27 @@
                 Quản lý tài khoản, thông tin và thống kê học tập
               </p>
             </div>
-            <button
-              class="btn btn-primary shadow-sm px-4 fw-bold"
-              onclick="openStudentModal()"
-            >
-              <i class="bi bi-person-plus-fill me-1"></i> Thêm sinh viên
-            </button>
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-info shadow-sm fw-bold"
+                onclick="downloadTemplate()"
+              >
+                <i class="bi bi-download me-1"></i> Tải file mẫu
+              </button>
+              <button
+                class="btn btn-outline-success shadow-sm fw-bold"
+                onclick="triggerImport()"
+              >
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập từ Excel
+              </button>
+              <button
+                class="btn btn-primary shadow-sm px-4 fw-bold"
+                onclick="openStudentModal()"
+              >
+                <i class="bi bi-person-plus-fill me-1"></i> Thêm sinh viên
+              </button>
+              <input type="file" id="excelImport" style="display: none;" accept=".xlsx, .xls" onchange="handleImport(event)">
+            </div>
           </header>
 
           <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">

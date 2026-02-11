@@ -1413,3 +1413,48 @@ async function viewCheatLogs(username, eid) {
 
 // Init
 initRouting();
+
+// Excel Import functions
+function downloadTemplate() {
+  window.location.href = "/api/admin/import-template";
+}
+
+function triggerImport() {
+  document.getElementById("excelImport").click();
+}
+
+async function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch("/api/admin/import-students", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await res.json();
+
+    if (result.status === "success") {
+      alert(result.message);
+      // Reload current view
+      if (typeof loadData === "function") {
+        loadData();
+      } else if (typeof loadStudents === "function") {
+        loadStudents();
+      } else {
+        location.reload();
+      }
+    } else {
+      alert(result.message || "Lỗi nhập dữ liệu");
+    }
+  } catch (err) {
+    console.error("Import failed:", err);
+    alert("Lỗi kết nối máy chủ");
+  } finally {
+    // Reset input
+    event.target.value = "";
+  }
+}

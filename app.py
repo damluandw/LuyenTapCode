@@ -5,7 +5,9 @@ import subprocess
 import threading
 import time
 import tempfile
-from flask import Flask, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify, session, redirect, url_for, send_file
+import pandas as pd
+import io
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from functools import wraps
@@ -1617,6 +1619,105 @@ def modify_user(username):
         if "display_name" in data: session["display_name"] = data["display_name"]
         
     return jsonify({"status": "success"})
+
+@app.route("/api/admin/import-template", methods=["GET"])
+@login_required
+@permission_required("manage_users")
+def download_import_template():
+    """Serve the static template Excel file for student import"""
+    file_path = os.path.join(app.static_folder, "admin", "student_import_template.xlsx")
+    if not os.path.exists(file_path):
+        return jsonify({"status": "error", "message": "Template file not found on server"}), 404
+        
+    return send_file(
+        file_path,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='student_import_template.xlsx'
+    )
+
+@app.route("/api/admin/import-students", methods=["POST"])
+@login_required
+@permission_required("manage_users")
+def import_students_excel():
+    """Import students from an uploaded Excel file"""
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "message": "Không tìm thấy file"}), 400
+        
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "Chưa chọn file"}), 400
+        
+    try:
+        df = pd.read_excel(file)
+        
+        # Column mapping
+        mapping = {
+            "Mã sinh viên": "msv",
+            "Họ và tên": "fullname",
+            "Lớp": "class_name",
+            "Ngành học": "major",
+            "Ngày sinh": "dob",
+            "Số điện thoại": "phone",
+            "Email trường": "email_school",
+            "Email cá nhân": "email_personal",
+            "CCCD": "id_card",
+            "Dân tộc": "ethnicity",
+            "Địa chỉ": "address",
+            "Họ tên cha": "father_name",
+            "SĐT cha": "father_phone",
+            "Email cha": "father_email",
+            "Họ tên mẹ": "mother_name",
+            "SĐT mẹ": "mother_phone",
+            "Email mẹ": "mother_email"
+        }
+        
+        # Check required columns
+        required = ["Mã sinh viên", "Họ và tên"]
+        for col in required:
+            if col not in df.columns:
+                return jsonify({"status": "error", "message": f"Thiếu cột bắt buộc: {col}"}), 400
+        
+        users = load_json("users.json")
+        import_count = 0
+        skip_count = 0
+        
+        for _, row in df.iterrows():
+            username = str(row["Mã sinh viên"]).strip()
+            if not username or username == 'nan':
+                continue
+                
+            # Check if exists
+            if any(u["username"] == username for u in users):
+                skip_count += 1
+                continue
+                
+            new_user = {
+                "username": username,
+                "password": username, # Default password is MSV
+                "display_name": str(row["Họ và tên"]).strip(),
+                "role": "student",
+                "class_name": str(row.get("Lớp", "--")).strip()
+            }
+            
+            # Additional fields
+            for excel_col, json_field in mapping.items():
+                if excel_col in df.columns and excel_col not in ["Mã sinh viên", "Họ và tên", "Lớp"]:
+                    val = row[excel_col]
+                    if pd.notna(val):
+                        new_user[json_field] = str(val).strip()
+            
+            users.append(new_user)
+            import_count += 1
+            
+        save_json("users.json", users)
+        return jsonify({
+            "status": "success", 
+            "message": f"Đã nhập thành công {import_count} sinh viên. (Bỏ qua {skip_count} do trùng lặp)"
+        })
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Lỗi xử lý file: {str(e)}"}), 500
 
 @app.route("/api/admin/exams/<int:eid>/submissions")
 @login_required
