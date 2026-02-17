@@ -249,83 +249,220 @@ function switchReport(view) {
   renderTable(`reports_${view}`);
 }
 
-async function loadData() {
-  if (currentTab === "dashboard") {
-    const res = await fetch("/api/admin/stats");
-    const stats = await res.json();
+// Dashboard Filter Logic
+async function loadClassesForFilter() {
+  try {
+    const res = await fetch("/api/admin/classes");
+    const classes = await res.json();
+    const select = document.getElementById("filter-class");
+    if (select && classes.length) {
+      // Keep "All" option
+      select.innerHTML = '<option value="">Tất cả lớp</option>' +
+        classes.map(c => `<option value="${c}">${c}</option>`).join("");
+    }
+  } catch (e) {
+    console.error("Failed to load classes", e);
+  }
+}
 
-    const statProblems = document.getElementById("stat-problems");
-    if (statProblems) statProblems.textContent = stats.problem_count;
+async function applyDashboardFilters() {
+  const startDate = document.getElementById("filter-start-date").value;
+  const endDate = document.getElementById("filter-end-date").value;
+  const className = document.getElementById("filter-class").value;
 
-    const statStudents = document.getElementById("stat-students");
-    if (statStudents) statStudents.textContent = stats.student_count;
+  await loadDashboardStats({ start_date: startDate, end_date: endDate, class_name: className });
+}
 
-    const statHits = document.getElementById("stat-hits");
-    if (statHits) statHits.textContent = stats.student_logins;
+function clearDashboardFilters() {
+  document.getElementById("filter-start-date").value = "";
+  document.getElementById("filter-end-date").value = "";
+  document.getElementById("filter-class").value = "";
+  loadDashboardStats();
+}
 
-    if (document.getElementById("stat-exams"))
-      document.getElementById("stat-exams").textContent = stats.exam_count;
-    if (document.getElementById("stat-active-exams"))
-      document.getElementById("stat-active-exams").textContent = stats.active_exam_count;
-    if (document.getElementById("stat-exam-subs"))
-      document.getElementById("stat-exam-subs").textContent = stats.exam_submission_count;
+// Replaced loadData logic for dashboard specifically to accept params
+async function loadDashboardStats(params = {}) {
+  // Build query string
+  const query = new URLSearchParams(params).toString();
+  const url = `/api/admin/stats?${query}`;
 
-    const langContainer = document.getElementById("lang-stats");
-    if (langContainer) {
-      langContainer.innerHTML = "";
-      const total = Object.values(stats.languages).reduce((a, b) => a + b, 0);
+  const res = await fetch(url);
+  const stats = await res.json();
 
+  const statProblems = document.getElementById("stat-problems");
+  if (statProblems) statProblems.textContent = stats.problem_count; // Global (usually)
+
+  const statStudents = document.getElementById("stat-students");
+  if (statStudents) statStudents.textContent = stats.student_count;
+
+  const statHits = document.getElementById("stat-hits");
+  if (statHits) statHits.textContent = stats.student_logins;
+
+  if (document.getElementById("stat-exams"))
+    document.getElementById("stat-exams").textContent = stats.exam_count;
+  if (document.getElementById("stat-active-exams"))
+    document.getElementById("stat-active-exams").textContent = stats.active_exam_count;
+  if (document.getElementById("stat-exam-subs"))
+    document.getElementById("stat-exam-subs").textContent = stats.exam_submission_count; // This uses filtered submissions now? No, exam_subs logic in backend didn't use filtered_submissions list for this count, but we might want to check.
+  // Actually in backend: `exam_subs = [s for s in submissions if s.get("examId")]` where submissions is overwritten by filtered list. So yes, it reflects filters.
+
+  const langContainer = document.getElementById("lang-stats");
+  if (langContainer) {
+    langContainer.innerHTML = "";
+    const total = Object.values(stats.languages).reduce((a, b) => a + b, 0);
+
+    if (total === 0) {
+      langContainer.innerHTML = '<div class="text-center text-muted p-2">Không có dữ liệu</div>';
+    } else {
       for (const [lang, count] of Object.entries(stats.languages)) {
-        const percent = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+        const percent = ((count / total) * 100).toFixed(1);
         langContainer.innerHTML += `
-                  <div class="lang-bar-item">
-                      <div class="lang-label">
-                          <span>${lang.toUpperCase()}</span>
-                          <span>${count} (${percent}%)</span>
-                      </div>
-                      <div class="progress-bg"><div class="progress-fill" style="width: ${percent}%"></div></div>
-                  </div>
-              `;
+                    <div class="lang-bar-item">
+                        <div class="lang-label">
+                            <span>${lang.toUpperCase()}</span>
+                            <span>${count} (${percent}%)</span>
+                        </div>
+                        <div class="progress-bg"><div class="progress-fill" style="width: ${percent}%"></div></div>
+                    </div>
+                `;
       }
     }
+  }
 
-    const activityBody = document.getElementById("recent-activity-body");
-    if (activityBody) {
-      activityBody.innerHTML =
-        stats.recent_activity
-          .reverse()
-          .map(
-            (s) => `
+  // Update Charts
+  updateDashboardCharts(stats);
+
+  const activityBody = document.getElementById("recent-activity-body");
+  if (activityBody) {
+    activityBody.innerHTML =
+      stats.recent_activity
+        .reverse()
+        .map(
+          (s) => `
+            <tr>
+                <td>${s.username}</td>
+                <td>${s.problemTitle}</td>
+                <td>${s.language}</td>
+                <td style="font-size:0.8rem">${s.timestamp}</td>
+            </tr>
+        `,
+        )
+        .join("") ||
+      '<tr><td colspan="4" style="text-align:center">Chưa có hoạt động nào</td></tr>';
+  }
+
+  const examActivityBody = document.getElementById("recent-exam-activity-body");
+  if (examActivityBody) {
+    examActivityBody.innerHTML =
+      stats.recent_exam_activity
+        .reverse()
+        .map(
+          (s) => `
               <tr>
                   <td>${s.username}</td>
+                  <td>${s.examTitle}</td>
                   <td>${s.problemTitle}</td>
-                  <td>${s.language}</td>
                   <td style="font-size:0.8rem">${s.timestamp}</td>
               </tr>
           `,
-          )
-          .join("") ||
-        '<tr><td colspan="4" style="text-align:center">Chưa có hoạt động nào</td></tr>';
-    }
+        )
+        .join("") ||
+      '<tr><td colspan="4" style="text-align:center">Chưa có hoạt động nào</td></tr>';
+  }
+}
 
-    const examActivityBody = document.getElementById("recent-exam-activity-body");
-    if (examActivityBody) {
-      examActivityBody.innerHTML =
-        stats.recent_exam_activity
-          .reverse()
-          .map(
-            (s) => `
-                <tr>
-                    <td>${s.username}</td>
-                    <td>${s.examTitle}</td>
-                    <td>${s.problemTitle}</td>
-                    <td style="font-size:0.8rem">${s.timestamp}</td>
-                </tr>
-            `,
-          )
-          .join("") ||
-        '<tr><td colspan="4" style="text-align:center">Chưa có hoạt động nào</td></tr>';
-    }
+function updateDashboardCharts(stats) {
+  // Submission Chart
+  if (window.submissionChartInstance) window.submissionChartInstance.destroy();
+  const ctxSub = document.getElementById('submissionChart');
+  if (ctxSub) {
+    window.submissionChartInstance = new Chart(ctxSub, {
+      type: 'line',
+      data: {
+        labels: stats.daily_submissions.map(d => d.date),
+        datasets: [{
+          label: 'Số bài nộp',
+          data: stats.daily_submissions.map(d => d.count),
+          borderColor: '#58a6ff',
+          backgroundColor: 'rgba(88, 166, 255, 0.1)',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#8b949e' } },
+          x: { grid: { display: false }, ticks: { color: '#8b949e' } }
+        }
+      }
+    });
+  }
+
+  // Status Chart
+  if (window.statusChartInstance) window.statusChartInstance.destroy();
+  const ctxStatus = document.getElementById('statusChart');
+  if (ctxStatus) {
+    const total = stats.status_distribution.passed + stats.status_distribution.failed;
+    // Handle empty data case gracefully
+    const data = total > 0 ? [stats.status_distribution.passed, stats.status_distribution.failed] : [0, 0];
+
+    window.statusChartInstance = new Chart(ctxStatus, {
+      type: 'doughnut',
+      data: {
+        labels: ['Đạt (Passed)', 'Không đạt (Failed)'],
+        datasets: [{
+          data: data,
+          backgroundColor: ['#238636', '#da3633'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#8b949e' } }
+        }
+      }
+    });
+  }
+
+  // Top Students Chart
+  if (window.topStudentsChartInstance) window.topStudentsChartInstance.destroy();
+  const ctxTop = document.getElementById('topStudentsChart');
+  if (ctxTop) {
+    window.topStudentsChartInstance = new Chart(ctxTop, {
+      type: 'bar',
+      data: {
+        labels: stats.top_students.map(s => `${s.display_name} (${s.username})`),
+        datasets: [{
+          label: 'Số bài đã giải',
+          data: stats.top_students.map(s => s.solved_count),
+          backgroundColor: 'rgba(88, 166, 255, 0.7)',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#8b949e' } },
+          y: { grid: { display: false }, ticks: { color: '#c9d1d9' } }
+        }
+      }
+    });
+  }
+}
+
+async function loadData() {
+  if (currentTab === "dashboard") {
+    // Initial load without filters
+    await loadClassesForFilter();
+    await loadDashboardStats();
   } else if (currentTab.startsWith("report") || currentTab === "reports" || currentTab.includes("exam-")) {
     loadReports();
   } else {

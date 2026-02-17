@@ -478,19 +478,100 @@ def get_stats():
             "timestamp": s["timestamp"]
         })
     
+    # Filter parameters
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    class_name = request.args.get('class_name')
+    
+    # Filter submissions
+    filtered_submissions = []
+    for s in submissions:
+        # Date filter
+        s_date = s.get("timestamp", "").split(" ")[0]
+        if start_date and s_date < start_date: continue
+        if end_date and s_date > end_date: continue
+        
+        # Class filter
+        if class_name:
+            user = next((u for u in users if u["username"] == s["username"]), None)
+            if not user or user.get("class_name") != class_name:
+                continue
+                
+        filtered_submissions.append(s)
+        
+    # Use filtered data for stats
+    submissions = filtered_submissions
+    
+    # Daily submissions for chart
+    daily_subs = {}
+    for s in submissions:
+        date = s.get("timestamp", "").split(" ")[0]
+        if date:
+            daily_subs[date] = daily_subs.get(date, 0) + 1
+    
+    # Sort by date
+    daily_subs_sorted = sorted([{"date": k, "count": v} for k, v in daily_subs.items()], key=lambda x: x["date"])
+    
+    # Status distribution
+    status_dist = {"passed": 0, "failed": 0}
+    for s in submissions:
+        if s.get("allPassed"):
+            status_dist["passed"] += 1
+        else:
+            status_dist["failed"] += 1
+            
+    # Top students
+    student_stats = {}
+    for s in submissions:
+        if s.get("allPassed") and s.get("username"):
+            u = s["username"]
+            if u not in student_stats:
+                student_stats[u] = set()
+            student_stats[u].add(s["problemId"])
+            
+    top_students = []
+    for u, solved in student_stats.items():
+        # Get display name
+        user_info = next((user for user in users if user["username"] == u), {})
+        display_name = user_info.get("display_name", u)
+        top_students.append({
+            "username": u,
+            "display_name": display_name,
+            "solved_count": len(solved)
+        })
+    
+    # Sort by solved count desc and take top 5
+    top_students.sort(key=lambda x: x["solved_count"], reverse=True)
+    top_students = top_students[:5]
+
     return jsonify({
         "problem_count": len(problems),
         "student_count": len([u for u in users if u["role"] == "student"]),
-        "submission_count": len(submissions),
+        "submission_count": len(filtered_submissions), # Use filtered count
         "total_hits": hits.get("total_hits", 0),
         "student_logins": hits.get("student_logins", 0),
         "languages": langs,
-        "recent_activity": test_attempts[-10:] if test_attempts else [],  # Changed to test_attempts
+        "recent_activity": test_attempts[-10:] if test_attempts else [],
         "exam_count": len(exams),
         "active_exam_count": len(active_exams),
         "exam_submission_count": len(exam_subs),
-        "recent_exam_activity": recent_exam_subs
+        "recent_exam_activity": recent_exam_subs,
+        # New stats
+        "daily_submissions": daily_subs_sorted, # Return all in range
+        "status_distribution": status_dist,
+        "top_students": top_students
     })
+
+@app.route("/api/admin/classes")
+@login_required
+@instructor_required
+def get_classes():
+    users = load_json("users.json")
+    classes = set()
+    for u in users:
+        if u.get("role") == "student" and u.get("class_name"):
+            classes.add(u["class_name"])
+    return jsonify(list(sorted(classes)))
 
 # Middleware-like function for traffic tracking
 @app.before_request
