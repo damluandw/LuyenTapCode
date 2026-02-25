@@ -14,6 +14,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/theme.css" />
+    <script src="/js/theme.js"></script>
     <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
@@ -59,7 +62,7 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
         <a class="navbar-brand" href="/dashboard">
           <i class="bi bi-code-slash"></i>
@@ -91,7 +94,15 @@
               </a>
             </li>
           </ul>
-          <div class="navbar-nav align-items-center">
+          <div class="navbar-nav align-items-center gap-1">
+            <button
+              class="theme-toggle-btn"
+              id="theme-toggle-btn"
+              onclick="toggleTheme()"
+              title="Chuyển giao diện"
+            >
+              <i class="bi bi-sun-fill" id="theme-icon"></i>
+            </button>
             <div class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -99,7 +110,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <div class="d-inline-flex align-items-center text-white">
+                <div class="d-inline-flex align-items-center">
                   <div class="user-avatar me-2">
                     <i class="bi bi-person-circle"></i>
                   </div>
@@ -132,7 +143,7 @@
 
     <main class="container py-5">
       <div class="mb-5">
-        <h1 class="display-6 fw-bold text-white mb-2">Thống kê bài thi</h1>
+        <h1 class="display-6 fw-bold mb-2">Thống kê bài thi</h1>
         <p class="text-muted lead">
           Xem lại điểm số và hiệu suất của bạn qua các kỳ thi.
         </p>
@@ -140,7 +151,7 @@
 
       <div class="card border-0 overflow-hidden">
         <div class="table-responsive">
-          <table class="table table-dark table-hover mb-0">
+          <table class="table table-hover mb-0">
             <thead>
               <tr class="text-muted small text-uppercase fw-bold">
                 <th class="px-4 py-3 border-secondary">Kỳ thi</th>
@@ -203,7 +214,7 @@
               return `
               <tr class="align-middle">
                 <td class="px-4 py-3">
-                  <div class="fw-bold text-white">${item.title}</div>
+                  <div class="fw-bold">${item.title}</div>
                   <div class="small text-muted mt-1">${item.problemCount} bài tập</div>
                 </td>
                 <td class="px-4 py-3 text-muted">${item.startTime || "---"}</td>

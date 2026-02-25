@@ -12,6 +12,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/theme.css" />
+    <script src="/js/theme.js"></script>
     <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
@@ -350,7 +353,6 @@
       .markdown-body h1,
       .markdown-body h2,
       .markdown-body h3 {
-        color: #fff;
         margin-top: 1.5rem;
       }
       .markdown-body code {
@@ -427,11 +429,11 @@
               class="form-select form-select-sm bg-dark text-white border-secondary shadow-sm"
               style="width: 100px"
             >
-            <option value="c">C</option>
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
-            <option value="csharp">C#</option>
-            <option value="python">Python</option>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="csharp">C#</option>
+              <option value="python">Python</option>
             </select>
             <button
               id="template-btn"
@@ -451,7 +453,15 @@
             </button>
           </div>
 
-          <div class="navbar-nav align-items-center ms-3">
+          <div class="navbar-nav align-items-center ms-3 gap-1">
+            <button
+              class="theme-toggle-btn"
+              id="theme-toggle-btn"
+              onclick="toggleTheme()"
+              title="Chuyển giao diện"
+            >
+              <i class="bi bi-sun-fill" id="theme-icon"></i>
+            </button>
             <div class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -500,7 +510,7 @@
         <div
           class="p-3 border-bottom d-flex align-items-center justify-content-between shrink-0"
         >
-          <h2 class="h6 mb-0 text-white fw-bold">Danh sách bài tập</h2>
+          <h2 class="h6 mb-0 fw-bold">Danh sách bài tập</h2>
           <div
             id="connection-status"
             class="status-orb disconnected"

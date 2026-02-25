@@ -10,6 +10,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js"></script>
     <link rel="stylesheet" href="/admin/css/admin.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
@@ -38,43 +41,62 @@
     <div class="admin-wrapper">
       <aside class="admin-sidebar shadow-sm">
         <!-- Sidebar injected by sidebar.js -->
-        <div class="p-4 text-center border-bottom border-secondary border-opacity-25">
-          <h1 class="h5 fw-bold text-white mb-0">Admin Panel</h1>
+        <div
+          class="p-4 text-center border-bottom border-secondary border-opacity-25"
+        >
+          <h1 class="h5 fw-bold mb-0">Admin Panel</h1>
         </div>
       </aside>
 
       <main class="admin-main">
         <div id="tab-users" class="admin-tab">
-          <header class="mb-4 d-flex justify-content-between align-items-center">
+          <header
+            class="mb-4 d-flex justify-content-between align-items-center"
+          >
             <div class="d-flex align-items-center gap-3">
               <div>
-                <h2 class="h3 fw-bold text-white mb-1">Quản lý người dùng</h2>
-                <p class="text-muted small mb-0">Quản lý toàn bộ tài khoản trong hệ thống</p>
+                <h2 class="h3 fw-bold mb-1">Quản lý người dùng</h2>
+                <p class="text-muted small mb-0">
+                  Quản lý toàn bộ tài khoản trong hệ thống
+                </p>
               </div>
               <button class="btn btn-success btn-sm" onclick="addUser()">
                 <i class="bi bi-person-plus me-1"></i> Thêm người dùng
               </button>
-              <button class="btn btn-outline-info btn-sm" onclick="downloadTemplate()">
+              <button
+                class="btn btn-outline-info btn-sm"
+                onclick="downloadTemplate()"
+              >
                 <i class="bi bi-download me-1"></i> Tải file mẫu
               </button>
-              <button class="btn btn-outline-success btn-sm" onclick="triggerImport()">
-                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập từ Excel
+              <button
+                class="btn btn-outline-success btn-sm"
+                onclick="triggerImport()"
+              >
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Nhập từ
+                Excel
               </button>
-              <input type="file" id="excelImport" style="display: none;" accept=".xlsx, .xls" onchange="handleImport(event)">
+              <input
+                type="file"
+                id="excelImport"
+                style="display: none"
+                accept=".xlsx, .xls"
+                onchange="handleImport(event)"
+              />
             </div>
           </header>
 
-          <div class="card shadow-sm border-0 mb-4 bg-dark bg-opacity-25">
+          <div class="card shadow-sm border-0 mb-4">
             <div class="p-3">
               <div class="row g-3">
                 <div class="col-md">
                   <div class="input-group">
-                    <span class="input-group-text bg-dark border-secondary text-muted">
+                    <span class="input-group-text border-secondary text-muted">
                       <i class="bi bi-search"></i>
                     </span>
                     <input
                       type="text"
-                      class="form-control bg-dark border-secondary text-light"
+                      class="form-control border-secondary"
                       id="search-users"
                       placeholder="Tìm kiếm theo tên, username..."
                       oninput="onSearch('users')"
@@ -87,15 +109,17 @@
 
           <div class="card shadow-sm border-0 overflow-hidden">
             <div class="table-responsive">
-              <table class="table table-dark table-hover mb-0">
-                <thead class="bg-dark text-muted small text-uppercase fw-bold">
+              <table class="table table-hover mb-0">
+                <thead class="text-muted small text-uppercase fw-bold">
                   <tr>
                     <th class="px-4 py-3 border-secondary">Username</th>
                     <th class="px-4 py-3 border-secondary">Tên hiển thị</th>
                     <th class="px-4 py-3 border-secondary">Vai trò</th>
                     <th class="px-4 py-3 border-secondary">Lớp / Nhóm</th>
                     <th class="px-4 py-3 border-secondary">Mật khẩu</th>
-                    <th class="px-4 py-3 border-secondary text-end">Hành động</th>
+                    <th class="px-4 py-3 border-secondary text-end">
+                      Hành động
+                    </th>
                   </tr>
                 </thead>
                 <tbody id="users-body" class="border-top-0">
@@ -104,7 +128,10 @@
               </table>
             </div>
           </div>
-          <div class="mt-4 d-flex justify-content-center" id="pagination-users"></div>
+          <div
+            class="mt-4 d-flex justify-content-center"
+            id="pagination-users"
+          ></div>
         </div>
       </main>
     </div>
@@ -112,31 +139,59 @@
     <!-- Edit User Modal -->
     <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog">
-        <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-content border-secondary">
           <div class="modal-header border-secondary">
-            <h5 class="modal-title" id="userModalTitle">Chỉnh sửa người dùng</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="userModalTitle">
+              Chỉnh sửa người dùng
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
             <form id="userForm">
               <div class="mb-3">
                 <label class="form-label text-muted small">Username</label>
-                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-username" readonly>
+                <input
+                  type="text"
+                  class="form-control border-secondary"
+                  id="user-username"
+                  readonly
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted small">Tên hiển thị</label>
-                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-display_name" required>
+                <input
+                  type="text"
+                  class="form-control border-secondary"
+                  id="user-display_name"
+                  required
+                />
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted small">Mật khẩu</label>
                 <div class="input-group">
-                   <input type="text" class="form-control bg-dark text-white border-secondary" id="user-password" required>
-                   <button class="btn btn-outline-secondary" type="button" onclick="generateRandomPass()">Ngẫu nhiên</button>
+                  <input
+                    type="text"
+                    class="form-control border-secondary"
+                    id="user-password"
+                    required
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="generateRandomPass()"
+                  >
+                    Ngẫu nhiên
+                  </button>
                 </div>
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted small">Vai trò</label>
-                <select class="form-select bg-dark text-white border-secondary" id="user-role">
+                <select class="form-select border-secondary" id="user-role">
                   <option value="student">Student</option>
                   <option value="instructor">Instructor</option>
                   <option value="super_admin">Super Admin</option>
@@ -144,87 +199,185 @@
               </div>
               <div class="mb-3">
                 <label class="form-label text-muted small">Lớp / Nhóm</label>
-                <input type="text" class="form-control bg-dark text-white border-secondary" id="user-class_name">
+                <input
+                  type="text"
+                  class="form-control border-secondary"
+                  id="user-class_name"
+                />
               </div>
 
               <!-- Extra Student Fields (Hidden by default, shown for students) -->
-              <div id="student-extra-fields" style="display: none;">
-                <hr class="border-secondary my-4">
-                <h6 class="text-primary mb-3"><i class="bi bi-mortarboard me-2"></i>Chi tiết Sinh viên</h6>
-                
+              <div id="student-extra-fields" style="display: none">
+                <hr class="border-secondary my-4" />
+                <h6 class="text-primary mb-3">
+                  <i class="bi bi-mortarboard me-2"></i>Chi tiết Sinh viên
+                </h6>
+
                 <div class="row g-2 mb-3">
                   <div class="col-6">
-                    <label class="form-label text-muted small">Mã sinh viên</label>
-                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-msv">
+                    <label class="form-label text-muted small"
+                      >Mã sinh viên</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control border-secondary"
+                      id="user-msv"
+                    />
                   </div>
                   <div class="col-6">
                     <label class="form-label text-muted small">Họ và tên</label>
-                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-fullname">
+                    <input
+                      type="text"
+                      class="form-control border-secondary"
+                      id="user-fullname"
+                    />
                   </div>
                 </div>
 
                 <div class="row g-2 mb-3">
                   <div class="col-6">
                     <label class="form-label text-muted small">Ngày sinh</label>
-                    <input type="date" class="form-control bg-dark text-white border-secondary" id="user-dob">
+                    <input
+                      type="date"
+                      class="form-control border-secondary"
+                      id="user-dob"
+                    />
                   </div>
                   <div class="col-6">
                     <label class="form-label text-muted small">Dân tộc</label>
-                    <input type="text" class="form-control bg-dark text-white border-secondary" id="user-ethnicity">
+                    <input
+                      type="text"
+                      class="form-control border-secondary"
+                      id="user-ethnicity"
+                    />
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label text-muted small">Căn cước công dân</label>
-                  <input type="text" class="form-control bg-dark text-white border-secondary" id="user-id_card">
+                  <label class="form-label text-muted small"
+                    >Căn cước công dân</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control border-secondary"
+                    id="user-id_card"
+                  />
                 </div>
 
                 <div class="mb-3">
                   <label class="form-label text-muted small">Ngành học</label>
-                  <input type="text" class="form-control bg-dark text-white border-secondary" id="user-major">
+                  <input
+                    type="text"
+                    class="form-control border-secondary"
+                    id="user-major"
+                  />
                 </div>
 
                 <div class="row g-2 mb-3">
                   <div class="col-6">
                     <label class="form-label text-muted small">SĐT</label>
-                    <input type="tel" class="form-control bg-dark text-white border-secondary" id="user-phone">
+                    <input
+                      type="tel"
+                      class="form-control border-secondary"
+                      id="user-phone"
+                    />
                   </div>
                   <div class="col-6">
-                    <label class="form-label text-muted small">Email trường</label>
-                    <input type="email" class="form-control bg-dark text-white border-secondary" id="user-email_school">
+                    <label class="form-label text-muted small"
+                      >Email trường</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control border-secondary"
+                      id="user-email_school"
+                    />
                   </div>
                 </div>
 
                 <div class="mb-3">
-                  <label class="form-label text-muted small">Email cá nhân</label>
-                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-email_personal">
+                  <label class="form-label text-muted small"
+                    >Email cá nhân</label
+                  >
+                  <input
+                    type="email"
+                    class="form-control border-secondary"
+                    id="user-email_personal"
+                  />
                 </div>
 
                 <div class="mb-3">
                   <label class="form-label text-muted small">Địa chỉ</label>
-                  <textarea class="form-control bg-dark text-white border-secondary" id="user-address" rows="2"></textarea>
+                  <textarea
+                    class="form-control border-secondary"
+                    id="user-address"
+                    rows="2"
+                  ></textarea>
                 </div>
 
-                <h6 class="text-info mt-4 mb-3 small fw-bold">Thông tin Gia đình</h6>
+                <h6 class="text-info mt-4 mb-3 small fw-bold">
+                  Thông tin Gia đình
+                </h6>
                 <div class="border border-secondary rounded p-2 mb-3">
-                  <label class="form-label text-muted small d-block mb-1">Cha</label>
-                  <input type="text" class="form-control bg-dark text-white border-secondary mb-2" id="user-father_name" placeholder="Họ tên">
-                  <input type="tel" class="form-control bg-dark text-white border-secondary mb-2" id="user-father_phone" placeholder="SĐT">
-                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-father_email" placeholder="Email">
+                  <label class="form-label text-muted small d-block mb-1"
+                    >Cha</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control border-secondary mb-2"
+                    id="user-father_name"
+                    placeholder="Họ tên"
+                  />
+                  <input
+                    type="tel"
+                    class="form-control border-secondary mb-2"
+                    id="user-father_phone"
+                    placeholder="SĐT"
+                  />
+                  <input
+                    type="email"
+                    class="form-control border-secondary"
+                    id="user-father_email"
+                    placeholder="Email"
+                  />
                 </div>
 
                 <div class="border border-secondary rounded p-2">
-                  <label class="form-label text-muted small d-block mb-1">Mẹ</label>
-                  <input type="text" class="form-control bg-dark text-white border-secondary mb-2" id="user-mother_name" placeholder="Họ tên">
-                  <input type="tel" class="form-control bg-dark text-white border-secondary mb-2" id="user-mother_phone" placeholder="SĐT">
-                  <input type="email" class="form-control bg-dark text-white border-secondary" id="user-mother_email" placeholder="Email">
+                  <label class="form-label text-muted small d-block mb-1"
+                    >Mẹ</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control border-secondary mb-2"
+                    id="user-mother_name"
+                    placeholder="Họ tên"
+                  />
+                  <input
+                    type="tel"
+                    class="form-control border-secondary mb-2"
+                    id="user-mother_phone"
+                    placeholder="SĐT"
+                  />
+                  <input
+                    type="email"
+                    class="form-control border-secondary"
+                    id="user-mother_email"
+                    placeholder="Email"
+                  />
                 </div>
               </div>
             </form>
           </div>
           <div class="modal-footer border-secondary">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
-            <button type="button" class="btn btn-primary" onclick="saveUser()">Lưu thay đổi</button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button type="button" class="btn btn-primary" onclick="saveUser()">
+              Lưu thay đổi
+            </button>
           </div>
         </div>
       </div>
@@ -238,6 +391,9 @@
     <script src="/admin/js/sidebar.js"></script>
     <script src="/admin/js/pagination.js"></script>
     <script src="/admin/js/admin.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
   </body>
 </html>

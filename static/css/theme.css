@@ -1,0 +1,506 @@
+/* =====================================================
+   LuyenTapCode – Theme System
+   Dark = default.  Light = html[data-theme="light"]
+   Using html[data-theme="light"] (specificity 0,1,1)
+   beats :root (0,1,0) even when admin.css loads later.
+   ===================================================== */
+
+/* ---- CSS Variables – Dark baseline ---- */
+:root {
+  --bg-dark: #0a0c10;
+  --card-bg: rgba(16, 20, 24, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent: #58a6ff;
+  --text-primary: #e6edf3;
+  --text-secondary: #848d97;
+  --input-bg: rgba(13, 17, 23, 0.9);
+  --input-bg-focus: rgba(13, 17, 23, 1);
+  --dropdown-bg: #161b22;
+  --navbar-bg: rgba(10, 12, 16, 0.85);
+  --modal-bg: #161b22;
+  --modal-border: #30363d;
+  --sidebar-bg: #0d1117;
+  --sidebar-color: #c9d1d9;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.05);
+  --sidebar-active-bg: #1f6feb;
+  --sidebar-active-color: #ffffff;
+  --sidebar-header-color: #484f58;
+  --sidebar-divider: rgba(255, 255, 255, 0.1);
+  --ide-bg: #0d1117;
+  --ide-panel-bg: #161b22;
+  --nav-card-bg: linear-gradient(135deg, rgba(88, 166, 255, 0.12), rgba(88, 166, 255, 0.03));
+  --text-main: #e6edf3;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* ---- CSS Variables – Light overrides ---- */
+/* html prefix gives specificity 0,1,1 > :root's 0,1,0  */
+html[data-theme="light"] {
+  --bg-dark: #f6f8fa;
+  --card-bg: #ffffff;
+  --glass-border: #d0d7de;
+  --accent: #0969da;
+  --text-primary: #1f2328;
+  --text-secondary: #57606a;
+  --input-bg: #ffffff;
+  --input-bg-focus: #ffffff;
+  --dropdown-bg: #ffffff;
+  --navbar-bg: rgba(246, 248, 250, 0.97);
+  --modal-bg: #ffffff;
+  --modal-border: #d0d7de;
+  --sidebar-bg: #f6f8fa;
+  --sidebar-color: #1f2328;
+  --sidebar-hover-bg: rgba(0, 0, 0, 0.06);
+  --sidebar-active-bg: #0969da;
+  --sidebar-active-color: #ffffff;
+  --sidebar-header-color: #57606a;
+  --sidebar-divider: #d0d7de;
+  --ide-bg: #f6f8fa;
+  --ide-panel-bg: #ffffff;
+  --nav-card-bg: linear-gradient(135deg, rgba(9, 105, 218, 0.05), rgba(9, 105, 218, 0.01));
+  --text-main: #1f2328;
+  --glass-bg: rgba(0, 0, 0, 0.03);
+}
+
+/* ==================================================================
+   BASELINE DARK MODE RULES (Default)
+   Explicitly defining these ensures visibility now that Light Mode 
+   has specific overrides.
+   ================================================================== */
+
+/* --- Body --- */
+:root body,
+html[data-theme="dark"] body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* Headings */
+:root h1, :root h2, :root h3, :root h4, :root h5, :root h6,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+  color: var(--text-primary);
+}
+
+/* Premium Cards */
+:root .card,
+html[data-theme="dark"] .card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Stats Text in Dark Mode */
+html[data-theme="dark"] .h2.fw-bold,
+html[data-theme="dark"] .h3.fw-bold {
+  color: #ffffff !important;
+}
+
+/* Tables in Dark Mode */
+:root .table,
+html[data-theme="dark"] .table {
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+:root .table th, :root .table td,
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .table td {
+  border-color: #30363d !important;
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+}
+
+:root .table thead th,
+html[data-theme="dark"] .table thead th {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: var(--text-secondary) !important;
+}
+
+:root .table-hover > tbody > tr:hover > *,
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: #ffffff !important;
+}
+
+/* ==================================================================
+   ALL LIGHT MODE RULES
+   ================================================================== */
+
+/* --- Body --- */
+html[data-theme="light"] body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* ---- Navbar ---- */
+html[data-theme="light"] .navbar {
+  background: var(--navbar-bg) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+html[data-theme="light"] .navbar-brand,
+html[data-theme="light"] .navbar-brand i {
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .navbar-brand span { color: var(--accent) !important; }
+html[data-theme="light"] .nav-link { color: #57606a !important; }
+html[data-theme="light"] .nav-link:hover {
+  color: #1f2328 !important;
+  background: rgba(0,0,0,0.06) !important;
+}
+html[data-theme="light"] .nav-link.active {
+  color: var(--accent) !important;
+  background: rgba(9,105,218,0.08) !important;
+}
+html[data-theme="light"] .navbar-toggler-icon { filter: invert(1); }
+
+/* ---- Cards ---- */
+html[data-theme="light"] .card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+
+/* ---- Text utilities ---- */
+html[data-theme="light"] .text-white { color: #1f2328 !important; }
+html[data-theme="light"] .text-muted  { color: #57606a !important; }
+html[data-theme="light"] h1,
+html[data-theme="light"] h2,
+html[data-theme="light"] h3,
+html[data-theme="light"] h4,
+html[data-theme="light"] h5,
+html[data-theme="light"] h6 { color: #1f2328 !important; }
+
+html[data-theme="light"] .text-info { color: #0969da !important; }
+
+/* ---- Dropdown ---- */
+html[data-theme="light"] .dropdown-menu {
+  background: var(--dropdown-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+}
+html[data-theme="light"] .dropdown-item { color: #1f2328 !important; }
+html[data-theme="light"] .dropdown-item:hover,
+html[data-theme="light"] .dropdown-item:focus {
+  background: #f0f2f5 !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .dropdown-item.text-danger { color: #cf222e !important; }
+html[data-theme="light"] .dropdown-divider { border-color: var(--glass-border) !important; }
+
+/* ---- Forms ---- */
+html[data-theme="light"] .form-control,
+html[data-theme="light"] .form-select {
+  background-color: var(--input-bg) !important;
+  border: 1px solid #d0d7de !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .form-control:focus,
+html[data-theme="light"] .form-select:focus {
+  border-color: var(--accent) !important;
+  color: #1f2328 !important;
+  box-shadow: 0 0 0 3px rgba(9,105,218,0.15) !important;
+}
+html[data-theme="light"] .form-control::placeholder { color: #8c959f !important; }
+html[data-theme="light"] .form-control[readonly] {
+  background-color: #f6f8fa !important;
+  color: #57606a !important;
+}
+html[data-theme="light"] .form-label,
+html[data-theme="light"] label,
+html[data-theme="light"] .h1,
+html[data-theme="light"] .h2,
+html[data-theme="light"] .h3,
+html[data-theme="light"] .h4,
+html[data-theme="light"] .h5,
+html[data-theme="light"] .h6 { color: #1f2328 !important; }
+
+/* Fix dark-bg inputs in admin filter bars */
+html[data-theme="light"] .form-control.bg-dark,
+html[data-theme="light"] .form-select.bg-dark,
+html[data-theme="light"] input[class*="bg-dark"],
+html[data-theme="light"] select[class*="bg-dark"] {
+  background-color: #ffffff !important;
+  color: #1f2328 !important;
+  border-color: #d0d7de !important;
+}
+
+/* ---- Tables ---- */
+html[data-theme="light"] .table { color: #1f2328 !important; }
+html[data-theme="light"] .table th,
+html[data-theme="light"] .table td {
+  border-color: #d0d7de !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .table thead th {
+  color: #57606a !important;
+  background-color: #f6f8fa !important;
+}
+html[data-theme="light"] .table-dark {
+  --bs-table-bg: #ffffff;
+  --bs-table-striped-bg: #f6f8fa;
+  --bs-table-hover-bg: #eaecef;
+  --bs-table-border-color: #d0d7de;
+  --bs-table-color: #1f2328;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .table-dark td,
+html[data-theme="light"] .table-dark th { color: #1f2328 !important; border-color: #d0d7de !important; }
+html[data-theme="light"] .table-hover > tbody > tr:hover > * { background-color: #eaecef; color: #1f2328; }
+html[data-theme="light"] .border-secondary { border-color: #d0d7de !important; }
+
+/* ---- Modals ---- */
+html[data-theme="light"] .modal-content {
+  background: var(--modal-bg) !important;
+  border: 1px solid var(--modal-border) !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .modal-header,
+html[data-theme="light"] .modal-footer { border-color: var(--modal-border) !important; }
+html[data-theme="light"] .modal-title { color: #1f2328 !important; }
+
+/* ---- Admin Sidebar ---- */
+html[data-theme="light"] .admin-sidebar {
+  background: var(--sidebar-bg) !important;
+  border-right: 1px solid var(--glass-border) !important;
+}
+html[data-theme="light"] .sidebar-brand {
+  color: #1f2328 !important;
+  border-bottom: 1px solid var(--sidebar-divider) !important;
+}
+html[data-theme="light"] .sidebar-brand h1,
+html[data-theme="light"] .sidebar-brand .text-white,
+html[data-theme="light"] .sidebar-brand span { color: #1f2328 !important; }
+html[data-theme="light"] .sidebar-brand span.text-primary { color: var(--accent) !important; }
+html[data-theme="light"] .nav-header { color: var(--sidebar-header-color) !important; }
+html[data-theme="light"] .sidebar-navigation { background: transparent !important; }
+html[data-theme="light"] .nav-item:not(.active) { color: #1f2328 !important; }
+html[data-theme="light"] .nav-item:not(.active):hover {
+  background: var(--sidebar-hover-bg) !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .nav-item.active {
+  background: var(--sidebar-active-bg) !important;
+  color: var(--sidebar-active-color) !important;
+}
+html[data-theme="light"] .sidebar-divider { background: var(--sidebar-divider) !important; }
+html[data-theme="light"] .admin-main { background: var(--bg-dark) !important; color: #1f2328 !important; }
+
+/* Dashboard Card Specifics */
+html[data-theme="light"] .stat-card .h2,
+html[data-theme="light"] .stat-card .h3,
+html[data-theme="light"] .stat-card .h4,
+html[data-theme="light"] .stat-card div[class*="h2"],
+html[data-theme="light"] .stat-card div[class*="h3"],
+html[data-theme="light"] .stat-card div[class*="h4"],
+html[data-theme="light"] .nav-card h2,
+html[data-theme="light"] .nav-card p {
+  color: #1f2328 !important;
+}
+
+html[data-theme="light"] .nav-card:hover h2 {
+  color: var(--accent) !important;
+}
+
+html[data-theme="light"] .nav-card {
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+
+html[data-theme="light"] .nav-card:hover {
+  background: rgba(9, 105, 218, 0.04) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+}
+
+/* ---- bg-dark helpers ---- */
+html[data-theme="light"] .bg-dark {
+  background-color: #f6f8fa !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .bg-dark-subtle { background-color: #eaecef !important; }
+html[data-theme="light"] .bg-dark.bg-opacity-25 { background-color: rgba(200,205,210,0.25) !important; }
+html[data-theme="light"] .bg-dark.bg-opacity-10 { background-color: rgba(200,205,210,0.10) !important; }
+
+/* ==================================================================
+   IDE PAGES: exercise.html & exam.html
+   These have hardcoded hex colours in inline <style> blocks.
+   We override with high-specificity selectors.
+   ================================================================== */
+
+html[data-theme="light"] .ide-wrapper {
+  background: #f0f2f5 !important;
+}
+html[data-theme="light"] .sidebar-ide {
+  background: #ffffff !important;
+  border-right: 1px solid #d0d7de !important;
+}
+html[data-theme="light"] .sidebar-toggle {
+  background: #ffffff !important;
+  border: 1px solid #d0d7de !important;
+  border-left: none !important;
+  color: #57606a !important;
+}
+html[data-theme="light"] .problem-pane {
+  background: #f6f8fa !important;
+}
+html[data-theme="light"] .editor-pane {
+  background: #f6f8fa !important;
+}
+html[data-theme="light"] .workspace {
+  background: #f0f2f5 !important;
+}
+/* Editor and console */
+html[data-theme="light"] #editor-container {
+  background: #f6f8fa !important;
+}
+html[data-theme="light"] .console-section {
+  background: #ffffff !important;
+  border-top: 1px solid #d0d7de !important;
+}
+html[data-theme="light"] .tab-pane {
+  background: #f6f8fa !important;
+}
+html[data-theme="light"] .results-grid {
+  background: #f0f2f5 !important;
+}
+html[data-theme="light"] .result-card {
+  background: #ffffff !important;
+  border: 1px solid #d0d7de !important;
+}
+html[data-theme="light"] .result-card.passed { border-left: 4px solid #1a7f37 !important; }
+html[data-theme="light"] .result-card.failed { border-left: 4px solid #cf222e !important; }
+
+/* Drawer tabs (Đề bài / Gợi ý / Kết quả / Console) */
+html[data-theme="light"] .drawer-tabs {
+  background: rgba(240,242,245,0.9) !important;
+  border-top: 1px solid #d0d7de !important;
+  border-bottom: 1px solid #d0d7de !important;
+}
+html[data-theme="light"] .tab-btn { color: #57606a !important; }
+html[data-theme="light"] .tab-btn:hover {
+  color: #1f2328 !important;
+  background: rgba(0,0,0,0.04) !important;
+}
+html[data-theme="light"] .tab-btn.active {
+  color: var(--accent) !important;
+  border-bottom-color: var(--accent) !important;
+  text-shadow: none !important;
+}
+
+/* Problem list items in IDE sidebar */
+html[data-theme="light"] .problem-item {
+  border-bottom: 1px solid #d0d7de !important;
+}
+html[data-theme="light"] .problem-item:hover { background: rgba(0,0,0,0.04) !important; }
+html[data-theme="light"] .problem-item.active {
+  background: rgba(9,105,218,0.08) !important;
+  border-left: 3px solid var(--accent) !important;
+}
+html[data-theme="light"] .problem-item .p-title { color: #1f2328 !important; }
+html[data-theme="light"] .problem-item .p-meta { color: #57606a !important; }
+html[data-theme="light"] .sidebar-footer {
+  background: rgba(200,205,210,0.2) !important;
+  border-top: 1px solid #d0d7de !important;
+}
+
+/* Problem content / markdown */
+html[data-theme="light"] .problem-content { color: #1f2328 !important; }
+html[data-theme="light"] .markdown-body h1,
+html[data-theme="light"] .markdown-body h2,
+html[data-theme="light"] .markdown-body h3 { color: #1f2328 !important; }
+html[data-theme="light"] .markdown-body code {
+  background: rgba(0,0,0,0.06) !important;
+  color: var(--accent) !important;
+}
+html[data-theme="light"] .markdown-body pre {
+  background: #f6f8fa !important;
+  border: 1px solid #d0d7de !important;
+}
+
+/* Language select in IDE navbar */
+html[data-theme="light"] #language-select {
+  background-color: #ffffff !important;
+  color: #1f2328 !important;
+  border-color: #d0d7de !important;
+}
+
+/* Exam sidebar */
+html[data-theme="light"] .sidebar-ide .p-4.border-bottom,
+html[data-theme="light"] .sidebar-ide .p-3.border-bottom,
+html[data-theme="light"] .sidebar-ide .p-3.border-top {
+  background: rgba(200,205,210,0.15) !important;
+  border-color: #d0d7de !important;
+}
+
+/* ==================================================================
+   Buttons / Alerts / Progress / Code
+   ================================================================== */
+
+html[data-theme="light"] .btn-outline-secondary {
+  color: #57606a !important;
+  border-color: #d0d7de !important;
+}
+html[data-theme="light"] .btn-outline-secondary:hover {
+  background-color: #eaecef !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .btn-outline-info { color: #0969da !important; border-color: #0969da !important; }
+html[data-theme="light"] .btn-secondary {
+  background-color: #eaecef !important;
+  border-color: #d0d7de !important;
+  color: #1f2328 !important;
+}
+html[data-theme="light"] .btn-secondary:hover { background-color: #d0d7de !important; }
+
+html[data-theme="light"] .alert-danger  { background:#ffebe9 !important; border-color:#ff8182 !important; color:#82071e !important; }
+html[data-theme="light"] .alert-success { background:#dafbe1 !important; border-color:#56d364 !important; color:#116329 !important; }
+html[data-theme="light"] .alert-warning { background:#fff8c5 !important; border-color:#d29922 !important; color:#7d4e00 !important; }
+html[data-theme="light"] .alert-info    { background:#ddf4ff !important; border-color:#54aeff !important; color:#0550ae !important; }
+
+html[data-theme="light"] .badge.bg-secondary,
+html[data-theme="light"] .badge.bg-dark {
+  background-color: #eaecef !important;
+  color: #1f2328 !important;
+}
+
+html[data-theme="light"] .progress { background-color: #eaecef !important; }
+
+html[data-theme="light"] pre,
+html[data-theme="light"] code {
+  background: #f6f8fa !important;
+  color: #1f2328 !important;
+  border: 1px solid #d0d7de !important;
+}
+
+html[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15) !important; }
+
+/* ==================================================================
+   Theme Toggle Button (works for both modes)
+   ================================================================== */
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  line-height: 1;
+}
+.theme-toggle-btn:hover { background: rgba(128,128,128,0.15); }
+
+/* Dark: sun = yellow */
+:root .theme-toggle-btn,
+html[data-theme="dark"] .theme-toggle-btn { color: #e3b341; }
+
+/* Light: moon = slate */
+html[data-theme="light"] .theme-toggle-btn { color: #57606a; }

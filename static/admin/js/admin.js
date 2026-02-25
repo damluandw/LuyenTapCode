@@ -317,7 +317,7 @@ async function loadDashboardStats(params = {}) {
             <td class="text-muted small">#${ex.id}</td>
             <td class="fw-bold">${ex.title}</td>
             <td class="text-center">
-              <span class="badge ${ex.isActive ? "bg-success" : "bg-danger"} bg-opacity-25" style="color: ${ex.isActive ? "#3fb950" : "#f85149"}">
+              <span class="badge ${ex.isActive ? "bg-success" : "bg-danger"} bg-opacity-25" style="color: var(--${ex.isActive ? 'accent' : 'danger'})">
                 ${ex.isActive ? "Đang mở" : "Đã đóng"}
               </span>
             </td>
@@ -361,6 +361,7 @@ async function loadDashboardStats(params = {}) {
   }
 
   // Update Charts
+  window.lastDashboardStats = stats;
   updateDashboardCharts(stats);
 
   const activityBody = document.getElementById("recent-activity-body");
@@ -402,7 +403,19 @@ async function loadDashboardStats(params = {}) {
   }
 }
 
+function getChartColors() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    grid: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+    text: isLight ? '#57606a' : '#8b949e',
+    textMain: isLight ? '#1f2328' : '#c9d1d9',
+    accent: '#58a6ff'
+  };
+}
+
 function updateDashboardCharts(stats) {
+  const colors = getChartColors();
+  
   // Submission Chart
   if (window.submissionChartInstance) window.submissionChartInstance.destroy();
   const ctxSub = document.getElementById('submissionChart');
@@ -425,8 +438,15 @@ function updateDashboardCharts(stats) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#8b949e' } },
-          x: { grid: { display: false }, ticks: { color: '#8b949e' } }
+          y: { 
+            beginAtZero: true, 
+            grid: { color: colors.grid }, 
+            ticks: { color: colors.text } 
+          },
+          x: { 
+            grid: { display: false }, 
+            ticks: { color: colors.text } 
+          }
         }
       }
     });
@@ -437,7 +457,6 @@ function updateDashboardCharts(stats) {
   const ctxStatus = document.getElementById('statusChart');
   if (ctxStatus) {
     const total = stats.status_distribution.passed + stats.status_distribution.failed;
-    // Handle empty data case gracefully
     const data = total > 0 ? [stats.status_distribution.passed, stats.status_distribution.failed] : [0, 0];
 
     window.statusChartInstance = new Chart(ctxStatus, {
@@ -454,7 +473,7 @@ function updateDashboardCharts(stats) {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'bottom', labels: { color: '#8b949e' } }
+          legend: { position: 'bottom', labels: { color: colors.text } }
         }
       }
     });
@@ -481,13 +500,27 @@ function updateDashboardCharts(stats) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#8b949e' } },
-          y: { grid: { display: false }, ticks: { color: '#c9d1d9' } }
+          x: { 
+            beginAtZero: true, 
+            grid: { color: colors.grid }, 
+            ticks: { color: colors.text } 
+          },
+          y: { 
+            grid: { display: false }, 
+            ticks: { color: colors.textMain } 
+          }
         }
       }
     });
   }
 }
+
+// Redraw charts when theme changed
+window.addEventListener('themeChanged', () => {
+  if (currentTab === 'dashboard' && window.lastDashboardStats) {
+    updateDashboardCharts(window.lastDashboardStats);
+  }
+});
 
 async function loadData() {
   if (currentTab === "dashboard") {
@@ -688,7 +721,7 @@ function renderTableBody(tab, pageData) {
                 <td>${p.category}</td>
                 <td>
                     <button class="secondary-btn" onclick="editProblem(${p.id})">Sửa</button>
-                    <button class="secondary-btn" style="color:#ff7b72" onclick="deleteProblem(${p.id})">Xóa</button>
+                    <button class="secondary-btn text-danger" onclick="deleteProblem(${p.id})">Xóa</button>
                 </td>
             </tr>
         `,
@@ -704,7 +737,7 @@ function renderTableBody(tab, pageData) {
                 <td style="text-align:center">${s.class_name || "--"}</td>
                 <td style="text-align:center"><b>${s.solved_count}</b></td>
                 <td style="text-align:center">${s.submission_count}</td>
-                <td><span class="status-badge" style="background:rgba(88,166,255,0.1);color:var(--accent)">${s.main_lang}</span></td>
+                <td><span class="status-badge" style="background: var(--glass-bg); color: var(--accent)">${s.main_lang}</span></td>
                 <td><code>${s.password}</code></td>
                 <td>
                     <button class="secondary-btn" onclick="viewStudentStats('${s.username}')">Thống kê</button>
@@ -816,10 +849,10 @@ function renderTableBody(tab, pageData) {
             <td>${e.startTime || "--"}</td>
             <td>${(e.problemIds || []).length}</td>
             <td>${e.duration}p</td>
-            <td><span class="status-badge" style="background:${e.isActive ? "rgba(63,185,80,0.1);color:#3fb950" : "rgba(248,81,73,0.1);color:#f85149"}">${e.isActive ? "Đang mở" : "Đã đóng"}</span></td>
+            <td><span class="status-badge" style="background: var(--glass-bg); color: var(--${e.isActive ? 'accent' : 'danger'})">${e.isActive ? "Đang mở" : "Đã đóng"}</span></td>
             <td>
                 <button class="secondary-btn" onclick="location.href='/admin/create-exam?id=${e.id}'">Sửa</button>
-                <button class="secondary-btn" style="color:#ff7b72" onclick="deleteExam(${e.id})">Xóa</button>
+                <button class="secondary-btn text-danger" onclick="deleteExam(${e.id})">Xóa</button>
                 <button class="secondary-btn" onclick="location.href='/exam?id=${e.id}'" title="Xem trước trang thi">👁️</button>
             </td>
         </tr>
@@ -883,7 +916,7 @@ function renderTableBody(tab, pageData) {
                 <tr>
                     <td><div class="fw-bold">${r.display_name}</div><div class="text-muted small">@${r.username} | ${r.class_name}</div></td>
                     <td class="text-center">${r.solved_count} / ${r.problem_count}</td>
-                    <td class="text-center"><span class="status-badge" style="background:rgba(88,166,255,0.1);color:var(--accent);font-weight:bold">${r.score}</span> / ${r.total_possible}</td>
+                    <td class="text-center"><span class="status-badge" style="background: var(--glass-bg); color: var(--accent); font-weight: bold">${r.score}</span> / ${r.total_possible}</td>
                     <td class="text-center">
                         ${r.violation_count > 0
             ? `<span class="badge bg-danger cursor-pointer" onclick="viewCheatLogs('${r.username}', ${selectedExamId})">${r.violation_count} lỗi</span>`
@@ -950,7 +983,7 @@ async function loadExamSubmissions(eid, username) {
       const globalIndex = allExamSubmissions.indexOf(latest);
 
       html += `
-                <div class="list-group-item bg-dark text-white border-secondary p-4 mb-3 rounded shadow-sm">
+                <div class="list-group-item border-secondary p-4 mb-3 rounded shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h5 class="mb-1 text-accent">${latest.problemTitle}</h5>
@@ -965,7 +998,7 @@ async function loadExamSubmissions(eid, username) {
                     </div>
                     
                     <div class="code-preview-container mb-3">
-                        <div class="d-flex justify-content-between align-items-center bg-black bg-opacity-25 p-2 rounded-top border border-secondary border-bottom-0">
+                        <div class="d-flex justify-content-between align-items-center bg-light-subtle p-2 rounded-top border border-secondary border-bottom-0">
                             <span class="small text-muted font-monospace">Mã nguồn (Lần nộp cuối)</span>
                             <button class="btn btn-sm btn-link text-accent text-decoration-none p-0" type="button" 
                                     data-bs-toggle="collapse" data-bs-target="#code-collapse-${pid}">
@@ -973,8 +1006,7 @@ async function loadExamSubmissions(eid, username) {
                             </button>
                         </div>
                         <div class="collapse show" id="code-collapse-${pid}">
-                            <pre class="m-0 p-3 bg-black rounded-bottom border border-secondary" 
-                                 style="max-height: 300px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #e6edf3;">${document.createTextNode(latest.code || "// Không có mã nguồn").wholeText}</pre>
+                                 style="max-height: 300px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--glass-bg); color: var(--text-main);">${document.createTextNode(latest.code || "// Không có mã nguồn").wholeText}</pre>
                         </div>
                     </div>
 
@@ -1023,7 +1055,7 @@ function showCodeDetail(s) {
   }
 
   modalBody.innerHTML = `
-         <div class="p-3 border-bottom border-secondary bg-dark">
+         <div class="p-3 border-bottom border-secondary bg-light-subtle">
             <div class="row">
                <div class="col-md-6">
                   <div class="small text-muted">Sinh viên</div>
@@ -1035,7 +1067,7 @@ function showCodeDetail(s) {
                </div>
             </div>
          </div>
-         <pre id="code-display" class="m-0 p-3" style="max-height: 600px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: #0d1117; color: #e6edf3;">${document.createTextNode(s.code || "// Không có mã nguồn").wholeText}</pre>
+         <pre id="code-display" class="m-0 p-3" style="max-height: 600px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: var(--glass-bg); color: var(--text-main);">${document.createTextNode(s.code || "// Không có mã nguồn").wholeText}</pre>
     `;
 
   const tsEl = document.getElementById("code-timestamp");
@@ -1521,13 +1553,13 @@ async function viewCheatLogs(username, eid) {
     const userLogs = logs.filter(l => l.username === username);
 
     if (userLogs.length === 0) {
-      modalBody.innerHTML = '<div class="alert alert-info border-0 bg-dark text-info">Không có bản ghi vi phạm nào cho sinh viên này.</div>';
+      modalBody.innerHTML = '<div class="alert alert-info border-0 text-info">Không có bản ghi vi phạm nào cho sinh viên này.</div>';
       return;
     }
 
     let html = `
       <div class="table-responsive">
-        <table class="table table-dark table-striped align-middle mb-0">
+        <table class="table table-hover align-middle mb-0">
           <thead>
             <tr class="text-muted small text-uppercase">
               <th class="border-secondary">Thời gian</th>

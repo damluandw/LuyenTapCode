@@ -21,9 +21,7 @@ body {
 .card {
     background: var(--card-bg);
     border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px);
     border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -35,7 +33,7 @@ body {
 
 /* Navbar */
 .navbar {
-    background: rgba(13, 17, 23, 0.8) !important;
+    background: var(--navbar-bg) !important;
     border-bottom: 1px solid var(--glass-border);
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -126,9 +124,9 @@ body {
 
 /* Form Controls */
 .form-control, .form-select {
-    background-color: rgba(13, 17, 23, 0.8);
+    background-color: var(--input-bg);
     border: 1px solid var(--glass-border);
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .form-control:focus, .form-select:focus {

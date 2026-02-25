@@ -15,6 +15,9 @@
     />
     <!-- Custom Bootstrap 5 CSS -->
     <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/sinhvien/css/theme.css" />
+    <script src="/js/theme.js"></script>
     <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
@@ -26,21 +29,40 @@
     />
     <style>
       .nav-card {
-        background: linear-gradient(
-          135deg,
-          rgba(88, 166, 255, 0.1),
-          rgba(88, 166, 255, 0.05)
-        );
-        border: 1px solid rgba(88, 166, 255, 0.2);
-        transition: all 0.3s ease;
+        background: var(--nav-card-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border) !important;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         text-decoration: none;
         display: block;
         height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+      .nav-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          225deg,
+          rgba(88, 166, 255, 0.1) 0%,
+          transparent 50%
+        );
+        opacity: 0;
+        transition: opacity 0.4s ease;
       }
       .nav-card:hover {
-        background: rgba(88, 166, 255, 0.15);
+        background: rgba(88, 166, 255, 0.12);
         border-color: var(--accent);
-        transform: translateY(-5px);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      }
+      .nav-card:hover::after {
+        opacity: 1;
       }
       .activity-item {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -73,7 +95,7 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
         <a class="navbar-brand" href="/dashboard">
           <i class="bi bi-code-slash"></i>
@@ -105,7 +127,15 @@
               </a>
             </li>
           </ul>
-          <div class="navbar-nav align-items-center">
+          <div class="navbar-nav align-items-center gap-1">
+            <button
+              class="theme-toggle-btn"
+              id="theme-toggle-btn"
+              onclick="toggleTheme()"
+              title="Chuyển giao diện"
+            >
+              <i class="bi bi-sun-fill" id="theme-icon"></i>
+            </button>
             <div class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -113,7 +143,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <div class="d-inline-flex align-items-center text-white">
+                <div class="d-inline-flex align-items-center">
                   <div class="user-avatar me-2">
                     <i class="bi bi-person-circle"></i>
                   </div>
@@ -147,7 +177,7 @@
     <main class="container py-5">
       <!-- Welcome Section -->
       <section class="mb-5">
-        <h1 id="welcome-msg" class="display-5 fw-bold text-white mb-2">
+        <h1 id="welcome-msg" class="display-5 fw-bold mb-2">
           Chào mừng trở lại!
         </h1>
         <p class="text-muted lead">Hôm nay bạn muốn rèn luyện kỹ năng nào?</p>
@@ -156,35 +186,35 @@
       <!-- Stats Grid -->
       <section class="row g-4 mb-5">
         <div class="col-md-3">
-          <div class="card h-100 p-4">
+          <div class="card stat-card h-100 p-4">
             <div class="text-muted small mb-2 text-uppercase fw-bold">
               Bài tập đã giải
             </div>
-            <div class="h2 fw-bold text-white mb-0" id="stat-solved">0/0</div>
+            <div class="h2 fw-bold mb-0" id="stat-solved">0/0</div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card h-100 p-4">
+          <div class="card stat-card h-100 p-4">
             <div class="text-muted small mb-2 text-uppercase fw-bold">
               Lượt nộp bài
             </div>
-            <div class="h2 fw-bold text-white mb-0" id="stat-subs">0</div>
+            <div class="h2 fw-bold mb-0" id="stat-subs">0</div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card h-100 p-4">
+          <div class="card stat-card h-100 p-4">
             <div class="text-muted small mb-2 text-uppercase fw-bold">
               Thứ hạng
             </div>
-            <div class="h2 fw-bold text-white mb-0" id="stat-rank">#--</div>
+            <div class="h2 fw-bold mb-0" id="stat-rank">#--</div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card h-100 p-4">
+          <div class="card stat-card h-100 p-4">
             <div class="text-muted small mb-2 text-uppercase fw-bold">
               Tỷ lệ thành công
             </div>
-            <div class="h2 fw-bold text-white mb-0" id="stat-rate">0%</div>
+            <div class="h2 fw-bold mb-0" id="stat-rate">0%</div>
           </div>
         </div>
       </section>
@@ -193,7 +223,7 @@
       <section class="row g-4 mb-5">
         <div class="col-md-6">
           <a href="/exercise" class="nav-card p-5 rounded-4 border-0">
-            <h2 class="h3 fw-bold text-info mb-3">Luyện tập tự do</h2>
+            <h2 class="h3 fw-bold mb-3">Luyện tập tự do</h2>
             <p class="text-muted mb-0 lead">
               Khám phá kho bài tập và cải thiện tư duy lập trình.
             </p>
@@ -201,7 +231,7 @@
         </div>
         <div class="col-md-6">
           <a href="/exams" class="nav-card p-5 rounded-4 border-0">
-            <h2 class="h3 fw-bold text-info mb-3">Kỳ thi đang mở</h2>
+            <h2 class="h3 fw-bold mb-3">Kỳ thi đang mở</h2>
             <p class="text-muted mb-0 lead">
               Tham gia các bài kiểm tra thực tế để đánh giá năng lực.
             </p>
@@ -212,7 +242,7 @@
       <!-- Recent Activity -->
       <section class="card border-0">
         <div class="card-body p-4">
-          <h3 class="h4 fw-bold text-white mb-4">Hoạt động gần đây</h3>
+          <h3 class="h4 fw-bold mb-4">Hoạt động gần đây</h3>
           <div id="activity-list">
             <!-- Data loaded via JS -->
             <div class="text-muted text-center py-4">Đang tải hoạt động...</div>

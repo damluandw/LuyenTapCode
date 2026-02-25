@@ -7,8 +7,8 @@ function injectSidebar() {
 
     sidebar.innerHTML = `
         <a href="/admin" class="sidebar-brand">
-            <h1 class="h5 fw-bold text-white mb-0">
-                <i class="bi bi-shield-lock me-2 text-primary"></i>Admin<span class="text-primary text-opacity-75">Panel</span>
+            <h1 class="h5 fw-bold mb-0">
+                <i class="bi bi-shield-lock me-2 text-primary"></i>Admin<span style="color: var(--accent)">Panel</span>
             </h1>
         </a>
         
@@ -90,8 +90,28 @@ function injectSidebar() {
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Đăng xuất</span>
             </a>
+
+            <div class="sidebar-divider"></div>
+
+            <div class="px-2 py-2">
+                <button onclick="toggleTheme()" id="theme-toggle-btn"
+                    class="nav-item w-100 border-0 text-start"
+                    style="cursor:pointer; background:none;">
+                    <i class="bi bi-sun-fill" id="theme-icon"></i>
+                    <span id="theme-label">Giao diện sáng</span>
+                </button>
+            </div>
         </div>
     `;
+
+    // sync label after sidebar inject
+    (function syncThemeLabel() {
+        var theme = document.documentElement.getAttribute('data-theme');
+        var label = document.getElementById('theme-label');
+        var icon = document.getElementById('theme-icon');
+        if (label) label.textContent = theme === 'light' ? 'Giao diện tối' : 'Giao diện sáng';
+        if (icon) icon.className = theme === 'light' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    })();
 }
 
 function toggleTreeview(menuId, event) {

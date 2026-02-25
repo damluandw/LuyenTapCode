@@ -23,7 +23,7 @@ require(["vs/editor/editor.main"], async function () {
     editor = monaco.editor.create(document.getElementById("editor-container"), {
         value: "",
         language: "python",
-        theme: "vs-dark",
+        theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'vs' : 'vs-dark',
         fontSize: 16,
         fontFamily: "'Fira Code', monospace",
         fontLigatures: true,
@@ -88,6 +88,17 @@ require(["vs/editor/editor.main"], async function () {
     setupEventListeners();
     startTimer();
     setupSidebarToggles();
+
+    // Handle Dynamic Theme Changes for Monaco and Xterm
+    window.addEventListener('themeChanged', (e) => {
+        const theme = e.detail.theme;
+        if (editor) {
+            monaco.editor.setTheme(theme === 'light' ? 'vs' : 'vs-dark');
+        }
+        if (terminal) {
+            terminal.updateTheme(theme);
+        }
+    });
 });
 
 function setupSidebarToggles() {
@@ -431,7 +442,21 @@ class Terminal {
         this.init();
     }
 
+    updateTheme(theme) {
+        const isLight = theme === 'light';
+        this.xterm.options.theme = {
+            background: isLight ? '#ffffff' : '#0d1117',
+            foreground: isLight ? '#1f2328' : '#d1d5db',
+            cursor: isLight ? '#0969da' : '#58a6ff',
+            selection: isLight ? 'rgba(9, 105, 218, 0.2)' : 'rgba(58, 150, 221, 0.3)'
+        };
+    }
+
     init() {
+        // Initial theme sync
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        this.updateTheme(currentTheme);
+
         this.xterm.onData(data => {
             if (!this.isSessionActive) return;
             if (data === '\r') {

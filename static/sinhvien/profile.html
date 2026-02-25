@@ -11,6 +11,9 @@
     />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="/css/theme.css" />
+    <script src="/js/theme.js"></script>
     <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
@@ -36,7 +39,7 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
         <a class="navbar-brand" href="/dashboard">
           <i class="bi bi-code-slash"></i>
@@ -68,7 +71,15 @@
               </a>
             </li>
           </ul>
-          <div class="navbar-nav align-items-center">
+          <div class="navbar-nav align-items-center gap-1">
+            <button
+              class="theme-toggle-btn"
+              id="theme-toggle-btn"
+              onclick="toggleTheme()"
+              title="Chuyển giao diện"
+            >
+              <i class="bi bi-sun-fill" id="theme-icon"></i>
+            </button>
             <div class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -76,7 +87,7 @@
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                <div class="d-inline-flex align-items-center text-white">
+                <div class="d-inline-flex align-items-center">
                   <div class="user-avatar me-2">
                     <i class="bi bi-person-circle"></i>
                   </div>
@@ -111,121 +122,237 @@
     <main class="container py-5">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <h1 class="h2 text-white mb-4">Hồ sơ cá nhân</h1>
+          <h1 class="h2 mb-4">Hồ sơ cá nhân</h1>
 
           <!-- User Info Card -->
           <div class="card mb-4">
             <div class="card-body">
-              <h5 class="card-title text-white mb-4"><i class="bi bi-person-badge me-2"></i>Hồ sơ chi tiết</h5>
+              <h5 class="card-title mb-4">
+                <i class="bi bi-person-badge me-2"></i>Hồ sơ chi tiết
+              </h5>
 
               <form id="profileForm">
                 <!-- Administrative Info -->
                 <div class="row g-3 mb-4">
-                   <div class="col-12"><h6 class="text-accent border-bottom border-secondary pb-2">Thông tin tài khoản</h6></div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Tên đăng nhập</label>
-                      <input type="text" class="form-control" id="username" readonly />
-                   </div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Tên hiển thị</label>
-                      <input type="text" class="form-control" id="display_name" placeholder="Tên thường gọi..." />
-                   </div>
+                  <div class="col-12">
+                    <h6 class="text-accent border-bottom border-secondary pb-2">
+                      Thông tin tài khoản
+                    </h6>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small"
+                      >Tên đăng nhập</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      readonly
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small"
+                      >Tên hiển thị</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="display_name"
+                      placeholder="Tên thường gọi..."
+                    />
+                  </div>
                 </div>
 
                 <!-- Personal Info -->
                 <div class="row g-3 mb-4">
-                   <div class="col-12"><h6 class="text-accent border-bottom border-secondary pb-2">Thông tin cá nhân</h6></div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Mã sinh viên (MSV)</label>
-                      <input type="text" class="form-control" id="msv" placeholder="Nhập MSV..." />
-                   </div>
-                   <div class="col-md-8">
-                      <label class="form-label text-muted small">Họ và tên</label>
-                      <input type="text" class="form-control" id="fullname" placeholder="Nhập đầy đủ họ tên..." />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Ngày sinh</label>
-                      <input type="date" class="form-control" id="dob" />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Dân tộc</label>
-                      <input type="text" class="form-control" id="ethnicity" placeholder="Kinh, Tày..." />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Căn cước công dân</label>
-                      <input type="text" class="form-control" id="id_card" placeholder="Số CCCD..." />
-                   </div>
+                  <div class="col-12">
+                    <h6 class="text-accent border-bottom border-secondary pb-2">
+                      Thông tin cá nhân
+                    </h6>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small"
+                      >Mã sinh viên (MSV)</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="msv"
+                      placeholder="Nhập MSV..."
+                    />
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label text-muted small">Họ và tên</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="fullname"
+                      placeholder="Nhập đầy đủ họ tên..."
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">Ngày sinh</label>
+                    <input type="date" class="form-control" id="dob" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">Dân tộc</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="ethnicity"
+                      placeholder="Kinh, Tày..."
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small"
+                      >Căn cước công dân</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="id_card"
+                      placeholder="Số CCCD..."
+                    />
+                  </div>
                 </div>
 
                 <!-- Academic Info -->
                 <div class="row g-3 mb-4">
-                   <div class="col-12"><h6 class="text-accent border-bottom border-secondary pb-2">Học vấn</h6></div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Lớp</label>
-                      <input type="text" class="form-control" id="class_name" placeholder="Tên lớp..." />
-                   </div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Ngành học</label>
-                      <input type="text" class="form-control" id="major" placeholder="Công nghệ thông tin..." />
-                   </div>
+                  <div class="col-12">
+                    <h6 class="text-accent border-bottom border-secondary pb-2">
+                      Học vấn
+                    </h6>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small">Lớp</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="class_name"
+                      placeholder="Tên lớp..."
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small">Ngành học</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="major"
+                      placeholder="Công nghệ thông tin..."
+                    />
+                  </div>
                 </div>
 
                 <!-- Contact Info -->
                 <div class="row g-3 mb-4">
-                   <div class="col-12"><h6 class="text-accent border-bottom border-secondary pb-2">Liên lạc</h6></div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Số điện thoại</label>
-                      <input type="tel" class="form-control" id="phone" placeholder="0xxx..." />
-                   </div>
-                   <div class="col-md-6">
-                      <label class="form-label text-muted small">Email trường</label>
-                      <input type="email" class="form-control" id="email_school" placeholder="student@school.edu.vn" />
-                   </div>
-                   <div class="col-md-12">
-                      <label class="form-label text-muted small">Email cá nhân</label>
-                      <input type="email" class="form-control" id="email_personal" placeholder="example@gmail.com" />
-                   </div>
-                   <div class="col-12">
-                      <label class="form-label text-muted small">Địa chỉ thường trú</label>
-                      <textarea class="form-control" id="address" rows="2" placeholder="Địa chỉ đầy đủ..."></textarea>
-                   </div>
+                  <div class="col-12">
+                    <h6 class="text-accent border-bottom border-secondary pb-2">
+                      Liên lạc
+                    </h6>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small"
+                      >Số điện thoại</label
+                    >
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="phone"
+                      placeholder="0xxx..."
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-muted small"
+                      >Email trường</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email_school"
+                      placeholder="student@school.edu.vn"
+                    />
+                  </div>
+                  <div class="col-md-12">
+                    <label class="form-label text-muted small"
+                      >Email cá nhân</label
+                    >
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email_personal"
+                      placeholder="example@gmail.com"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label text-muted small"
+                      >Địa chỉ thường trú</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="address"
+                      rows="2"
+                      placeholder="Địa chỉ đầy đủ..."
+                    ></textarea>
+                  </div>
                 </div>
 
                 <!-- Family Info -->
                 <div class="row g-3 mb-4">
-                   <div class="col-12"><h6 class="text-accent border-bottom border-secondary pb-2">Thông tin gia đình</h6></div>
-                   
-                   <div class="col-12"><small class="text-white-50">Thông tin Cha</small></div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Họ tên cha</label>
-                      <input type="text" class="form-control" id="father_name" />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">SĐT cha</label>
-                      <input type="tel" class="form-control" id="father_phone" />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Email cha</label>
-                      <input type="email" class="form-control" id="father_email" />
-                   </div>
+                  <div class="col-12">
+                    <h6 class="text-accent border-bottom border-secondary pb-2">
+                      Thông tin gia đình
+                    </h6>
+                  </div>
 
-                   <div class="col-12 mt-3"><small class="text-white-50">Thông tin Mẹ</small></div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Họ tên mẹ</label>
-                      <input type="text" class="form-control" id="mother_name" />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">SĐT mẹ</label>
-                      <input type="tel" class="form-control" id="mother_phone" />
-                   </div>
-                   <div class="col-md-4">
-                      <label class="form-label text-muted small">Email mẹ</label>
-                      <input type="email" class="form-control" id="mother_email" />
-                   </div>
+                  <div class="col-12">
+                    <small class="text-muted">Thông tin Cha</small>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small"
+                      >Họ tên cha</label
+                    >
+                    <input type="text" class="form-control" id="father_name" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">SĐT cha</label>
+                    <input type="tel" class="form-control" id="father_phone" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">Email cha</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="father_email"
+                    />
+                  </div>
+
+                  <div class="col-12 mt-3">
+                    <small class="text-muted">Thông tin Mẹ</small>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">Họ tên mẹ</label>
+                    <input type="text" class="form-control" id="mother_name" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">SĐT mẹ</label>
+                    <input type="tel" class="form-control" id="mother_phone" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-muted small">Email mẹ</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="mother_email"
+                    />
+                  </div>
                 </div>
 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                  <button type="button" class="btn btn-primary px-4" onclick="updateInfo()">
+                  <button
+                    type="button"
+                    class="btn btn-primary px-4"
+                    onclick="updateInfo()"
+                  >
                     <i class="bi bi-save me-2"></i>Lưu thông tin
                   </button>
                 </div>
@@ -237,7 +364,7 @@
           <!-- Change Password Card -->
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title text-white mb-4">Đổi mật khẩu</h5>
+              <h5 class="card-title mb-4">Đổi mật khẩu</h5>
 
               <div class="mb-3">
                 <label
@@ -309,18 +436,32 @@
 
           if (data.username) {
             document.getElementById("username").value = data.username;
-            document.getElementById("display_name").value = data.display_name || "";
+            document.getElementById("display_name").value =
+              data.display_name || "";
             document.getElementById("class_name").value = data.class_name || "";
-            
+
             // Detailed fields mapping
             const fields = [
-                "msv", "fullname", "dob", "phone", "email_school", "email_personal", 
-                "ethnicity", "id_card", "major", "address", "father_name", 
-                "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"
+              "msv",
+              "fullname",
+              "dob",
+              "phone",
+              "email_school",
+              "email_personal",
+              "ethnicity",
+              "id_card",
+              "major",
+              "address",
+              "father_name",
+              "father_phone",
+              "father_email",
+              "mother_name",
+              "mother_phone",
+              "mother_email",
             ];
-            fields.forEach(f => {
-                const el = document.getElementById(f);
-                if (el) el.value = data[f] || "";
+            fields.forEach((f) => {
+              const el = document.getElementById(f);
+              if (el) el.value = data[f] || "";
             });
 
             const navDisplayEl = document.getElementById("nav-user-display");
@@ -333,7 +474,9 @@
       }
 
       async function updateInfo() {
-        const displayName = document.getElementById("display_name").value.trim();
+        const displayName = document
+          .getElementById("display_name")
+          .value.trim();
         const msgEl = document.getElementById("info-msg");
 
         if (!displayName) {
@@ -348,13 +491,26 @@
 
         // Add detailed fields to payload
         const fields = [
-            "msv", "fullname", "dob", "phone", "email_school", "email_personal", 
-            "ethnicity", "id_card", "major", "address", "father_name", 
-            "father_phone", "father_email", "mother_name", "mother_phone", "mother_email"
+          "msv",
+          "fullname",
+          "dob",
+          "phone",
+          "email_school",
+          "email_personal",
+          "ethnicity",
+          "id_card",
+          "major",
+          "address",
+          "father_name",
+          "father_phone",
+          "father_email",
+          "mother_name",
+          "mother_phone",
+          "mother_email",
         ];
-        fields.forEach(f => {
-            const el = document.getElementById(f);
-            if (el) payload[f] = el.value.trim();
+        fields.forEach((f) => {
+          const el = document.getElementById(f);
+          if (el) payload[f] = el.value.trim();
         });
 
         try {

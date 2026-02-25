@@ -14,7 +14,7 @@
     },
     "isActive": true,
     "openTime": "2026-02-07T01:04",
-    "closeTime": "2026-02-11T01:15",
+    "closeTime": "2026-04-01T01:15",
     "allowedLanguages": [
       "c"
     ],
@@ -33,9 +33,13 @@
       "sv11",
       "sv12"
     ],
-    "id": 1,
-    "created_by": "qtv",
-    "shared_with": []
+    "shared_with": [
+      "gv01",
+      "gv02",
+      "trogiang"
+    ],
+    "antiCheatEnabled": false,
+    "id": 1
   },
   {
     "title": "Kỳ thi 2",
@@ -88,7 +92,7 @@
     },
     "isActive": true,
     "openTime": "2026-02-10T12:10",
-    "closeTime": "2026-02-15T12:10",
+    "closeTime": "2026-03-03T12:10",
     "allowedLanguages": [
       "c"
     ],
