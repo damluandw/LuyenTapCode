@@ -12,6 +12,12 @@
     "display_name": "Giảng viên"
   },
   {
+    "username": "gv02",
+    "password": "123",
+    "role": "instructor",
+    "display_name": "Giảng viên"
+  },
+  {
     "username": "qtv",
     "password": "123",
     "role": "admin",
@@ -106,6 +112,5 @@
     "role": "student",
     "display_name": "Nguyễn Văn B",
     "class_name": "64CNTT1"
-  } 
-  
+  }
 ]

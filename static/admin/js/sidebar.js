@@ -3,95 +3,109 @@ function injectSidebar() {
     if (!sidebar) return;
 
     const path = window.location.pathname;
-    const search = window.location.search;
+    const isReports = path.includes('/report') || path.includes('/submissions');
 
     sidebar.innerHTML = `
-        <div class="sidebar-header p-4 border-bottom border-secondary border-opacity-25 mb-3">
+        <a href="/admin" class="sidebar-brand">
             <h1 class="h5 fw-bold text-white mb-0">
                 <i class="bi bi-shield-lock me-2 text-primary"></i>Admin<span class="text-primary text-opacity-75">Panel</span>
             </h1>
-        </div>
+        </a>
         
-        <div class="px-3 overflow-y-auto">
-            <a href="/admin" class="admin-nav-item ${path === '/admin' || path === '/admin/dashboard' ? 'active' : ''}">
-                <i class="bi bi-speedometer2"></i> Thống kê chung
+        <div class="sidebar-navigation">
+            <div class="nav-header">Dashboard</div>
+            <a href="/admin" class="nav-item ${path === '/admin' || path === '/admin/dashboard' ? 'active' : ''}">
+                <i class="bi bi-speedometer2"></i>
+                <span>Thống kê chung</span>
             </a>
             
-            <a href="/admin/problems" class="admin-nav-item ${path === '/admin/problems' ? 'active' : ''}">
-                <i class="bi bi-code-square"></i> Quản lý bài tập
+            <div class="nav-header">Management</div>
+            <a href="/admin/problems" class="nav-item ${path === '/admin/problems' ? 'active' : ''}">
+                <i class="bi bi-code-square"></i>
+                <span>Quản lý bài tập</span>
             </a>
             
-            <a href="/admin/students" class="admin-nav-item ${path === '/admin/students' ? 'active' : ''}">
-                <i class="bi bi-people"></i> Quản lý sinh viên
+            <a href="/admin/students" class="nav-item ${path === '/admin/students' ? 'active' : ''}">
+                <i class="bi bi-people"></i>
+                <span>Quản lý sinh viên</span>
             </a>
-            
-            <div class="admin-nav-item ${path.includes('/reports') || path.includes('/submissions') ? 'active' : ''}" style="cursor: pointer" onclick="toggleReportsMenu(event)">
-                <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo & Nhật ký
-                <i class="bi bi-chevron-down ms-auto small transition-transform" id="reports-chevron"></i>
+
+            <a href="/admin/exams" class="nav-item ${path === '/admin/exams' || path.includes('create-exam') ? 'active' : ''}">
+                <i class="bi bi-journal-text"></i>
+                <span>Quản lý kỳ thi</span>
+            </a>
+
+            <a href="/admin/users.html" class="nav-item ${path.includes('/admin/users') ? 'active' : ''}">
+                <i class="bi bi-person-workspace"></i>
+                <span>Quản lý người dùng</span>
+            </a>
+
+            <div class="nav-header">Reports & Logs</div>
+            <div class="nav-item ${isReports ? 'active' : ''}" style="cursor: pointer" onclick="toggleTreeview('reports-menu', event)">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                <span>Báo cáo & Nhật ký</span>
+                <i class="bi bi-chevron-left nav-chevron" id="reports-chevron" style="transform: ${isReports ? 'rotate(-90deg)' : 'rotate(0deg)'}"></i>
             </div>
             
-            <div id="sub-nav-reports" class="admin-sub-nav" style="display: ${path.includes('/report') || path.includes('/submissions') ? 'block' : 'none'}">
-                <a href="/admin/report-students.html" class="admin-sub-item ${path.includes('report-students') ? 'active' : ''}">
-                    Bảng xếp hạng SV
+            <div id="reports-menu" class="nav-treeview ${isReports ? 'show' : ''}">
+                <a href="/admin/report-students.html" class="nav-item nav-link-sub ${path.includes('report-students') ? 'active' : ''}">
+                    <i class="bi bi-circle"></i> Bảng xếp hạng SV
                 </a>
-                <a href="/admin/report-problems.html" class="admin-sub-item ${path.includes('report-problems') ? 'active' : ''}">
-                    Thống kê bài tập
+                <a href="/admin/report-problems.html" class="nav-item nav-link-sub ${path.includes('report-problems') ? 'active' : ''}">
+                    <i class="bi bi-circle"></i> Thống kê bài tập
                 </a>
-                <a href="/admin/report-exams.html" class="admin-sub-item ${path.includes('report-exam') ? 'active' : ''}">
-                    Lịch sử thi
+                <a href="/admin/report-exams.html" class="nav-item nav-link-sub ${path.includes('report-exam') ? 'active' : ''}">
+                    <i class="bi bi-circle"></i> Lịch sử thi
                 </a>
-                <a href="/admin/submissions" class="admin-sub-item ${path === '/admin/submissions' ? 'active' : ''}">
-                    Nhật ký nộp bài
+                <a href="/admin/submissions" class="nav-item nav-link-sub ${path === '/admin/submissions' ? 'active' : ''}">
+                    <i class="bi bi-circle"></i> Nhật ký nộp bài
                 </a>
             </div>
+
+            <div class="sidebar-divider"></div>
             
-            <a href="/admin/exams" class="admin-nav-item ${path === '/admin/exams' || path.includes('create-exam') ? 'active' : ''}">
-                <i class="bi bi-journal-text"></i> Quản lý kỳ thi
-            </a>
-            
-            <a href="/admin/users.html" class="admin-nav-item ${path.includes('/admin/users') ? 'active' : ''}">
-                <i class="bi bi-people"></i> Quản lý người dùng
-            </a>
-            
-            <div class="admin-nav-divider my-3"></div>
-            
-            <a href="/admin/roles" class="admin-nav-item ${path === '/admin/roles' ? 'active' : ''}">
-                <i class="bi bi-shield-check"></i> Quản lý vai trò
+            <div class="nav-header">Security</div>
+            <a href="/admin/roles" class="nav-item ${path === '/admin/roles' ? 'active' : ''}">
+                <i class="bi bi-shield-check"></i>
+                <span>Quản lý vai trò</span>
             </a>
             
-            <a href="/admin/user-permissions" class="admin-nav-item ${path === '/admin/user-permissions' ? 'active' : ''}">
-                <i class="bi bi-person-gear"></i> Phân quyền
+            <a href="/admin/user-permissions" class="nav-item ${path === '/admin/user-permissions' ? 'active' : ''}">
+                <i class="bi bi-person-gear"></i>
+                <span>Phân quyền</span>
             </a>
-        </div>
-        
-        <div class="mt-auto p-3 border-top border-secondary border-opacity-25">
-            <a href="/profile" class="admin-nav-item ${path === '/profile' ? 'active' : ''}">
-                <i class="bi bi-person-circle"></i> Hồ sơ cá nhân
+
+            <div class="sidebar-divider"></div>
+            
+            <div class="nav-header">System</div>
+            <a href="/profile" class="nav-item ${path === '/profile' ? 'active' : ''}">
+                <i class="bi bi-person-circle"></i>
+                <span>Hồ sơ cá nhân</span>
             </a>
-            <a href="/" class="admin-nav-item text-muted">
-                <i class="bi bi-arrow-left-circle"></i> Về trang Student
+            <a href="/" class="nav-item">
+                <i class="bi bi-arrow-left-circle"></i>
+                <span>Về trang Sinh viên</span>
             </a>
-            <a href="/api/auth/logout" class="admin-nav-item text-danger">
-                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+            <a href="/api/auth/logout" class="nav-item text-danger">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Đăng xuất</span>
             </a>
         </div>
     `;
-
-    // Rotate chevron if menu is open
-    if (path.includes('/reports') || path.includes('/submissions')) {
-        const chev = document.getElementById('reports-chevron');
-        if (chev) chev.style.transform = 'rotate(180deg)';
-    }
 }
 
-function toggleReportsMenu(e) {
-    const subNav = document.getElementById('sub-nav-reports');
-    const chev = document.getElementById('reports-chevron');
-    if (subNav) {
-        const isOpen = subNav.style.display !== 'none';
-        subNav.style.display = isOpen ? 'none' : 'block';
-        if (chev) {
-            chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+function toggleTreeview(menuId, event) {
+    const menu = document.getElementById(menuId);
+    const chevron = event.currentTarget.querySelector('.nav-chevron');
+
+    if (menu) {
+        const isShowing = menu.classList.contains('show');
+        if (isShowing) {
+            menu.classList.remove('show');
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        } else {
+            menu.classList.add('show');
+            if (chevron) chevron.style.transform = 'rotate(-90deg)';
         }
     }
 }
