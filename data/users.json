@@ -9,13 +9,13 @@
     "username": "gv01",
     "password": "123",
     "role": "instructor",
-    "display_name": "Giảng viên"
+    "display_name": "Giảng viên 1"
   },
   {
     "username": "gv02",
     "password": "123",
     "role": "instructor",
-    "display_name": "Giảng viên"
+    "display_name": "Giảng viên 2"
   },
   {
     "username": "qtv",
@@ -27,7 +27,7 @@
     "username": "trogiang",
     "password": "123",
     "role": "teaching_assistant",
-    "display_name": "Trợ giảng"
+    "display_name": "Trợ giảng 1"
   },
   {
     "username": "student",

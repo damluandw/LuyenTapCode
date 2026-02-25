@@ -33,7 +33,9 @@
       "sv11",
       "sv12"
     ],
-    "id": 1
+    "id": 1,
+    "created_by": "qtv",
+    "shared_with": []
   },
   {
     "title": "Kỳ thi 2",
@@ -63,7 +65,9 @@
       "sv01"
     ],
     "id": 2,
-    "startTime": "2026-02-07 15:19:28"
+    "startTime": "2026-02-07 15:19:28",
+    "created_by": "qtv",
+    "shared_with": []
   },
   {
     "title": "Kỳ thi 3",
@@ -102,6 +106,11 @@
       "sv10",
       "sv11",
       "sv12"
+    ],
+    "shared_with": [
+      "gv01",
+      "gv02",
+      "trogiang"
     ],
     "antiCheatEnabled": true,
     "id": 3

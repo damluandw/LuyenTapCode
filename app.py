@@ -117,6 +117,26 @@ def get_user_permissions(username):
     custom_perms = user.get("custom_permissions", [])
     return list(set(role_perms + custom_perms))
 
+def is_admin_role(role):
+    """Check if role has admin privileges"""
+    return role in ["admin", "super_admin"]
+
+def can_access_resource(resource, username, role):
+    """Check if user has access to a specific resource (exam/report)"""
+    if is_admin_role(role):
+        return True
+    
+    # Ownership check
+    if resource.get("created_by") == username:
+        return True
+        
+    # Sharing check
+    shared_with = resource.get("shared_with", [])
+    if username in shared_with:
+        return True
+        
+    return False
+
 # Auth Decorators
 def login_required(f):
     @wraps(f)
@@ -641,7 +661,13 @@ def manage_problem(pid):
 @permission_required("manage_exams")
 def manage_exams():
     if request.method == "GET":
-        return jsonify(load_json("tests.json"))
+        exams = load_json("tests.json")
+        username = session.get("username")
+        role = session.get("role")
+        
+        # Filter exams based on ownership/sharing
+        accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
+        return jsonify(accessible_exams)
     
     new_exam = request.json
     exams = load_json("tests.json")
@@ -650,6 +676,10 @@ def manage_exams():
     new_exam["id"] = max([e["id"] for e in exams], default=0) + 1
     if "startTime" not in new_exam:
         new_exam["startTime"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Ownership metadata
+    new_exam["created_by"] = session.get("username")
+    new_exam["shared_with"] = new_exam.get("shared_with", [])
     
     exams.append(new_exam)
     save_json("tests.json", exams)
@@ -664,9 +694,17 @@ def manage_single_exam(eid):
     
     if exam_idx == -1:
         return jsonify({"error": "Exam not found"}), 404
+    
+    exam = exams[exam_idx]
+    username = session.get("username")
+    role = session.get("role")
+    
+    # Permission check for all operations
+    if not can_access_resource(exam, username, role):
+        return jsonify({"error": "Bạn không có quyền truy cập kỳ thi này."}), 403
         
     if request.method == "GET":
-        return jsonify(exams[exam_idx])
+        return jsonify(exam)
         
     if request.method == "PUT":
         updated_data = request.json
@@ -1139,7 +1177,21 @@ def get_student_stats(username):
 def get_reports():
     users = load_json("users.json")
     problems = load_json("problems.json")
-    submissions = load_json("submissions.json")
+    raw_submissions = load_json("submissions.json")
+    exams = load_json("tests.json")
+    
+    username = session.get("username")
+    role = session.get("role")
+    
+    # Identify accessible exams
+    accessible_exam_ids = [str(e["id"]) for e in exams if can_access_resource(e, username, role)]
+    
+    # Filter submissions to only those belonging to accessible exams (or all if admin)
+    if is_admin_role(role):
+        submissions = raw_submissions
+    else:
+        # For non-admins, only show submissions tied to their exams
+        submissions = [s for s in raw_submissions if str(s.get("examId")) in accessible_exam_ids]
     
     # 1. Student Ranking
     students = [u for u in users if u["role"] == "student"]
@@ -1181,9 +1233,15 @@ def get_reports():
 
     # 3. Exam Reports
     exams = load_json("tests.json")
+    username = session.get("username")
+    role = session.get("role")
+    
+    # Filter exams for report based on permission
+    accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
+    
     exam_report = []
     
-    for exam in exams:
+    for exam in accessible_exams:
         exam_id = exam["id"]
         points_map = exam.get("problemPoints", {})
         

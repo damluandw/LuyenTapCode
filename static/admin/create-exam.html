@@ -1,430 +1,380 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tạo kỳ thi - Admin</title>
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
-    <link rel="stylesheet" href="/admin/css/admin.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      .problem-list-box {
-        background: rgba(13, 17, 23, 0.4);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        height: 400px;
-        overflow-y: auto;
-      }
-      .prob-item {
-        padding: 12px 16px;
-        margin: 8px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .prob-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--accent);
-      }
-      .prob-item.selected {
-        border-color: var(--accent);
-        background: rgba(88, 166, 255, 0.08);
-      }
-      .selected-badge {
-        background: var(--accent);
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
-      }
-      .form-label-custom {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-      }
-    </style>
-  </head>
-  <body class="bg-dark text-light">
-    <div class="container py-5">
-      <header class="mb-5 d-flex justify-content-between align-items-center">
-        <div>
-          <h1 class="h2 fw-bold text-white mb-1" id="page-title">
-            Tạo kỳ thi mới
-          </h1>
-          <p class="text-muted">
-            Thiết lập thông tin, thời gian và bài tập cho kỳ thi
-          </p>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tạo kỳ thi - Admin</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/sinhvien/css/student-bs5.css" />
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .problem-list-box {
+      background: rgba(13, 17, 23, 0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      height: 400px;
+      overflow-y: auto;
+    }
+
+    .prob-item {
+      padding: 12px 16px;
+      margin: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .prob-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+    }
+
+    .prob-item.selected {
+      border-color: var(--accent);
+      background: rgba(88, 166, 255, 0.08);
+    }
+
+    .selected-badge {
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+    }
+
+    .form-label-custom {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+
+<body class="bg-dark text-light">
+  <div class="container py-5">
+    <header class="mb-5 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="h2 fw-bold text-white mb-1" id="page-title">
+          Tạo kỳ thi mới
+        </h1>
+        <p class="text-muted">
+          Thiết lập thông tin, thời gian và bài tập cho kỳ thi
+        </p>
+      </div>
+      <button class="btn btn-outline-secondary px-4" onclick="location.href = '/admin/exams'">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại
+      </button>
+    </header>
+
+    <!-- Basic Info Card -->
+    <div class="card shadow-sm mb-4 border-0 p-4">
+      <h3 class="h5 fw-bold text-white mb-4">
+        <i class="bi bi-info-circle me-2 text-info"></i>Thông tin cơ bản
+      </h3>
+
+      <div class="mb-4">
+        <label class="form-label-custom">Tên kỳ thi</label>
+        <input type="text" id="exam-title" class="form-control bg-dark border-secondary text-light p-3"
+          placeholder="Ví dụ: Kiểm tra giữa kỳ môn Python" />
+      </div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label-custom">Thời gian làm bài (phút)</label>
+          <input type="number" id="exam-duration" class="form-control bg-dark border-secondary text-light p-3"
+            value="60" />
         </div>
-        <button
-          class="btn btn-outline-secondary px-4"
-          onclick="location.href = '/admin/exams'"
-        >
-          <i class="bi bi-arrow-left me-1"></i> Quay lại
-        </button>
-      </header>
-
-      <!-- Basic Info Card -->
-      <div class="card shadow-sm mb-4 border-0 p-4">
-        <h3 class="h5 fw-bold text-white mb-4">
-          <i class="bi bi-info-circle me-2 text-info"></i>Thông tin cơ bản
-        </h3>
-
-        <div class="mb-4">
-          <label class="form-label-custom">Tên kỳ thi</label>
-          <input
-            type="text"
-            id="exam-title"
-            class="form-control bg-dark border-secondary text-light p-3"
-            placeholder="Ví dụ: Kiểm tra giữa kỳ môn Python"
-          />
+        <div class="col-md-6">
+          <label class="form-label-custom">Trạng thái</label>
+          <select id="exam-active" class="form-select bg-dark border-secondary text-light p-3">
+            <option value="true">Đang mở (Active)</option>
+            <option value="false">Đang khóa (Inactive)</option>
+          </select>
         </div>
+      </div>
 
-        <div class="row g-4 mb-4">
-          <div class="col-md-6">
-            <label class="form-label-custom">Thời gian làm bài (phút)</label>
-            <input
-              type="number"
-              id="exam-duration"
-              class="form-control bg-dark border-secondary text-light p-3"
-              value="60"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label-custom">Trạng thái</label>
-            <select
-              id="exam-active"
-              class="form-select bg-dark border-secondary text-light p-3"
-            >
-              <option value="true">Đang mở (Active)</option>
-              <option value="false">Đang khóa (Inactive)</option>
-            </select>
-          </div>
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label-custom">Mở đề lúc (Thời gian thực hành)</label>
+          <input type="datetime-local" id="exam-open" class="form-control bg-dark border-secondary text-light p-3" />
         </div>
-
-        <div class="row g-4 mb-4">
-          <div class="col-md-6">
-            <label class="form-label-custom"
-              >Mở đề lúc (Thời gian thực hành)</label
-            >
-            <input
-              type="datetime-local"
-              id="exam-open"
-              class="form-control bg-dark border-secondary text-light p-3"
-            />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label-custom">Đóng đề lúc</label>
-            <input
-              type="datetime-local"
-              id="exam-close"
-              class="form-control bg-dark border-secondary text-light p-3"
-            />
-          </div>
+        <div class="col-md-6">
+          <label class="form-label-custom">Đóng đề lúc</label>
+          <input type="datetime-local" id="exam-close" class="form-control bg-dark border-secondary text-light p-3" />
         </div>
+      </div>
 
-        <div>
-          <label class="form-label-custom d-block"
-            >Ngôn ngữ cho phép (Trống = Tất cả)</label
-          >
-          <div
-            class="d-flex gap-4 flex-wrap mt-2 p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25"
-          >
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="allowed-lang"
-                value="python"
-                id="lang-py"
-              />
-              <label class="form-check-label text-light" for="lang-py"
-                >Python</label
-              >
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="allowed-lang"
-                value="cpp"
-                id="lang-cpp"
-              />
-              <label class="form-check-label text-light" for="lang-cpp"
-                >C++</label
-              >
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="allowed-lang"
-                value="c"
-                id="lang-c"
-              />
-              <label class="form-check-label text-light" for="lang-c">C</label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="allowed-lang"
-                value="java"
-                id="lang-java"
-              />
-              <label class="form-check-label text-light" for="lang-java"
-                >Java</label
-              >
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="allowed-lang"
-                value="csharp"
-                id="lang-cs"
-              />
-              <label class="form-check-label text-light" for="lang-cs"
-                >C#</label
-              >
-            </div>
+      <div>
+        <label class="form-label-custom d-block">Ngôn ngữ cho phép (Trống = Tất cả)</label>
+        <div
+          class="d-flex gap-4 flex-wrap mt-2 p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="allowed-lang" value="python" id="lang-py" />
+            <label class="form-check-label text-light" for="lang-py">Python</label>
           </div>
-        </div>
-
-        <div class="mt-4">
-          <label class="form-label-custom d-block">Bảo mật & Chống gian lận</label>
-          <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="exam-anti-cheat">
-              <label class="form-check-label text-light fw-bold" for="exam-anti-cheat">
-                Bật chế độ chống gian lận (Theo dõi chuyển tab/mất tập trung)
-              </label>
-              <div class="text-muted small mt-1">
-                Khi bật, hệ thống sẽ ghi lại nhật ký mỗi khi sinh viên chuyển sang tab khác hoặc thu nhỏ cửa sổ trình duyệt trong quá trình thi.
-              </div>
-            </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="allowed-lang" value="cpp" id="lang-cpp" />
+            <label class="form-check-label text-light" for="lang-cpp">C++</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="allowed-lang" value="c" id="lang-c" />
+            <label class="form-check-label text-light" for="lang-c">C</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="allowed-lang" value="java" id="lang-java" />
+            <label class="form-check-label text-light" for="lang-java">Java</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="allowed-lang" value="csharp" id="lang-cs" />
+            <label class="form-check-label text-light" for="lang-cs">C#</label>
           </div>
         </div>
       </div>
 
-      <!-- Student Selection Card -->
-      <div class="card shadow-sm mb-5 border-0 p-4">
-        <h3 class="h5 fw-bold text-white mb-4">
-          <i class="bi bi-people me-2 text-success"></i>Chọn sinh viên tham gia kỳ thi
-        </h3>
-        
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <input type="text" id="student-search" class="form-control form-control-sm bg-dark border-secondary text-light" style="flex: 1; min-width: 120px;" placeholder="Tìm tên/lớp...">
-                    <select id="class-filter" class="form-select form-select-sm bg-dark border-secondary text-light" style="width: auto; max-width: 150px;">
-                        <option value="">Tất cả lớp</option>
-                    </select>
-                </div>
-                <div class="d-flex gap-2 mb-2">
-                    <button type="button" class="btn btn-sm btn-outline-success flex-fill" onclick="toggleAllStudents(true)">
-                        <i class="bi bi-check-all"></i> Chọn tất cả
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="toggleAllStudents(false)">
-                        <i class="bi bi-x-circle"></i> Bỏ chọn hết
-                    </button>
-                </div>
-                <div id="all-students-list" class="problem-list-box p-2">
-                    <div class="text-center text-muted p-5">Đang tải danh sách sinh viên...</div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <p class="text-muted small fw-bold text-uppercase mb-0">Sinh viên đã chọn (<span id="selected-student-count" class="text-success">0</span>)</p>
-                    <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllStudents()">
-                        <i class="bi bi-trash"></i> Xóa hết
-                    </button>
-                </div>
-                <div id="selected-students-list" class="problem-list-box p-2">
-                    <div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>
-                </div>
-            </div>
-        </div>
-      </div>
-
-        <div class="row g-4">
-          <div class="col-lg-6">
-            <p class="text-muted small fw-bold text-uppercase mb-3">
-              Ngân hàng bài tập
-            </p>
-            
-            <div class="d-flex gap-2 mb-3">
-                <select id="prob-category-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
-                    <option value="">Tất cả chủ đề</option>
-                </select>
-                <select id="prob-difficulty-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
-                    <option value="">Độ khó</option>
-                    <option value="Easy">Dễ (Easy)</option>
-                    <option value="Medium">Trung bình (Medium)</option>
-                    <option value="Hard">Khó (Hard)</option>
-                </select>
-            </div>
-            
-            <div class="input-group input-group-sm mb-3">
-                <input type="number" id="random-count" class="form-control bg-dark border-secondary text-light" placeholder="SL" min="1">
-                <button class="btn btn-outline-warning" type="button" onclick="selectRandomProblems()">
-                    <i class="bi bi-shuffle"></i> Random
-                </button>
-            </div>
-            <div id="all-problems-list" class="problem-list-box p-2">
-              <div class="text-center text-muted p-5">
-                Đang tải danh sách bài tập...
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <p class="text-muted small fw-bold text-uppercase mb-0">
-                  Bài tập đã chọn (<span id="selected-count" class="text-info">0</span>)
-                </p>
-                <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllProblems()">
-                    <i class="bi bi-trash"></i> Xóa hết
-                </button>
-            </div>
-            <div id="selected-problems-list" class="problem-list-box p-2">
-              <div class="text-center text-muted p-5 italic">
-                Chưa chọn bài tập nào
-              </div>
-            </div>
+      <div class="mt-4">
+        <label class="form-label-custom d-block">Chia sẻ quyền quản lý</label>
+        <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
+          <p class="text-muted small mb-2">Chọn giảng viên/trợ giảng khác được quyền xem và chỉnh sửa kỳ thi này:</p>
+          <div id="shared-users-list" class="d-flex flex-wrap gap-2">
+            <!-- Loaded via JS -->
+            <div class="text-muted small italic">Đang tải danh sách...</div>
           </div>
         </div>
       </div>
 
-      <div
-        class="sticky-bottom py-3 bg-dark border-top border-secondary border-opacity-25 mt-5"
-      >
-        <div class="d-flex justify-content-end gap-3">
-          <button
-            class="btn btn-lg btn-outline-secondary px-5"
-            onclick="location.href = '/admin/exams'"
-          >
-            Hủy bỏ
-          </button>
-          <button
-            id="save-exam-btn"
-            class="btn btn-lg btn-primary px-5 fw-bold shadow-lg"
-          >
-            <i class="bi bi-save me-2"></i> Lưu kỳ thi
-          </button>
+      <div class="mt-4">
+        <label class="form-label-custom d-block">Bảo mật & Chống gian lận</label>
+        <div class="p-3 bg-dark bg-opacity-25 rounded-3 border border-secondary border-opacity-25">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="exam-anti-cheat">
+            <label class="form-check-label text-light fw-bold" for="exam-anti-cheat">
+              Bật chế độ chống gian lận (Theo dõi chuyển tab/mất tập trung)
+            </label>
+            <div class="text-muted small mt-1">
+              Khi bật, hệ thống sẽ ghi lại nhật ký mỗi khi sinh viên chuyển sang tab khác hoặc thu nhỏ cửa sổ trình
+              duyệt trong quá trình thi.
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-    />
+    <!-- Student Selection Card -->
+    <div class="card shadow-sm mb-5 border-0 p-4">
+      <h3 class="h5 fw-bold text-white mb-4">
+        <i class="bi bi-people me-2 text-success"></i>Chọn sinh viên tham gia kỳ thi
+      </h3>
 
-    <script>
-      let allProblems = [];
-      let allStudents = [];
-      let selectedProblemIds = [];
-      let selectedStudentUsernames = [];
-      let problemPoints = {};
-      let examId = new URLSearchParams(window.location.search).get("id");
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <input type="text" id="student-search"
+              class="form-control form-control-sm bg-dark border-secondary text-light"
+              style="flex: 1; min-width: 120px;" placeholder="Tìm tên/lớp...">
+            <select id="class-filter" class="form-select form-select-sm bg-dark border-secondary text-light"
+              style="width: auto; max-width: 150px;">
+              <option value="">Tất cả lớp</option>
+            </select>
+          </div>
+          <div class="d-flex gap-2 mb-2">
+            <button type="button" class="btn btn-sm btn-outline-success flex-fill" onclick="toggleAllStudents(true)">
+              <i class="bi bi-check-all"></i> Chọn tất cả
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger flex-fill" onclick="toggleAllStudents(false)">
+              <i class="bi bi-x-circle"></i> Bỏ chọn hết
+            </button>
+          </div>
+          <div id="all-students-list" class="problem-list-box p-2">
+            <div class="text-center text-muted p-5">Đang tải danh sách sinh viên...</div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="text-muted small fw-bold text-uppercase mb-0">Sinh viên đã chọn (<span id="selected-student-count"
+                class="text-success">0</span>)</p>
+            <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllStudents()">
+              <i class="bi bi-trash"></i> Xóa hết
+            </button>
+          </div>
+          <div id="selected-students-list" class="problem-list-box p-2">
+            <div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      async function init() {
-        try {
-          const res = await fetch("/problems");
-          allProblems = await res.json();
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <p class="text-muted small fw-bold text-uppercase mb-3">
+          Ngân hàng bài tập
+        </p>
 
-          if (examId) {
-            document.getElementById("page-title").textContent =
-              "Chỉnh sửa kỳ thi";
-            const examRes = await fetch(`/api/admin/exams/${examId}`);
-            if (examRes.ok) {
-              const exam = await examRes.json();
-              document.getElementById("exam-title").value = exam.title;
-              document.getElementById("exam-duration").value = exam.duration;
-              document.getElementById("exam-active").value =
-                exam.isActive.toString();
-              if (exam.openTime)
-                document.getElementById("exam-open").value = exam.openTime;
-              if (exam.closeTime)
-                document.getElementById("exam-close").value = exam.closeTime;
+        <div class="d-flex gap-2 mb-3">
+          <select id="prob-category-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
+            <option value="">Tất cả chủ đề</option>
+          </select>
+          <select id="prob-difficulty-filter" class="form-select form-select-sm bg-dark border-secondary text-light">
+            <option value="">Độ khó</option>
+            <option value="Easy">Dễ (Easy)</option>
+            <option value="Medium">Trung bình (Medium)</option>
+            <option value="Hard">Khó (Hard)</option>
+          </select>
+        </div>
 
-              selectedProblemIds = exam.problemIds || [];
-              problemPoints = exam.problemPoints || {};
+        <div class="input-group input-group-sm mb-3">
+          <input type="number" id="random-count" class="form-control bg-dark border-secondary text-light"
+            placeholder="SL" min="1">
+          <button class="btn btn-outline-warning" type="button" onclick="selectRandomProblems()">
+            <i class="bi bi-shuffle"></i> Random
+          </button>
+        </div>
+        <div id="all-problems-list" class="problem-list-box p-2">
+          <div class="text-center text-muted p-5">
+            Đang tải danh sách bài tập...
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <p class="text-muted small fw-bold text-uppercase mb-0">
+            Bài tập đã chọn (<span id="selected-count" class="text-info">0</span>)
+          </p>
+          <button class="btn btn-sm btn-link text-danger text-decoration-none p-0" onclick="removeAllProblems()">
+            <i class="bi bi-trash"></i> Xóa hết
+          </button>
+        </div>
+        <div id="selected-problems-list" class="problem-list-box p-2">
+          <div class="text-center text-muted p-5 italic">
+            Chưa chọn bài tập nào
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-              if (exam.allowedLanguages && exam.allowedLanguages.length > 0) {
-                document
-                  .querySelectorAll('input[name="allowed-lang"]')
-                  .forEach((cb) => {
-                    if (exam.allowedLanguages.includes(cb.value)) {
-                      cb.checked = true;
-                    }
-                  });
-              }
+  <div class="sticky-bottom py-3 bg-dark border-top border-secondary border-opacity-25 mt-5">
+    <div class="d-flex justify-content-end gap-3">
+      <button class="btn btn-lg btn-outline-secondary px-5" onclick="location.href = '/admin/exams'">
+        Hủy bỏ
+      </button>
+      <button id="save-exam-btn" class="btn btn-lg btn-primary px-5 fw-bold shadow-lg">
+        <i class="bi bi-save me-2"></i> Lưu kỳ thi
+      </button>
+    </div>
+  </div>
+  </div>
 
-              selectedStudentUsernames = exam.allowedStudents || [];
-              document.getElementById("exam-anti-cheat").checked = exam.antiCheatEnabled || false;
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+
+  <script>
+    let allProblems = [];
+    let allStudents = [];
+    let allStaff = [];
+    let selectedProblemIds = [];
+    let selectedStudentUsernames = [];
+    let selectedSharedUsernames = [];
+    let problemPoints = {};
+    let examId = new URLSearchParams(window.location.search).get("id");
+
+    async function init() {
+      try {
+        const res = await fetch("/problems");
+        allProblems = await res.json();
+
+        if (examId) {
+          document.getElementById("page-title").textContent = "Chỉnh sửa kỳ thi";
+          const examRes = await fetch(`/api/admin/exams/${examId}`);
+          if (examRes.ok) {
+            const exam = await examRes.json();
+            document.getElementById("exam-title").value = exam.title;
+            document.getElementById("exam-duration").value = exam.duration;
+            document.getElementById("exam-active").value = exam.isActive.toString();
+            if (exam.openTime) document.getElementById("exam-open").value = exam.openTime;
+            if (exam.closeTime) document.getElementById("exam-close").value = exam.closeTime;
+
+            selectedProblemIds = exam.problemIds || [];
+            problemPoints = exam.problemPoints || {};
+
+            if (exam.allowedLanguages && exam.allowedLanguages.length > 0) {
+              document.querySelectorAll('input[name="allowed-lang"]').forEach((cb) => {
+                if (exam.allowedLanguages.includes(cb.value)) {
+                  cb.checked = true;
+                }
+              });
             }
+
+            selectedStudentUsernames = exam.allowedStudents || [];
+            selectedSharedUsernames = exam.shared_with || [];
+            document.getElementById("exam-anti-cheat").checked = exam.antiCheatEnabled || false;
           }
-
-          const studentRes = await fetch("/api/admin/students/list");
-          allStudents = await studentRes.json();
-
-          
-          populateFilters();
-          renderLists();
-          renderStudentLists();
-          setupStudentSearch();
-        } catch (e) {
-          console.error("Initialization error:", e);
         }
+
+        try {
+          const staffRes = await fetch("/api/admin/users/non-students");
+          if (staffRes.ok) {
+            allStaff = await staffRes.json();
+          }
+        } catch (err) {
+          console.error("Error loading staff:", err);
+        }
+
+        const studentRes = await fetch("/api/admin/students/list");
+        if (studentRes.ok) {
+          allStudents = await studentRes.json();
+        }
+
+        populateFilters();
+        renderLists();
+        renderStudentLists();
+        renderStaffLists();
+        setupStudentSearch();
+      } catch (e) {
+        console.error("Initialization error:", e);
       }
+    }
 
-      function renderLists() {
-        const allList = document.getElementById("all-problems-list");
-        const selectedList = document.getElementById("selected-problems-list");
+    function renderLists() {
+      const allList = document.getElementById("all-problems-list");
+      const selectedList = document.getElementById("selected-problems-list");
 
-        allList.innerHTML = "";
-        selectedList.innerHTML = "";
+      allList.innerHTML = "";
+      selectedList.innerHTML = "";
 
-        allProblems.forEach((p) => {
-          const isSelected = selectedProblemIds.includes(p.id);
+      allProblems.forEach((p) => {
+        const isSelected = selectedProblemIds.includes(p.id);
 
-          // All list item
-          const item = document.createElement("div");
-          item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
-          item.innerHTML = `
+        // All list item
+        const item = document.createElement("div");
+        item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
+        item.innerHTML = `
             <span class="text-white">${p.title}</span>
             ${isSelected ? '<div class="selected-badge"><i class="bi bi-check-lg"></i></div>' : '<i class="bi bi-plus-lg text-muted"></i>'}
           `;
-          item.onclick = () => toggleProblem(p.id);
-          allList.appendChild(item);
+        item.onclick = () => toggleProblem(p.id);
+        allList.appendChild(item);
 
-          // Selected list item
-          if (isSelected) {
-            const selItem = document.createElement("div");
-            selItem.className = "prob-item d-flex flex-column gap-2";
-            selItem.style.cursor = "default";
-            if (!problemPoints[p.id]) problemPoints[p.id] = 10;
+        // Selected list item
+        if (isSelected) {
+          const selItem = document.createElement("div");
+          selItem.className = "prob-item d-flex flex-column gap-2";
+          selItem.style.cursor = "default";
+          if (!problemPoints[p.id]) problemPoints[p.id] = 10;
 
-            selItem.innerHTML = `
+          selItem.innerHTML = `
               <div class="d-flex justify-content-between">
                 <span class="text-white fw-bold">${p.title}</span>
                 <button onclick="toggleProblem(${p.id})" class="btn btn-link btn-sm text-danger p-0 border-0">
@@ -440,77 +390,77 @@
                   onchange="updatePoint(${p.id}, this.value)">
               </div>
             `;
-            selectedList.appendChild(selItem);
-          }
-        });
+          selectedList.appendChild(selItem);
+        }
+      });
 
-        if (selectedProblemIds.length === 0) {
-          selectedList.innerHTML =
-            '<div class="text-center text-muted p-5 italic">Chưa chọn bài tập nào</div>';
+      if (selectedProblemIds.length === 0) {
+        selectedList.innerHTML =
+          '<div class="text-center text-muted p-5 italic">Chưa chọn bài tập nào</div>';
+      }
+
+      document.getElementById("selected-count").textContent =
+        selectedProblemIds.length;
+    }
+
+    function toggleProblem(id) {
+      if (selectedProblemIds.includes(id)) {
+        selectedProblemIds = selectedProblemIds.filter((pid) => pid !== id);
+        delete problemPoints[id];
+      } else {
+        selectedProblemIds.push(id);
+        problemPoints[id] = 10;
+      }
+      renderLists();
+    }
+
+    function updatePoint(id, val) {
+      problemPoints[id] = parseInt(val) || 0;
+    }
+
+    function renderStudentLists() {
+      const filter = document.getElementById("student-search").value.toLowerCase();
+      const classFilter = document.getElementById("class-filter").value;
+
+      const allList = document.getElementById("all-students-list");
+      const selectedList = document.getElementById("selected-students-list");
+      const countEl = document.getElementById("selected-student-count");
+
+      allList.innerHTML = "";
+      selectedList.innerHTML = "";
+
+      allStudents.forEach((s) => {
+        const isSelected = selectedStudentUsernames.includes(s.username);
+
+        // Filter Logic
+        let visible = true;
+        if (filter && !s.display_name.toLowerCase().includes(filter) &&
+          !s.username.toLowerCase().includes(filter) &&
+          !s.class_name.toLowerCase().includes(filter)) {
+          visible = false;
+        }
+        if (classFilter && s.class_name !== classFilter) {
+          visible = false;
         }
 
-        document.getElementById("selected-count").textContent =
-          selectedProblemIds.length;
-      }
-
-      function toggleProblem(id) {
-        if (selectedProblemIds.includes(id)) {
-          selectedProblemIds = selectedProblemIds.filter((pid) => pid !== id);
-          delete problemPoints[id];
-        } else {
-          selectedProblemIds.push(id);
-          problemPoints[id] = 10;
-        }
-        renderLists();
-      }
-
-      function updatePoint(id, val) {
-        problemPoints[id] = parseInt(val) || 0;
-      }
-
-      function renderStudentLists() {
-        const filter = document.getElementById("student-search").value.toLowerCase();
-        const classFilter = document.getElementById("class-filter").value;
-        
-        const allList = document.getElementById("all-students-list");
-        const selectedList = document.getElementById("selected-students-list");
-        const countEl = document.getElementById("selected-student-count");
-
-        allList.innerHTML = "";
-        selectedList.innerHTML = "";
-
-        allStudents.forEach((s) => {
-          const isSelected = selectedStudentUsernames.includes(s.username);
-          
-          // Filter Logic
-          let visible = true;
-          if (filter && !s.display_name.toLowerCase().includes(filter) && 
-              !s.username.toLowerCase().includes(filter) && 
-              !s.class_name.toLowerCase().includes(filter)) {
-              visible = false;
-          }
-          if (classFilter && s.class_name !== classFilter) {
-              visible = false;
-          }
-
-          if (visible) {
-            const item = document.createElement("div");
-            item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
-            item.innerHTML = `
+        if (visible) {
+          const item = document.createElement("div");
+          item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
+          item.innerHTML = `
               <div>
                 <div class="text-white">${s.display_name} <span class="text-muted small">(@${s.username})</span></div>
                 <div class="text-muted extra-small" style="font-size: 0.7rem">${s.class_name}</div>
               </div>
               ${isSelected ? '<div class="selected-badge"><i class="bi bi-check-lg"></i></div>' : '<i class="bi bi-plus-lg text-muted"></i>'}
             `;
-            item.onclick = () => toggleStudent(s.username);
-            allList.appendChild(item);
-          }
+          item.onclick = () => toggleStudent(s.username);
+          allList.appendChild(item);
+        }
 
-          if (isSelected) {
-            const selItem = document.createElement("div");
-            selItem.className = "prob-item d-flex justify-content-between align-items-center";
-            selItem.innerHTML = `
+        if (isSelected) {
+          const selItem = document.createElement("div");
+          selItem.className = "prob-item d-flex justify-content-between align-items-center";
+          selItem.innerHTML = `
               <div>
                 <div class="text-white fw-bold">${s.display_name}</div>
                 <div class="text-muted small">${s.class_name}</div>
@@ -519,104 +469,104 @@
                 <i class="bi bi-x-circle-fill h5 mb-0"></i>
               </button>
             `;
-            selectedList.appendChild(selItem);
-          }
-        });
-
-        if (selectedStudentUsernames.length === 0) {
-          selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>';
+          selectedList.appendChild(selItem);
         }
-        countEl.textContent = selectedStudentUsernames.length;
+      });
+
+      if (selectedStudentUsernames.length === 0) {
+        selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Tất cả sinh viên (Nếu để trống)</div>';
       }
+      countEl.textContent = selectedStudentUsernames.length;
+    }
 
-      function toggleStudent(username) {
-        if (selectedStudentUsernames.includes(username)) {
-          selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== username);
-        } else {
-          selectedStudentUsernames.push(username);
+    function toggleStudent(username) {
+      if (selectedStudentUsernames.includes(username)) {
+        selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== username);
+      } else {
+        selectedStudentUsernames.push(username);
+      }
+      renderStudentLists();
+    }
+
+    function toggleAllStudents(select) {
+      const filter = document.getElementById("student-search").value.toLowerCase();
+      const classFilter = document.getElementById("class-filter").value;
+
+      // ... (rest of logic same as before, essentially) ...
+      // Actually, to serve the "Select All" function perfectly I should rewrite it to be sure.
+      // But the user asked for "Delete All" which is removing ALL from *Selected*.
+
+      allStudents.forEach(s => {
+        let visible = true;
+        if (filter && !s.display_name.toLowerCase().includes(filter) &&
+          !s.username.toLowerCase().includes(filter) &&
+          !s.class_name.toLowerCase().includes(filter)) {
+          visible = false;
         }
+        if (classFilter && s.class_name !== classFilter) {
+          visible = false;
+        }
+
+        if (visible) {
+          if (select) {
+            if (!selectedStudentUsernames.includes(s.username)) {
+              selectedStudentUsernames.push(s.username);
+            }
+          } else {
+            selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== s.username);
+          }
+        }
+      });
+      renderStudentLists();
+    }
+
+    function removeAllStudents() {
+      if (confirm("Bạn có chắc muốn xóa toàn bộ sinh viên đã chọn?")) {
+        selectedStudentUsernames = [];
         renderStudentLists();
       }
-      
-      function toggleAllStudents(select) {
-        const filter = document.getElementById("student-search").value.toLowerCase();
-        const classFilter = document.getElementById("class-filter").value;
-        
-        // ... (rest of logic same as before, essentially) ...
-        // Actually, to serve the "Select All" function perfectly I should rewrite it to be sure.
-        // But the user asked for "Delete All" which is removing ALL from *Selected*.
-        
-        allStudents.forEach(s => {
-            let visible = true;
-            if (filter && !s.display_name.toLowerCase().includes(filter) && 
-                !s.username.toLowerCase().includes(filter) && 
-                !s.class_name.toLowerCase().includes(filter)) {
-                visible = false;
-            }
-            if (classFilter && s.class_name !== classFilter) {
-                visible = false;
-            }
-            
-            if (visible) {
-                if (select) {
-                    if (!selectedStudentUsernames.includes(s.username)) {
-                        selectedStudentUsernames.push(s.username);
-                    }
-                } else {
-                    selectedStudentUsernames = selectedStudentUsernames.filter(u => u !== s.username);
-                }
-            }
-        });
-        renderStudentLists();
-      }
+    }
 
-      function removeAllStudents() {
-          if (confirm("Bạn có chắc muốn xóa toàn bộ sinh viên đã chọn?")) {
-              selectedStudentUsernames = [];
-              renderStudentLists();
-          }
+    function removeAllProblems() {
+      if (confirm("Bạn có chắc muốn xóa toàn bộ bài tập đã chọn?")) {
+        selectedProblemIds = [];
+        problemPoints = {};
+        renderLists();
       }
+    }
 
-      function removeAllProblems() {
-          if (confirm("Bạn có chắc muốn xóa toàn bộ bài tập đã chọn?")) {
-              selectedProblemIds = [];
-              problemPoints = {};
-              renderLists();
-          }
-      }
+    function setupStudentSearch() {
+      document.getElementById("student-search").oninput = renderStudentLists;
+      document.getElementById("class-filter").onchange = renderStudentLists;
+      document.getElementById("prob-category-filter").onchange = renderLists;
+      document.getElementById("prob-difficulty-filter").onchange = renderLists;
+    }
 
-      function setupStudentSearch() {
-        document.getElementById("student-search").oninput = renderStudentLists;
-        document.getElementById("class-filter").onchange = renderStudentLists;
-        document.getElementById("prob-category-filter").onchange = renderLists;
-        document.getElementById("prob-difficulty-filter").onchange = renderLists;
-      }
-      
-      // Update renderLists to support problem filtering
-      const originalRenderLists = renderLists;
-      renderLists = function() {
-          const catFilter = document.getElementById("prob-category-filter")?.value;
-          const difFilter = document.getElementById("prob-difficulty-filter")?.value;
-          
-          const allList = document.getElementById("all-problems-list");
-          const selectedList = document.getElementById("selected-problems-list");
-          
-          allList.innerHTML = "";
-          selectedList.innerHTML = "";
-          
-          // Re-implement rendering with filters
-          allProblems.forEach((p) => {
-            const isSelected = selectedProblemIds.includes(p.id);
-            
-            // Filter Logic
-            let visible = true;
-            if (catFilter && p.category !== catFilter) visible = false;
-            if (difFilter && p.difficulty !== difFilter) visible = false;
+    // Update renderLists to support problem filtering
+    const originalRenderLists = renderLists;
+    renderLists = function () {
+      const catFilter = document.getElementById("prob-category-filter")?.value;
+      const difFilter = document.getElementById("prob-difficulty-filter")?.value;
 
-            if (visible) {
-                const item = document.createElement("div");
-                item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
-                item.innerHTML = `
+      const allList = document.getElementById("all-problems-list");
+      const selectedList = document.getElementById("selected-problems-list");
+
+      allList.innerHTML = "";
+      selectedList.innerHTML = "";
+
+      // Re-implement rendering with filters
+      allProblems.forEach((p) => {
+        const isSelected = selectedProblemIds.includes(p.id);
+
+        // Filter Logic
+        let visible = true;
+        if (catFilter && p.category !== catFilter) visible = false;
+        if (difFilter && p.difficulty !== difFilter) visible = false;
+
+        if (visible) {
+          const item = document.createElement("div");
+          item.className = `prob-item d-flex justify-content-between align-items-center ${isSelected ? "selected" : ""}`;
+          item.innerHTML = `
                   <div>
                     <span class="text-white">${p.title}</span>
                     <div class="d-flex gap-2 mt-1">
@@ -626,19 +576,19 @@
                   </div>
                   ${isSelected ? '<div class="selected-badge"><i class="bi bi-check-lg"></i></div>' : '<i class="bi bi-plus-lg text-muted"></i>'}
                 `;
-                item.onclick = () => toggleProblem(p.id);
-                allList.appendChild(item);
-            }
-            
-            // Selected items (always show all selected regardless of filter, or maybe separate?)
-            // Usually selected list shows ALL selected items.
-            if (isSelected) {
-                const selItem = document.createElement("div");
-                selItem.className = "prob-item d-flex flex-column gap-2";
-                selItem.style.cursor = "default";
-                if (!problemPoints[p.id]) problemPoints[p.id] = 10;
+          item.onclick = () => toggleProblem(p.id);
+          allList.appendChild(item);
+        }
 
-                selItem.innerHTML = `
+        // Selected items (always show all selected regardless of filter, or maybe separate?)
+        // Usually selected list shows ALL selected items.
+        if (isSelected) {
+          const selItem = document.createElement("div");
+          selItem.className = "prob-item d-flex flex-column gap-2";
+          selItem.style.cursor = "default";
+          if (!problemPoints[p.id]) problemPoints[p.id] = 10;
+
+          selItem.innerHTML = `
                   <div class="d-flex justify-content-between">
                     <span class="text-white fw-bold">${p.title}</span>
                     <button onclick="toggleProblem(${p.id})" class="btn btn-link btn-sm text-danger p-0 border-0">
@@ -654,126 +604,168 @@
                       onchange="updatePoint(${p.id}, this.value)">
                   </div>
                 `;
-                selectedList.appendChild(selItem);
-            }
-          });
-          
-          if (selectedProblemIds.length === 0) {
-            selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Chưa chọn bài tập nào</div>';
-          }
-          document.getElementById("selected-count").textContent = selectedProblemIds.length;
-      };
-
-      function selectRandomProblems() {
-        const count = parseInt(document.getElementById("random-count").value) || 0;
-        if (count <= 0) return;
-        
-        const catFilter = document.getElementById("prob-category-filter").value;
-        const difFilter = document.getElementById("prob-difficulty-filter").value;
-        
-        // Get valid candidates (not already selected, matching filters)
-        const candidates = allProblems.filter(p => {
-             if (selectedProblemIds.includes(p.id)) return false;
-             if (catFilter && p.category !== catFilter) return false;
-             if (difFilter && p.difficulty !== difFilter) return false;
-             return true;
-        });
-        
-        if (candidates.length === 0) {
-            alert("Không còn bài tập nào phù hợp để chọn!");
-            return;
+          selectedList.appendChild(selItem);
         }
-        
-        // Shuffle and pick
-        const shuffled = candidates.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, count);
-        
-        selected.forEach(p => {
-            selectedProblemIds.push(p.id);
-            problemPoints[p.id] = 10;
-        });
-        
-        renderLists();
-        alert(`Đã thêm ngẫu nhiên ${selected.length} bài tập.`);
+      });
+
+      if (selectedProblemIds.length === 0) {
+        selectedList.innerHTML = '<div class="text-center text-muted p-5 italic">Chưa chọn bài tập nào</div>';
       }
-      
-      // Populate drop downs
-      async function populateFilters() {
-         const classes = [...new Set(allStudents.map(s => s.class_name).filter(Boolean))].sort();
-         const classSelect = document.getElementById("class-filter");
-         classes.forEach(c => {
-             const opt = document.createElement("option");
-             opt.value = c;
-             opt.textContent = c;
-             classSelect.appendChild(opt);
-         });
-         
-         const categories = [...new Set(allProblems.map(p => p.category || "Chung"))].sort();
-         const catSelect = document.getElementById("prob-category-filter");
-         categories.forEach(c => {
-             const opt = document.createElement("option");
-             opt.value = c;
-             opt.textContent = c;
-             catSelect.appendChild(opt);
-         });
+      document.getElementById("selected-count").textContent = selectedProblemIds.length;
+    };
+
+    function selectRandomProblems() {
+      const count = parseInt(document.getElementById("random-count").value) || 0;
+      if (count <= 0) return;
+
+      const catFilter = document.getElementById("prob-category-filter").value;
+      const difFilter = document.getElementById("prob-difficulty-filter").value;
+
+      // Get valid candidates (not already selected, matching filters)
+      const candidates = allProblems.filter(p => {
+        if (selectedProblemIds.includes(p.id)) return false;
+        if (catFilter && p.category !== catFilter) return false;
+        if (difFilter && p.difficulty !== difFilter) return false;
+        return true;
+      });
+
+      if (candidates.length === 0) {
+        alert("Không còn bài tập nào phù hợp để chọn!");
+        return;
       }
 
-      document.getElementById("save-exam-btn").onclick = async () => {
-        const title = document.getElementById("exam-title").value;
-        const duration = document.getElementById("exam-duration").value;
-        const isActive =
-          document.getElementById("exam-active").value === "true";
-        const openTime = document.getElementById("exam-open").value;
-        const closeTime = document.getElementById("exam-close").value;
+      // Shuffle and pick
+      const shuffled = candidates.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, count);
 
-        if (!title || selectedProblemIds.length === 0) {
-          alert("Vui lòng nhập tên kỳ thi và chọn ít nhất 1 bài tập.");
-          return;
-        }
+      selected.forEach(p => {
+        selectedProblemIds.push(p.id);
+        problemPoints[p.id] = 10;
+      });
 
-        const allowedLanguages = Array.from(
-          document.querySelectorAll('input[name="allowed-lang"]:checked'),
-        ).map((cb) => cb.value);
+      renderLists();
+      alert(`Đã thêm ngẫu nhiên ${selected.length} bài tập.`);
+    }
 
-        const payload = {
-          title,
-          duration: parseInt(duration),
-          problemIds: selectedProblemIds,
-          problemPoints: problemPoints,
-          isActive: isActive,
-          openTime: openTime,
-          closeTime: closeTime,
-          allowedLanguages: allowedLanguages,
-          allowedStudents: selectedStudentUsernames,
-          antiCheatEnabled: document.getElementById("exam-anti-cheat").checked,
-        };
+    // Populate drop downs
+    async function populateFilters() {
+      const classes = [...new Set(allStudents.map(s => s.class_name).filter(Boolean))].sort();
+      const classSelect = document.getElementById("class-filter");
+      classes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        classSelect.appendChild(opt);
+      });
 
-        const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";
-        const method = examId ? "PUT" : "POST";
+      const categories = [...new Set(allProblems.map(p => p.category || "Chung"))].sort();
+      const catSelect = document.getElementById("prob-category-filter");
+      categories.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        catSelect.appendChild(opt);
+      });
+    }
 
-        try {
-          const res = await fetch(url, {
-            method: method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+    document.getElementById("save-exam-btn").onclick = async () => {
+      const title = document.getElementById("exam-title").value;
+      const duration = document.getElementById("exam-duration").value;
+      const isActive =
+        document.getElementById("exam-active").value === "true";
+      const openTime = document.getElementById("exam-open").value;
+      const closeTime = document.getElementById("exam-close").value;
 
-          if (res.ok) {
-            alert(
-              examId
-                ? "Đã cập nhật kỳ thi thành công!"
-                : "Đã tạo kỳ thi thành công!",
-            );
-            location.href = "/admin/exams";
-          } else {
-            alert("Có lỗi xảy ra khi lưu kỳ thi.");
-          }
-        } catch (e) {
-          alert("Lỗi kết nối máy chủ.");
-        }
+      if (!title || selectedProblemIds.length === 0) {
+        alert("Vui lòng nhập tên kỳ thi và chọn ít nhất 1 bài tập.");
+        return;
+      }
+
+      const allowedLanguages = Array.from(
+        document.querySelectorAll('input[name="allowed-lang"]:checked'),
+      ).map((cb) => cb.value);
+
+      const payload = {
+        title,
+        duration: parseInt(duration),
+        problemIds: selectedProblemIds,
+        problemPoints: problemPoints,
+        isActive: isActive,
+        openTime: openTime,
+        closeTime: closeTime,
+        allowedLanguages: allowedLanguages,
+        allowedStudents: selectedStudentUsernames,
+        shared_with: selectedSharedUsernames,
+        antiCheatEnabled: document.getElementById("exam-anti-cheat").checked,
       };
 
-      init();
-    </script>
-  </body>
+      const url = examId ? `/api/admin/exams/${examId}` : "/api/admin/exams";
+      const method = examId ? "PUT" : "POST";
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          alert(
+            examId
+              ? "Đã cập nhật kỳ thi thành công!"
+              : "Đã tạo kỳ thi thành công!",
+          );
+          location.href = "/admin/exams";
+        } else {
+          alert("Có lỗi xảy ra khi lưu kỳ thi.");
+        }
+      } catch (e) {
+        alert("Lỗi kết nối máy chủ.");
+      }
+    };
+
+    function renderStaffLists() {
+      const list = document.getElementById("shared-users-list");
+      if (!list) return;
+      list.innerHTML = "";
+
+      // Don't show current user in the list (already owner)
+      const currentUser = document.querySelector('.navbar-brand span')?.textContent || ""; // Fallback
+
+      // Actually, better to get it from api/auth/me but session is easier
+      const staffToDisplay = allStaff.filter(s => s.username !== "qtv"); // Simple filter for now
+
+      if (staffToDisplay.length === 0) {
+        list.innerHTML = '<div class="text-muted small italic">Không có nhân sự khác để chia sẻ</div>';
+        return;
+      }
+
+      staffToDisplay.forEach(s => {
+        const isSelected = selectedSharedUsernames.includes(s.username);
+        const badge = document.createElement("div");
+        badge.className = `btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'} d-flex align-items-center gap-2`;
+        badge.style.borderRadius = "20px";
+        badge.innerHTML = `
+                <i class="bi bi-person"></i>
+                <span>${s.display_name}</span>
+                ${isSelected ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-plus-circle"></i>'}
+            `;
+        badge.onclick = () => toggleStaffShare(s.username);
+        list.appendChild(badge);
+      });
+    }
+
+    function toggleStaffShare(username) {
+      if (selectedSharedUsernames.includes(username)) {
+        selectedSharedUsernames = selectedSharedUsernames.filter(u => u !== username);
+      } else {
+        selectedSharedUsernames.push(username);
+      }
+      renderStaffLists();
+    }
+
+    init();
+  </script>
+</body>
+
 </html>
