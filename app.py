@@ -564,6 +564,29 @@ def get_stats():
     top_students.sort(key=lambda x: x["solved_count"], reverse=True)
     top_students = top_students[:5]
 
+    # Detailed Exam Breakdown (with permissions)
+    username = session.get("username")
+    role = session.get("role")
+    accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
+    
+    exam_breakdown = []
+    for ex in accessible_exams:
+        eid = str(ex["id"])
+        # All submissions for this specific exam
+        # Note: submissions variable here is already filtered by date/class if params provided
+        ex_subs = [s for s in filtered_submissions if str(s.get("examId")) == eid]
+        ex_students = set([s["username"] for s in ex_subs])
+        ex_passed = len([s for s in ex_subs if s.get("allPassed")])
+        
+        exam_breakdown.append({
+            "id": ex["id"],
+            "title": ex["title"],
+            "submission_count": len(ex_subs),
+            "student_count": len(ex_students),
+            "pass_rate": round(ex_passed / len(ex_subs) * 100, 1) if ex_subs else 0,
+            "isActive": ex.get("isActive", True)
+        })
+
     return jsonify({
         "problem_count": len(problems),
         "student_count": len([u for u in users if u["role"] == "student"]),
@@ -576,6 +599,7 @@ def get_stats():
         "active_exam_count": len(active_exams),
         "exam_submission_count": len(exam_subs),
         "recent_exam_activity": recent_exam_subs,
+        "exam_breakdown": exam_breakdown, # New
         # New stats
         "daily_submissions": daily_subs_sorted, # Return all in range
         "status_distribution": status_dist,

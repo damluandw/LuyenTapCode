@@ -68,7 +68,7 @@
         </header>
         <!-- Main Stats Row -->
         <div class="row g-4 mb-4">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="card h-100 p-4 stat-card shadow-sm">
               <div class="text-muted small mb-2 text-uppercase fw-bold">
                 Tổng bài tập
@@ -78,8 +78,9 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card h-100 p-4 stat-card shadow-sm">
+          <div class="col-md-3">
+            <div class="card h-100 p-4 stat-card shadow-sm border-warning"
+              style="border-left-color: var(--bs-warning) !important">
               <div class="text-muted small mb-2 text-uppercase fw-bold">
                 Tổng sinh viên
               </div>
@@ -88,8 +89,20 @@
               </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <div class="card h-100 p-4 stat-card shadow-sm">
+          <div class="col-md-3">
+            <div class="card h-100 p-4 stat-card shadow-sm border-primary"
+              style="border-left-color: var(--bs-primary) !important">
+              <div class="text-muted small mb-2 text-uppercase fw-bold">
+                Tổng số bài nộp
+              </div>
+              <div id="stat-total-submissions" class="h2 fw-bold text-white mb-0">
+                0
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card h-100 p-4 stat-card shadow-sm border-secondary"
+              style="border-left-color: var(--bs-secondary) !important">
               <div class="text-muted small mb-2 text-uppercase fw-bold">
                 Lượt đăng nhập (SV)
               </div>
@@ -186,6 +199,33 @@
             </div>
           </div>
         </div>
+        <!-- Per-Exam Breakdown Row -->
+        <div class="row g-4 mb-4">
+          <div class="col-12">
+            <div class="card h-100 p-4 shadow-sm">
+              <h3 class="h5 fw-bold text-white mb-4">Thống kê chi tiết theo kỳ thi</h3>
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                  <thead>
+                    <tr class="text-muted fst-italic">
+                      <th class="border-secondary">ID</th>
+                      <th class="border-secondary">Kỳ thi</th>
+                      <th class="border-secondary text-center">Trạng thái</th>
+                      <th class="border-secondary text-center">Số bài nộp</th>
+                      <th class="border-secondary text-center">Số sinh viên</th>
+                      <th class="border-secondary text-center">Tỉ lệ đạt</th>
+                    </tr>
+                  </thead>
+                  <tbody id="exam-breakdown-body" class="border-top-0">
+                    <tr>
+                      <td colspan="6" class="text-center p-4 text-muted">Đang tải dữ liệu...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Filter Controls -->
         <div class="card p-3 mb-4 shadow-sm border-0 bg-dark-subtle">
           <div class="row g-3 align-items-end">
@@ -250,6 +290,8 @@
             </div>
           </div>
         </div>
+
+
 
 
 

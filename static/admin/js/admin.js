@@ -298,13 +298,44 @@ async function loadDashboardStats(params = {}) {
   const statHits = document.getElementById("stat-hits");
   if (statHits) statHits.textContent = stats.student_logins;
 
+  const statTotalSubmissions = document.getElementById("stat-total-submissions");
+  if (statTotalSubmissions) statTotalSubmissions.textContent = stats.submission_count;
+
   if (document.getElementById("stat-exams"))
     document.getElementById("stat-exams").textContent = stats.exam_count;
   if (document.getElementById("stat-active-exams"))
     document.getElementById("stat-active-exams").textContent = stats.active_exam_count;
   if (document.getElementById("stat-exam-subs"))
-    document.getElementById("stat-exam-subs").textContent = stats.exam_submission_count; // This uses filtered submissions now? No, exam_subs logic in backend didn't use filtered_submissions list for this count, but we might want to check.
-  // Actually in backend: `exam_subs = [s for s in submissions if s.get("examId")]` where submissions is overwritten by filtered list. So yes, it reflects filters.
+    document.getElementById("stat-exam-subs").textContent = stats.exam_submission_count;
+
+  const breakdownBody = document.getElementById("exam-breakdown-body");
+  if (breakdownBody && stats.exam_breakdown) {
+    breakdownBody.innerHTML = stats.exam_breakdown
+      .map(
+        (ex) => `
+          <tr>
+            <td class="text-muted small">#${ex.id}</td>
+            <td class="fw-bold">${ex.title}</td>
+            <td class="text-center">
+              <span class="badge ${ex.isActive ? "bg-success" : "bg-danger"} bg-opacity-25" style="color: ${ex.isActive ? "#3fb950" : "#f85149"}">
+                ${ex.isActive ? "Đang mở" : "Đã đóng"}
+              </span>
+            </td>
+            <td class="text-center fw-bold text-accent">${ex.submission_count}</td>
+            <td class="text-center">${ex.student_count}</td>
+            <td class="text-center">
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <div class="progress-bg" style="width: 60px; height: 6px">
+                  <div class="progress-fill" style="width: ${ex.pass_rate}%"></div>
+                </div>
+                <span class="small">${ex.pass_rate}%</span>
+              </div>
+            </td>
+          </tr>
+        `
+      )
+      .join("") || '<tr><td colspan="6" class="text-center p-4">Chưa có dữ liệu kỳ thi</td></tr>';
+  }
 
   const langContainer = document.getElementById("lang-stats");
   if (langContainer) {
