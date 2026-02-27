@@ -1,0 +1,378 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mermaid Renderer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: white;
+        padding: 20px;
+      }
+      .diagram-container {
+        margin-bottom: 50px;
+        padding: 20px;
+        border: 1px solid #eee;
+        display: inline-block;
+        background: white;
+      }
+      h2 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      mermaid.initialize({ startOnLoad: true, theme: "default" });
+    </script>
+
+    <div class="diagram-container" id="uc_diag">
+      <h2>3.1. Sơ đồ Use Case</h2>
+      <pre class="mermaid">
+graph LR
+    subgraph Actors
+        SA[Super Admin]
+        AD[Admin]
+        INS[Instructor]
+        TA[Teaching Assistant]
+        ST[Student]
+    end
+
+    subgraph "Hệ thống Luyện Tập Code"
+        UC1(Quản lý Vai trò & Phân quyền)
+        UC2(Quản lý Người dùng)
+        UC3(Quản lý Bài tập & Đề thi)
+        UC4(Thực thi & Chấm điểm Code)
+        UC5(Xem Báo cáo & Lịch sử)
+        UC6(Làm bài tập & Dự thi)
+    end
+
+    SA --> UC1
+    SA --> UC2
+    SA --> UC3
+    SA --> UC5
+
+    AD --> UC2
+    AD --> UC3
+    AD --> UC5
+
+    INS --> UC3
+    INS --> UC5
+
+    TA --> UC5
+
+    ST --> UC4
+    ST --> UC6
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="fdd_diag">
+      <h2>3.2. Sơ đồ chức năng (FDD)</h2>
+      <pre class="mermaid">
+graph TD
+    A[Nền tảng Luyện Tập Code] --> B[Quản lý Bài tập]
+    A --> C[Thực thi Mã nguồn]
+    A --> D[Chấm điểm Tự động]
+
+    B --> B1[Phân loại cấp độ]
+    B --> B2[Quản lý Test case]
+
+    C --> C1[Hỗ trợ đa ngôn ngữ]
+    C --> C2[Input/Output thời gian thực]
+
+    D --> D1[So khớp kết quả]
+    D --> D2[Báo cáo lỗi biên dịch/runtime]
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="dfd0_diag">
+      <h2>3.3.1. DFD Mức 0</h2>
+      <pre class="mermaid">
+graph LR
+    User((Người dùng))
+    System[[Hệ thống Luyện Tập Code]]
+    Admin((Quản trị viên))
+
+    User -- "Gửi mã nguồn, yêu cầu chạy" --> System
+    System -- "Kết quả thực thi, điểm số" --> User
+    Admin -- "Cấu hình bài tập, test case" --> System
+    System -- "Báo cáo thống kê" --> Admin
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="dfd1_diag">
+      <h2>3.3.2. DFD Mức 1</h2>
+      <pre class="mermaid">
+graph TD
+    U((Học viên))
+    P1[Xác thực & Phân quyền]
+    P2[Quản lý Bài tập]
+    P3[Thực thi & Chấm điểm]
+    D1[(Users DB)]
+    D2[(Problems DB)]
+    D3[(Submissions DB)]
+
+    U --> P1
+    P1 <--> D1
+    P1 --> P2
+    P2 <--> D2
+    P1 --> P3
+    P3 <--> D2
+    P3 --> D3
+    P3 -- "Kết quả" --> U
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="erd_diag">
+      <h2>3.4. ERD</h2>
+      <pre class="mermaid">
+erDiagram
+    USER ||--o{ SUBMISSION : makes
+    USER {
+        string username PK
+        string password
+        string role
+        string display_name
+    }
+    PROBLEM ||--o{ SUBMISSION : contains
+    PROBLEM {
+        int id PK
+        string title
+        string description
+        string difficulty
+        json test_cases
+    }
+    SUBMISSION {
+        int id PK
+        string username FK
+        int problem_id FK
+        string code
+        string result
+        datetime timestamp
+    }
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="class_diag">
+      <h2>3.5. Class Diagram</h2>
+      <pre class="mermaid">
+classDiagram
+    class User {
+        +string username
+        +string password
+        +string role
+        +string display_name
+        +login()
+        +logout()
+    }
+    class Student {
+        +string class_name
+        +solveExercise()
+        +takeExam()
+    }
+    class Instructor {
+        +manageProblems()
+        +manageExams()
+    }
+    class Admin {
+        +manageUsers()
+    }
+    class SuperAdmin {
+        +manageRoles()
+    }
+    class Problem {
+        +int id
+        +string title
+        +string difficulty
+        +string description
+        +list test_cases
+    }
+    class Submission {
+        +int problemId
+        +string username
+        +string code
+        +bool allPassed
+        +datetime timestamp
+    }
+
+    User <|-- Student
+    User <|-- Instructor
+    User <|-- Admin
+    User <|-- SuperAdmin
+    Student "1" -- "*" Submission
+    Problem "1" -- "*" Submission
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="state_diag">
+      <h2>3.7. State Diagram</h2>
+      <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Submitted: Học viên nhấn nút Submit
+    Submitted --> Validating: Kiểm tra đầu vào
+    Validating --> Compiling: Hợp lệ
+    Compiling --> Running: Thành công
+    Compiling --> Error: Lỗi biên dịch
+    Running --> Comparing: Thực thi xong
+    Running --> Error: Lỗi Runtime/Timeout
+    Comparing --> [*]: Trả về kết quả
+    Error --> [*]: Trả về thông báo lỗi
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="seq_run_diag">
+      <h2>3.9.1. Run Code Sequence</h2>
+      <pre class="mermaid">
+sequenceDiagram
+    participant H as Học viên
+    participant UI as Browser (Ace Editor)
+    participant S as Server (Flask/SocketIO)
+    participant P as Subprocess (Compiler/Runner)
+
+    H->>UI: Viết code & nhấn Run
+    UI->>S: SocketIO emit 'start_session'
+    S->>S: Tạo thư mục UUID & Lưu file
+    alt Cần biên dịch (C/C++, Java)
+        S->>P: Chạy lệnh biên dịch (gcc/javac)
+        P-->>S: Kết quả biên dịch (Stdout/Stderr)
+        S-->>UI: emit 'output' (nếu có lỗi)
+    end
+    S->>P: Popen thực thi chương trình
+    loop Đọc luồng Output
+        P->>S: Dữ liệu Stdout byte-by-byte
+        S-->>UI: SocketIO emit 'output'
+    end
+    UI-->>H: Hiển thị Console
+    opt Nhập dữ liệu (Stdin)
+        H->>UI: Nhập dữ liệu
+        UI->>S: emit 'send_input'
+        S->>P: Nhập vào stdin của tiến trình
+    end
+    P-->>S: Kết thúc (Exit)
+    S-->>UI: emit 'session_ended'
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="seq_submit_diag">
+      <h2>3.9.2. Submit Sequence</h2>
+      <pre class="mermaid">
+sequenceDiagram
+    participant H as Học viên
+    participant UI as Exercise Page
+    participant S as Server (Flask API)
+    participant D as Database (JSON)
+    participant P as Runner (Subprocess)
+
+    H->>UI: Nhấn nút Submit
+    UI->>S: API POST /submit {code, pid}
+    S->>D: Lấy danh sách Test cases
+    loop Mỗi Test case
+        S->>S: Tạo môi trường cô lập
+        S->>P: Thực thi với Input mẫu
+        P-->>S: Kết quả Output thực tế
+        S->>S: So sánh với Expected Output
+    end
+    S->>S: Tính toán điểm số
+    S->>D: Lưu kết quả vào submissions.json
+    S-->>UI: Trả về kết quả (Pass/Fail)
+    UI-->>H: Hiển thị trạng thái & điểm
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="seq_manage_diag">
+      <h2>3.9.3. Manage Problems Sequence</h2>
+      <pre class="mermaid">
+sequenceDiagram
+    participant A as Admin/Giảng viên
+    participant F as Dashboard (Frontend)
+    participant S as Server (Flask)
+    participant D as Problems DB (JSON)
+
+    A->>F: Truy cập quản lý bài tập
+    F->>S: GET /api/admin/problems
+    S->>D: Đọc danh sách bài tập
+    D-->>S: Trả về dữ liệu
+    S-->>F: Trả về JSON bài tập
+    A->>F: Nhập bài tập mới & nhấn Save
+    F->>S: POST /api/admin/problems (JSON)
+    S->>S: Kiểm tra quyền hạn (Instructor)
+    S->>D: Ghi bài tập vào problems.json
+    D-->>S: Xác nhận ghi file
+    S-->>F: 200 OK (Thành công)
+    F-->>A: Hiển thị thông báo "Đã lưu"
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="seq_hint_diag">
+      <h2>3.9.4. View Hint/Solution Sequence</h2>
+      <pre class="mermaid">
+sequenceDiagram
+    participant H as Học viên
+    participant E as Exercise Page (UI)
+    participant S as Server (Flask)
+    participant D as Database
+
+    H->>E: Nhấn nút "Xem lời giải"
+    E->>S: GET /api/problems/{id}/solution
+    S->>S: Kiểm tra Login Required
+    S->>D: Tìm bài tập theo ID
+    D-->>S: Dữ liệu bài tập
+    S-->>E: JSON {solution: "..."}
+    E-->>H: Hiển thị Modal nội dung giải pháp
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="arch_diag">
+      <h2>6. System Architecture</h2>
+      <pre class="mermaid">
+graph TD
+    Client[Web Browser]
+    Server[Flask Server]
+    Worker[Subprocess Worker]
+    DB[(JSON Database)]
+
+    Client -- HTTP Requests --> Server
+    Client -- WebSocket/SocketIO --> Server
+    Server -- File I/O --> DB
+    Server -- Popen --> Worker
+    Worker -- Stdout/Stderr --> Server
+        </pre
+      >
+    </div>
+
+    <div class="diagram-container" id="activity_diag">
+      <h2>4.3. Activity Diagram</h2>
+      <pre class="mermaid">
+stateDiagram-v2
+    [*] --> SoạnThảo
+    SoạnThảo --> GửiMãNguồn: Nhấn Run/Submit
+    GửiMãNguồn --> KiểmTraNgônNgữ
+    KiểmTraNgônNgữ --> BiênDịch: C/C++/Java/C#
+    KiểmTraNgônNgữ --> ThựcThi: Python
+    BiênDịch --> ThựcThi: Thành công
+    BiênDịch --> BáoLỗi: Thất bại
+    ThựcThi --> ĐọcDữLiệu: Threading reader
+    ĐọcDữLiệu --> StreamOutput: SocketIO emit
+    StreamOutput --> NhậpDữLiệu: Nếu cần Stdin
+    NhậpDữLiệu --> ĐọcDữLiệu
+    ĐọcDữLiệu --> KếtThúc: Tiến trình dừng
+    BáoLỗi --> KếtThúc
+    KếtThúc --> [*]
+        </pre
+      >
+    </div>
+  </body>
+</html>
