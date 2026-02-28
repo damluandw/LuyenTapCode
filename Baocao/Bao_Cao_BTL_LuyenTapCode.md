@@ -482,6 +482,272 @@ sequenceDiagram
 ```
 -->
 
+#### 3.5.5. Sơ đồ tuần tự: Quản lý kỳ thi (Admin/Instructor)
+
+![Sơ đồ tuần tự Quản lý kỳ thi](images/seq_manage_exam.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant A as Admin/Giảng viên
+    participant F as Create Exam (Frontend)
+    participant S as Server (Flask)
+    participant D as Exams DB (JSON)
+    participant U as Users DB
+
+    A->>F: Truy cập trang Tạo/Sửa kỳ thi
+    F->>S: GET /api/admin/users/non-students
+    S->>U: Lấy danh sách nhân sự
+    U-->>S: Trả về danh sách
+    S-->>F: JSON Staff List
+    F->>S: GET /api/admin/students/list
+    S->>U: Lấy danh sách sinh viên
+    U-->>S: Trả về danh sách
+    S-->>F: JSON Student List
+    A->>F: Thiết lập: Tên, Thời gian, Đề bài, Sinh viên
+    A->>F: Nhấn "Lưu kỳ thi"
+    F->>S: POST/PUT /api/admin/exams (JSON payload)
+    S->>D: Ghi dữ liệu vào exams.json
+    D-->>S: Xác nhận lưu
+    S-->>F: 200 OK (Thành công)
+    F-->>A: Thông báo: "Đã lưu kỳ thi thành công"
+```
+-->
+
+#### 3.5.6. Sơ đồ tuần tự: Thực hiện bài thi (Học viên)
+
+![Sơ đồ tuần tự Thực hiện bài thi](images/seq_take_exam.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant H as Học viên
+    participant UI as Exam Page (Frontend)
+    participant S as Server (Flask/SocketIO)
+    participant D as Exams/Submissions DB
+    participant P as Runner (Subprocess)
+
+    H->>UI: Truy cập kỳ thi (exam.html?id=...)
+    UI->>S: GET /api/exams/{id}
+    S->>D: Kiểm tra quyền & Lấy thông tin đề thi
+    D-->>S: Dữ liệu kỳ thi & bài tập
+    S-->>UI: JSON Exam Data (Title, Timer, Problems)
+    UI->>UI: Khởi tạo đếm ngược (Timer)
+
+    loop Quá trình làm bài
+        H->>UI: Viết code & Nhấn "Kiểm tra"
+        UI->>S: SocketIO emit 'run_test_cases'
+        S->>P: Thực thi code với Test cases
+        P-->>S: Kết quả Pass/Fail
+        S-->>UI: SocketIO emit 'test_results'
+        UI-->>H: Hiển thị kết quả Test
+    end
+
+    opt Gian lận (Chuyển tab/Paste)
+        UI->>S: POST /api/exams/{id}/cheat-logs
+        S->>D: Lưu nhật ký gian lận
+    end
+
+    H->>UI: Nhấn "Nộp bài"
+    UI->>S: POST /api/submissions (Final)
+    S->>D: Lưu bài nộp vào submissions.json
+    S-->>UI: Xác nhận nộp thành công
+    UI-->>H: Thông báo & Kết thúc phiên thi
+```
+-->
+
+#### 3.5.7. Sơ đồ tuần tự: Quản lý vai trò (Super Admin)
+
+![Sơ đồ tuần tự Quản lý vai trò](images/seq_roles.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant SA as Super Admin
+    participant F as Roles Page (Frontend)
+    participant S as Server (Flask)
+    participant D as Permissions DB (JSON)
+
+    SA->>F: Truy cập trang Quản lý vai trò
+    F->>S: GET /api/admin/permissions/config
+    S->>D: Đọc file permissions.json
+    D-->>S: Danh sách vai trò & quyền hạn
+    S-->>F: JSON Config (Roles & Permissions)
+    F-->>SA: Hiển thị danh sách vai trò
+
+    SA->>F: Chọn vai trò & chỉnh sửa quyền mặc định
+    SA->>F: Nhấn "Lưu thay đổi"
+    F->>S: PUT /api/admin/roles/{roleKey}/permissions
+    S->>D: Cập nhật quyền hạn cho vai trò trong JSON
+    D-->>S: Xác nhận lưu file
+    S-->>F: 200 OK (Thành công)
+    F-->>SA: Thông báo "Cập nhật thành công"
+```
+-->
+
+#### 3.5.8. Sơ đồ tuần tự: Phân quyền người dùng (Admin)
+
+![Sơ đồ tuần tự Phân quyền](images/seq_permissions.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as User perms Page (Frontend)
+    participant S as Server (Flask)
+    participant D as Database (JSON)
+
+    A->>F: Truy cập trang Phân quyền người dùng
+    F->>S: GET /api/admin/users/non-students
+    S->>D: Lấy danh sách tài khoản (không phải SV)
+    D-->>S: Dữ liệu người dùng & vai trò
+    S-->>F: JSON Users List
+
+    A->>F: Chọn người dùng & nhấn "Phân quyền"
+    F->>S: GET /api/admin/users/{username}/permissions
+    S->>D: Lấy quyền bộ sung của user
+    D-->>S: Custom Permissions List
+    S-->>F: JSON User Permissions
+
+    A->>F: Thay đổi vai trò hoặc thêm quyền tùy chỉnh
+    A->>F: Nhấn "Lưu thay đổi"
+    F->>S: PUT /api/admin/users/{username}/permissions
+    S->>D: Cập nhật role & custom_permissions vào DB
+    D-->>S: Xác nhận ghi file
+    S-->>F: 200 OK (Thành công)
+    F-->>A: Thông báo "Cập nhật quyền hạn thành công"
+```
+-->
+
+#### 3.5.9. Sơ đồ tuần tự: Đăng nhập (Authentication)
+
+![Sơ đồ tuần tự Đăng nhập](images/seq_login.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Browser
+    participant S as Server (Flask)
+    participant D as Users DB (JSON)
+
+    U->>F: Nhập Username & Password
+    U->>F: Nhấn "Đăng nhập"
+    F->>S: POST /api/auth/login (JSON)
+    S->>D: Kiểm tra thông tin trong users.json
+    D-->>S: Trả về thông tin người dùng
+
+    alt Thành công
+        S->>S: Lưu phiên đăng nhập (Session)
+        S-->>F: 200 OK {status: "success", role: "..."}
+        F-->>U: Chuyển hướng (Dashboard/Admin)
+    else Thất bại
+        S-->>F: 401 Unauthorized {message: "Sai tài khoản..."}
+        F-->>U: Hiển thị lỗi
+    end
+```
+-->
+
+#### 3.5.10. Sơ đồ tuần tự: Hệ thống Báo cáo (Reporting)
+
+![Sơ đồ tuần tự Báo cáo](images/seq_reports.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Reports Page (Frontend)
+    participant S as Server (Flask)
+    participant D as JSON Tables (Users, Problems, Submissions, Exams)
+
+    A->>F: Chọn menu "Báo cáo" (Học viên/Bài tập/Kỳ thi)
+    F->>S: GET /api/admin/reports
+    S->>D: Load & Aggregated data (từ các file JSON)
+    D-->>S: Trả về dữ liệu thô
+    S->>S: Tính toán Ranking, Tỉ lệ đạt, Thống kê bài tập
+    S-->>F: JSON Aggregated Data
+    F->>F: Render bảng dữ liệu & phân trang (PaginationHelper)
+    F-->>A: Hiển thị Bảng xếp hạng / Thống kê chi tiết
+```
+-->
+
+#### 3.5.11. Sơ đồ tuần tự: Báo cáo nộp bài trong kỳ thi
+
+![Sơ đồ tuần tự Báo cáo nộp bài kỳ thi](images/seq_report_exam_subs.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Exam Submissions Page
+    participant S as Server (Flask)
+    participant D as Database (JSON)
+
+    A->>F: Chọn sinh viên & nhấn "Xem bài"
+    F->>S: GET /api/admin/exams/{eid}/submissions
+    S->>D: Lấy danh sách nộp bài của kỳ thi eid
+    D-->>S: Trình trả về dữ liệu nộp bài
+    S->>S: Lọc bài nộp theo username người dùng
+    S-->>F: JSON User Submissions (Code, Status, Time)
+    F-->>A: Hiển thị danh sách mã nguồn & kết quả chấm
+```
+-->
+
+#### 3.5.12. Sơ đồ tuần tự: Báo cáo thống kê giải bài tập
+
+![Sơ đồ tuần tự Thống kê bài tập](images/seq_report_prob_stats.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Problem Report Page
+    participant S as Server (Flask)
+    participant D as Database (JSON)
+
+    A->>F: Truy cập menu "Thống kê bài tập"
+    F->>S: GET /api/admin/reports
+    S->>D: Đọc problems.json & submissions.json
+    D-->>S: Dữ liệu thô
+    S->>S: Tính toán: Số lượt nộp, Số SV đã giải đạt
+    S-->>F: JSON Problem Stats (ID, Title, Attempts, Passes)
+    F-->>A: Hiển thị bảng thống kê hiệu suất giải bài
+```
+-->
+
+#### 3.5.13. Sơ đồ tuần tự: Kiểm tra gian lận (Anti-Cheat)
+
+![Sơ đồ tuần tự Kiểm tra gian lận](images/seq_anti_cheat.png)
+
+<!--
+```mermaid
+sequenceDiagram
+    participant H as Học viên
+    participant F as Exam Page (Frontend)
+    participant S as Server (Flask)
+    participant D as Cheat Logs (JSON)
+    participant A as Admin
+
+    Note over F: Lắng nghe sự kiện: Chuyển tab, Paste, Idle...
+
+    H->>F: Thực hiện hành vi (Chuyển tab/Blur/Paste)
+    F->>F: Phát hiện sự kiện gian lận
+    F->>S: POST /api/exams/{eid}/cheat-logs
+    S->>D: Lưu nhật ký (Username, Event, Details, Time)
+    D-->>S: Xác nhận ghi file
+    S-->>F: 200 OK
+    F-->>H: Hiển thị Alert cảnh báo vi phạm
+
+    Note over A: Admin giám sát kết quả thi
+    A->>F: Click "Xem lỗi" trong chi tiết sinh viên
+    F->>S: GET /api/admin/exams/{eid}/cheat-logs
+    S->>D: Truy vấn danh sách vi phạm
+    D-->>S: Trả về JSON Logs
+    S-->>F: JSON Event List
+    F-->>A: Hiển thị bảng lịch sử vi phạm chi tiết
+```
+-->
+
 ---
 
 ## 4. PHÂN TÍCH KỸ THUẬT
