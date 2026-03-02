@@ -12,6 +12,10 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from functools import wraps
 
+from google import genai
+
+#genai.configure(api_key="")
+
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = 'antigravity-secret-key' # Replace with a real secret for production
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -1904,6 +1908,58 @@ def get_admin_exam_cheat_logs(eid):
     logs = load_json("cheat_logs.json") or []
     exam_logs = [l for l in logs if str(l.get("examId")) == str(eid)]
     return jsonify(exam_logs)
+
+from google import genai
+
+@app.route("/api/ai/hint", methods=["POST"])
+@login_required
+def get_ai_hint():
+    print("👉 [1] Đã nhận được request hỏi AI từ frontend!")
+    data = request.json
+    code = data.get("code")
+    language = data.get("language")
+    problem_title = data.get("problem_title")
+    problem_desc = data.get("problem_desc")
+    failed_tc = data.get("failed_test_case")
+
+    if not all([code, language, problem_title, failed_tc]):
+        return jsonify({"status": "error", "message": "Thiếu thông tin dữ liệu"}), 400
+
+    prompt = f"""
+    Bạn là một gia sư lập trình AI. Một học sinh đang giải bài tập "{problem_title}".
+    Mô tả bài toán: {problem_desc}
+
+    Học sinh đã viết đoạn code sau bằng ngôn ngữ {language}:
+    ```{language}
+    {code}
+    ```
+
+    Đoạn code này đã chạy sai ở một test case cụ thể:
+    - Input: {failed_tc.get('input')}
+    - Output mong muốn (Expected): {failed_tc.get('expected')}
+    - Output thực tế của học sinh (Actual): {failed_tc.get('actual')}
+
+    Nhiệm vụ của bạn:
+    Hãy phân tích lý do tại sao code của học sinh lại cho ra kết quả sai ở test case này. 
+    Đưa ra một gợi ý ngắn gọn, dễ hiểu để học sinh tự sửa.
+    """
+
+    try:
+        print("👉 [2] Đang kết nối với Google API...")
+        
+        client = genai.Client(api_key="") 
+        
+        print("👉 [3] Đang chờ AI trả lời...")
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        
+        print("👉 [4] AI đã trả lời thành công!")
+        return jsonify({"status": "success", "hint": response.text})
+    except Exception as e:
+        print(f"❌ [LỖI API]: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 @socketio.on('connect')

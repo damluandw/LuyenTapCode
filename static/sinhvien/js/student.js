@@ -528,7 +528,7 @@ function renderResults(results) {
     return;
   }
 
-  let allPassed = results.length > 0;
+  let allPassed = true;
 
   results.forEach((res, index) => {
     const card = document.createElement('div');
@@ -547,11 +547,14 @@ function renderResults(results) {
             </div>
         `;
     panel.appendChild(card);
-    if (!res.passed) allPassed = false;
+    
+    if (!res.passed) {
+        allPassed = false;
+    }
   });
 
+  // Lưu lịch sử nếu pass toàn bộ
   if (allPassed && currentProblem) {
-    // Save as test attempt (not final submission) for exercise mode
     fetch('/api/submissions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -562,7 +565,7 @@ function renderResults(results) {
         code: editor.getValue(),
         mode: 'practice',
         allPassed: true,
-        submission_type: 'submit'  // Use 'submit' to ensure it's saved in submissions.json and retrievable
+        submission_type: 'submit'
       })
     });
   }
