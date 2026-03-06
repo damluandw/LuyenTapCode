@@ -1,38 +1,50 @@
-import os
-import json
-import sys
-import subprocess
-import threading
-import time
-import tempfile
+# --- Import các thư viện lõi của hệ thống ---
+import os           # Quản lý đường dẫn và tệp tin hệ thống
+import json         # Xử lý định dạng dữ liệu persistent (JSON)
+import sys          # Truy cập các tham số và hàm hệ thống (đường dẫn Python)
+import subprocess    # Thực thi các tiến trình con (biên dịch và chạy code)
+import threading     # Chạy các tác vụ song song (monitor process, read output)
+import time          # Xử lý thời gian (timestamp, delay)
+import tempfile      # Tạo và quản lý các thư mục/tệp tạm thời
 from flask import Flask, request, jsonify, session, redirect, url_for, send_file
-import pandas as pd
-import io
-from flask_cors import CORS
-from flask_socketio import SocketIO, emit
-from functools import wraps
+import pandas as pd  # Xử lý dữ liệu Excel khi nhập danh sách sinh viên
+import io           # Xử lý luồng dữ liệu (input/output)
+from flask_cors import CORS # Cấu hình chia sẻ tài nguyên giữa các nguồn (CORS)
+from flask_socketio import SocketIO, emit # Giao tiếp thời gian thực
+from functools import wraps # Hỗ trợ tạo các decorator bảo mật
 
 from google import genai
 
 #genai.configure(api_key="")
 
+# Khởi tạo ứng dụng Flask với cấu hình thư mục tĩnh (static) phục vụ giao diện người dùng
 app = Flask(__name__, static_folder='static', static_url_path='')
-app.secret_key = 'antigravity-secret-key' # Replace with a real secret for production
+
+# Cấu hình chuỗi bí mật để mã hóa Session (Cookie phía người dùng)
+# LƯU Ý: Trong môi trường thực tế, nên dùng biến môi trường (Environment Variable)
+app.secret_key = 'antigravity-secret-key'
+
+# Cho phép React/Vue hoặc các domain khác gọi API từ backend này
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-# Use threading mode for maximum compatibility on Python 3.13 / Windows
+
+# Cấu hình SocketIO phục vụ biên dịch/chạy code Console thời gian thực
+# Sử dụng async_mode='threading' để tối ưu hóa việc chạy subprocess trên Windows
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading', logger=True, engineio_logger=True)
 
-# Store active sessions
+# Lưu trữ các phiên làm việc (session) đang hoạt động
 active_sessions = {}
 
-# Language configurations for local execution
-# Resolve real path for Python to avoid Windows App Execution Alias issues
+# --- Cấu hình Môi trường Thực thi (Execution Config) ---
+# Xác định đường dẫn tuyệt đối đến trình thông dịch Python hiện tại
+# Việc này cực kỳ quan trọng trên Windows để tránh nhầm lẫn giữa python và python3
 REAL_PYTHON = os.path.realpath(sys.executable)
 
+# Bản đồ cấu hình cho các ngôn ngữ lập trình được hỗ trợ
+# Mỗi ngôn ngữ gồm: lệnh biên dịch (nếu có), lệnh chạy, phần mở rộng file và file chạy chính
 LANGUAGE_CONFIG = {
     "python": {
-        "compile": None,
-        "run": [REAL_PYTHON, "-u", "{file}"],
+        "compile": None, # Python là ngôn ngữ thông dịch, không cần biên dịch
+        "run": [REAL_PYTHON, "-u", "{file}"], # -u để tắt output buffering
         "ext": ".py"
     },
     "c": {
@@ -47,24 +59,27 @@ LANGUAGE_CONFIG = {
     },
     "java": {
         "compile": ["javac", "{file}"],
-        "run": ["java", "{classname}"],
+        "run": ["java", "{classname}"], # Java chạy dựa trên tên Class thay vì tên file
         "ext": ".java",
         "main_file": "Main.java"
     },
     "csharp": {
+        # Sử dụng trình biên dịch mặc định của .NET Framework trên Windows
         "compile": [r"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe", "/out:{output}", "{file}"],
         "run": ["{output}"],
         "ext": ".cs"
     }
 }
 
-# Helper functions for data management
+# --- Các hàm bổ trợ quản lý dữ liệu JSON ---
 DATA_DIR = "data"
 
 def get_data_path(filename):
+    """Lấy đường dẫn đầy đủ đến file dữ liệu"""
     return os.path.join(DATA_DIR, filename)
 
 def load_json(filename):
+    """Tải dữ liệu từ file JSON"""
     path = get_data_path(filename)
     if not os.path.exists(path):
         return []
@@ -72,6 +87,7 @@ def load_json(filename):
         return json.load(f)
 
 def save_json(filename, data):
+    """Lưu dữ liệu vào file JSON"""
     path = get_data_path(filename)
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
@@ -79,32 +95,40 @@ def save_json(filename, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def load_permissions():
-    """Load permissions configuration"""
+    """Tải cấu hình quyền hạn"""
     return load_json("permissions.json")
 
+# --- Quản lý Quyền hạn & Bảo mật (RBAC Logic) ---
+
 def has_permission(username, permission):
-    """Check if user has specific permission"""
+    """
+    Kiểm tra xem một người dùng có quyền cụ thể nào đó không.
+    Ưu tiên: Quyền của quản trị viên (Admin) -> Quyền theo vai trò (Role) -> Quyền tùy chỉnh (Custom).
+    """
     users = load_json("users.json")
     user = next((u for u in users if u["username"] == username), None)
     if not user:
         return False
     
-    # Get role permissions
+    # 1. Tải cấu hình quyền hạn toàn cục
     perms_config = load_permissions()
     role = user.get("role", "student")
+    
+    # 2. Lấy danh sách quyền mặc định của vai trò (Ví dụ: student, instructor)
     role_perms = perms_config.get("roles", {}).get(role, {}).get("permissions", [])
     
-    # Super admin has all permissions
+    # 3. QUAN TRỌNG: Dấu sao wildcard '*' đại diện cho quyền tối cao (Full Access)
     if "*" in role_perms:
         return True
     
-    # Check custom permissions
+    # 4. Kiểm tra các quyền đặc cách (custom) được gán riêng cho từng tài khoản
     custom_perms = user.get("custom_permissions", [])
     
+    # Người dùng có quyền nếu quyền đó nằm trong nhóm vai trò HOẶC nhóm tùy chỉnh
     return permission in role_perms or permission in custom_perms
 
 def get_user_permissions(username):
-    """Get all permissions for a user"""
+    """Lấy danh sách tất cả các quyền của người dùng"""
     users = load_json("users.json")
     user = next((u for u in users if u["username"] == username), None)
     if not user:
@@ -115,34 +139,39 @@ def get_user_permissions(username):
     role_perms = perms_config.get("roles", {}).get(role, {}).get("permissions", [])
     
     if "*" in role_perms:
-        # Return all permissions
+        # Trả về tất cả các quyền có sẵn
         return list(perms_config.get("permissions", {}).keys())
     
     custom_perms = user.get("custom_permissions", [])
     return list(set(role_perms + custom_perms))
 
 def is_admin_role(role):
-    """Check if role has admin privileges"""
+    """Kiểm tra xem vai trò có phải là quản trị viên không"""
     return role in ["admin", "super_admin"]
 
 def can_access_resource(resource, username, role):
-    """Check if user has access to a specific resource (exam/report)"""
+    """
+    Kiểm tra xem một người dùng có quyền truy cập/sửa đổi một tài nguyên (bài tập, kỳ thi...) hay không.
+    Logic: Admin xem được hết -> Chủ sở hữu tài nguyên -> Người được chia sẻ quyền xem.
+    """
+    # Quản trị viên luôn có quyền truy cập mọi tài nguyên
     if is_admin_role(role):
         return True
     
-    # Ownership check
+    # Tác giả tạo ra tài nguyên bài tập/kỳ thi
     if resource.get("created_by") == username:
         return True
         
-    # Sharing check
+    # Danh sách người dùng được 'góp quyền' quản lý (shared_with)
     shared_with = resource.get("shared_with", [])
     if username in shared_with:
         return True
         
     return False
 
-# Auth Decorators
+# --- Decorators cho việc kiểm tra xác thực và phân quyền ---
 def login_required(f):
+    """Yêu cầu đăng nhập trước khi truy cập"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'username' not in session:
@@ -151,45 +180,47 @@ def login_required(f):
     return decorated_function
 
 def instructor_required(f):
+    """Yêu cầu quyền giảng viên/quản trị viên"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         role = session.get('role')
         
-        # Allow any role that is NOT 'student'
+        # Cho phép bất kỳ vai trò nào KHÔNG PHẢI là 'student'
         if not role or role == 'student':
-            # For page requests, redirect to unauthorized page
+            # Đối với yêu cầu trang web, chuyển hướng đến trang không có quyền
             if '/admin' in request.path or '/dashboard' in request.path:
                 return redirect(url_for('unauthorized_page'))
-            return jsonify({"error": "Admin access required"}), 403
+            return jsonify({"error": "Yêu cầu quyền truy cập quản trị"}), 403
         
         return f(*args, **kwargs)
     return decorated_function
 
 def permission_required(permission):
-    """Decorator to check if user has specific permission"""
+    """Decorator để kiểm tra xem người dùng có quyền cụ thể không"""
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'username' not in session:
-                # For page requests, redirect to login
+                # Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
                 if request.path.startswith('/admin') or request.path.startswith('/dashboard'):
                     return redirect(url_for('login_page'))
-                return jsonify({"error": "Authentication required"}), 401
+                return jsonify({"error": "Vui lòng đăng nhập để tiếp tục"}), 401
             
             if not has_permission(session['username'], permission):
-                # For page requests, redirect to unauthorized page
+                # Chuyển hướng đến trang không có quyền nếu thiếu quyền
                 if request.path.startswith('/admin') or request.path.startswith('/dashboard'):
                     return redirect(url_for('unauthorized_page'))
-                return jsonify({"error": "Permission denied"}), 403
+                return jsonify({"error": "Bạn không có quyền thực hiện hành động này"}), 403
 
             return f(*args, **kwargs)
         return decorated_function
     return decorator
 
+# --- Các tuyến đường (Routes) cho giao diện người dùng ---
 @app.route("/")
 @login_required
 def index():
-    # Redirect based on role
+    """Trang chủ - tự động chuyển hướng dựa trên vai trò"""
     if 'username' in session:
         role = session.get('role', 'student')
         if role != 'student':
@@ -199,12 +230,14 @@ def index():
 @app.route("/exercise")
 @login_required
 def exercise_page():
+    """Trang làm bài tập của sinh viên"""
     response = app.send_static_file("sinhvien/exercise.html")
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return response
 
 @app.route("/login")
 def login_page():
+    """Trang đăng nhập"""
     if 'username' in session:
         return redirect(url_for('index'))
     return app.send_static_file("login.html")
@@ -214,75 +247,87 @@ def login_page():
 @login_required
 @instructor_required
 def admin_page():
+    """Trang điều khiển của quản trị viên"""
     return app.send_static_file("admin/dashboard.html")
 
 @app.route("/admin/problems")
 @login_required
 @instructor_required
 def admin_problems_page():
+    """Trang quản lý danh sách bài tập (Admin)"""
     return app.send_static_file("admin/problems.html")
 
 @app.route("/admin/students")
 @login_required
 @instructor_required
 def admin_students_page():
+    """Trang quản lý sinh viên (Admin)"""
     return app.send_static_file("admin/students.html")
 
 @app.route("/admin/reports")
 @login_required
 @instructor_required
 def admin_reports_page():
+    """Trang xem báo cáo thống kê (Admin)"""
     return app.send_static_file("admin/reports.html")
 
 @app.route("/admin/exams")
 @login_required
 @instructor_required
 def admin_exams_list_page():
+    """Trang quản lý kỳ thi (Admin)"""
     return app.send_static_file("admin/exams.html")
 
 @app.route("/admin/submissions")
 @login_required
 @permission_required("view_submissions")
 def admin_submissions_page():
+    """Trang xem danh sách bài nộp (Admin)"""
     return app.send_static_file("admin/submissions.html")
 
 @app.route("/admin/edit-problem")
 @login_required
 @permission_required("manage_problems")
 def edit_problem_page():
+    """Trang thêm mới hoặc chỉnh sửa bài tập (Admin)"""
     return app.send_static_file("admin/edit-problem.html")
 
 @app.route("/admin/create-exam")
 @login_required
 @permission_required("manage_exams")
 def create_exam_page():
+    """Trang tạo kỳ thi mới (Admin)"""
     return app.send_static_file("admin/create-exam.html")
 
 @app.route("/exam")
 @login_required
 def exam_page():
-    # Frontend reads id from URL ?id=X
+    """Trang làm bài thi của sinh viên"""
+    # Frontend sẽ đọc id từ URL ?id=X
     return app.send_static_file("sinhvien/exam.html")
 
 @app.route("/exams")
 @login_required
 def student_exams_list_page():
+    """Trang danh sách các kỳ thi dành cho sinh viên"""
     return app.send_static_file("sinhvien/exams.html")
 
 @app.route("/history")
 @login_required
 def student_history_page():
+    """Trang lịch sử nộp bài của sinh viên"""
     return app.send_static_file("sinhvien/history.html")
 
 @app.route("/dashboard")
 @login_required
 def student_dashboard_page():
-    # This is the STUDENT dashboard - all logged-in users can access
+    """Bảng điều khiển dành cho sinh viên"""
     return app.send_static_file("sinhvien/dashboard.html")
 
 @app.route("/profile")
 @login_required
 def profile_page():
+    """Trang hồ sơ cá nhân (tự động hiển thị theo vai trò)"""
     role = session.get("role")
     if role == "student":
         return app.send_static_file("sinhvien/profile.html")
@@ -293,39 +338,51 @@ def profile_page():
 @login_required
 @permission_required("manage_roles")
 def admin_roles_page():
+    """Trang quản lý vai trò và phân quyền (Admin)"""
     return app.send_static_file("admin/roles.html")
 
 @app.route("/admin/user-permissions")
 @login_required
 @permission_required("manage_roles")
 def admin_user_permissions_page():
+    """Trang quản lý quyền hạn của người dùng (Admin)"""
     return app.send_static_file("admin/user-permissions.html")
 
 @app.route("/unauthorized")
 def unauthorized_page():
+    """Trang thông báo không có quyền truy cập"""
     return app.send_static_file("unauthorized.html")
 
-
+# --- API Xác thực ---
 @app.route("/api/auth/login", methods=["POST"])
 def api_login():
+    """
+    Xử lý xác thực người dùng.
+    Nếu thành công: Thiết lập Session và ghi lại lịch sử đăng nhập.
+    """
+    # Bước 1: Trích xuất thông tin đăng nhập từ Body (JSON)
     data = request.json
     username = data.get("username")
     password = data.get("password")
     
+    # Bước 2: Tải danh sách người dùng và tìm kiếm khớp thông tin
     users = load_json("users.json")
     user = next((u for u in users if u["username"] == username and u["password"] == password), None)
     
     if user:
+        # Bước 3: Đăng nhập thành công -> Lưu thông tin vào Flask Session (Cookie bảo mật)
         session['username'] = user['username']
         session['role'] = user['role']
         session['display_name'] = user.get('display_name', user['username'])
         
-        # Track student logins specifically
+        # Bước 4: Xử lý thống kê (Analytics) nếu người dùng là sinh viên
         if user['role'] == 'student':
             try:
+                # Ghi nhận tổng số lượt đăng nhập của sinh viên
                 hits = load_json("hits.json")
                 hits["student_logins"] = hits.get("student_logins", 0) + 1
                 
+                # Cập nhật số liệu theo ngày (Daily trend)
                 today = time.strftime("%Y-%m-%d")
                 daily_students = hits.get("daily_student_logins", {})
                 daily_students[today] = daily_students.get(today, 0) + 1
@@ -333,52 +390,70 @@ def api_login():
                 
                 save_json("hits.json", hits)
             except Exception as e:
+                # Log lỗi ra console nếu ghi file hits thất bại (không chặn luồng đăng nhập)
                 print(f"Error tracking student login: {e}")
                 
+        # Bước 5: Phản hồi về Frontend với vai trò (role) để chuyển hướng trang phù hợp
         return jsonify({"status": "success", "role": user['role']})
+    
+    # Bước 6: Phản hồi lỗi nếu thông tin sai (HTTP 401 Unauthorized)
     return jsonify({"status": "error", "message": "Sai tài khoản hoặc mật khẩu"}), 401
 
 @app.route("/api/auth/logout")
 def api_logout():
+    """API xử lý đăng xuất"""
     session.clear()
     return redirect(url_for('login_page'))
 
 @app.route("/api/auth/me")
 def api_me():
+    """API lấy thông tin người dùng hiện tại đang đăng nhập"""
+    # Kiểm tra xem session có chứa username hay không (đã đăng nhập)
     if 'username' in session:
+        # Tìm lại thông tin đầy đủ từ nguồn dữ liệu JSON
         users = load_json("users.json")
         user = next((u for u in users if u["username"] == session["username"]), None)
         if user:
+            # Xây dựng đối tượng phản hồi cơ bản
             response_data = {
                 "username": user['username'],
                 "role": user['role'],
                 "display_name": user.get('display_name'),
                 "class_name": user.get('class_name', '')
             }
-            # Include all student fields if present
+            # Tự động gộp tất cả các trường dữ liệu sinh viên bổ sung (nếu có)
             for field in STUDENT_FIELDS:
                 if field in user:
                     response_data[field] = user[field]
             return jsonify(response_data)
-    return jsonify({"error": "Not logged in"}), 401
+    
+    # Trả về lỗi nếu phiên làm việc không tồn tại hoặc hết hạn
+    return jsonify({"error": "Người dùng chưa đăng nhập"}), 401
 
 @app.route("/api/auth/update-info", methods=["PUT"])
 @login_required
 def update_info():
+    """API cập nhật thông tin cá nhân của người dùng"""
+    # Bước 1: Trích xuất dữ liệu cập nhật từ Body và xác định User qua Session
     data = request.json
     username = session.get("username")
     
     users = load_json("users.json")
     found = False
+    
+    # Bước 2: Lặp tìm người dùng và cập nhật các trường được phép
     for user in users:
         if user["username"] == username:
+            # Cập nhật tên hiển thị (Cả trong file và Session hiện tại)
             if "display_name" in data:
                 user["display_name"] = data["display_name"]
                 session['display_name'] = data["display_name"]
+            
+            # Cập nhật thông tin lớp học
             if "class_name" in data:
                 user["class_name"] = data["class_name"]
             
-            # Update detailed student fields
+            # Quét và cập nhật hàng loạt các trường thông tin phụ của sinh viên (Email, SĐT, v.v.)
             for field in STUDENT_FIELDS:
                 if field in data:
                     user[field] = data[field]
@@ -386,14 +461,17 @@ def update_info():
             found = True
             break
     
+    # Bước 3: Lưu lại thay đổi nếu tìm thấy người dùng
     if found:
         save_json("users.json", users)
         return jsonify({"status": "success"})
-    return jsonify({"status": "error", "message": "User not found"}), 404
+    
+    return jsonify({"status": "error", "message": "Không tìm thấy người dùng"}), 404
 
 @app.route("/api/auth/change-password", methods=["PUT"])
 @login_required
 def change_password():
+    """API đổi mật khẩu cho người dùng"""
     data = request.json
     username = session.get("username")
     current_password = data.get("current_password")
@@ -403,7 +481,7 @@ def change_password():
     user_idx = next((i for i, u in enumerate(users) if u["username"] == username), -1)
     
     if user_idx == -1:
-        return jsonify({"status": "error", "message": "User not found"}), 404
+        return jsonify({"status": "error", "message": "Không tìm thấy người dùng"}), 404
         
     if users[user_idx]["password"] != current_password:
         return jsonify({"status": "error", "message": "Mật khẩu hiện tại không đúng"}), 400
@@ -415,48 +493,60 @@ def change_password():
 @app.route("/problems")
 @login_required
 def get_problems():
+    """
+    Lấy danh sách tối giản các bài tập để hiển thị bảng danh sách bài tập.
+    Kết hợp dữ liệu nộp bài để đánh dấu trạng thái "Đã làm" (Solved) cho sinh viên.
+    """
     try:
+        # Bước 1: Tải kho đề bài và danh sách bài nộp
         data = load_json("problems.json")
         submissions = load_json("submissions.json")
         
-        # Get solved problem IDs for current user
+        # Bước 2: Tạo bản tóm tắt các bài tập mà User hiện tại ĐÃ hoàn thành
+        # Việc dùng set() giúp thao tác kiểm tra "in user_solved_ids" bên dưới đạt tốc độ O(1)
         user_solved_ids = set([
             s["problemId"] for s in submissions 
             if s["username"] == session.get("username")
         ])
 
-        # Return info with solved status
+        # Bước 3: Ánh xạ dữ liệu sang cấu trúc tối giản để trả về Frontend
+        # BẢO MẬT: Loại bỏ hoàn toàn solution_code và test_cases để tránh hack đề bài
         minimal_list = [
             {
                 "id": p["id"], 
                 "title": p["title"], 
                 "difficulty": p["difficulty"], 
                 "category": p.get("category", ""),
+                # Đánh dấu trạng thái 'Đã giải' nếu ID bài tập nằm trong list hoàn thành
                 "solved": p["id"] in user_solved_ids
             }
             for p in data
         ]
         return jsonify(minimal_list)
     except Exception as e:
+        # Xử lý lỗi hệ thống nếu quá trình đọc file hoặc ánh xạ gặp trục trặc
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/problems/<int:pid>")
 @login_required
 def get_problem_detail(pid):
+    """API lấy chi tiết một bài tập cụ thể"""
+    # Bước 1: Tải danh sách đề bài và tìm bài tập khớp với PID
     problems = load_json("problems.json")
     problem = next((p for p in problems if p["id"] == pid), None)
     if not problem:
-        return jsonify({"error": "Problem not found"}), 404
+        return jsonify({"error": "Không tìm thấy bài tập"}), 404
         
-    # Fetch student's latest submission for this problem (practice mode)
+    # Bước 2: Truy vấn lịch sử bài nộp gần đây của sinh viên cho bài tập này
+    # Mục đích: Tự động điền lại mã nguồn cũ nhất khi sinh viên quay lại làm tiếp
     submissions = load_json("submissions.json")
     username = session.get("username")
     
-    # Filter for this user, this problem, and NOT exam mode
+    # Bước 3: Lọc bài nộp: Đúng User, đúng Problem và phải là chế độ Luyện tập (không phải thi)
     user_subs = [s for s in submissions if s["username"] == username and s["problemId"] == pid and s.get("mode") != "exam"]
     
     if user_subs:
-        # Get latest
+        # Lấy bài nộp mới nhất dựa trên thời gian (timestamp)
         latest = sorted(user_subs, key=lambda x: x.get("timestamp", ""))[-1]
         problem["last_submission"] = {
             "code": latest.get("code", ""),
@@ -466,11 +556,13 @@ def get_problem_detail(pid):
     
     return jsonify(problem)
 
-# Administrative APIs - Statistics
+# --- Các API dành cho Quản trị viên - Thống kê ---
 @app.route("/api/admin/stats")
 @login_required
 @instructor_required
 def get_stats():
+    """API lấy dữ liệu tổng hợp phục vụ dashboard của quản trị viên"""
+    # Bước 1: Nạp toàn bộ dữ liệu thô từ các file JSON hệ thống
     problems = load_json("problems.json")
     users = load_json("users.json")
     submissions = load_json("submissions.json")
@@ -478,7 +570,8 @@ def get_stats():
     exams = load_json("tests.json")
     hits = load_json("hits.json")
     
-    # Language distribution - combine both submissions and test_attempts
+    # Bước 2: Phân tích cơ cấu ngôn ngữ lập trình (Language Distribution)
+    # Tính toán dựa trên cả bài nộp chính thức và các lần chạy nháp/kiểm tra
     langs = {}
     for s in submissions:
         lang = s.get("language", "unknown")
@@ -487,11 +580,11 @@ def get_stats():
         lang = a.get("language", "unknown")
         langs[lang] = langs.get(lang, 0) + 1
     
-    # Exam stats
+    # Bước 3: Tổng hợp thông tin các kỳ thi (Exams Summary)
     active_exams = [e for e in exams if e.get("isActive", True)]
     exam_subs = [s for s in submissions if s.get("examId")]
     
-    # Exam activity
+    # Lấy Top 10 hoạt động nộp bài trong kỳ thi mới nhất để hiển thị feed
     recent_exam_subs = []
     for s in exam_subs[-10:]:
         ex = next((e for e in exams if e["id"] == s.get("examId")), {"title": "Unknown"})
@@ -502,20 +595,19 @@ def get_stats():
             "timestamp": s["timestamp"]
         })
     
-    # Filter parameters
+    # Bước 4: Xử lý BỘ LỌC (Filtering) theo yêu cầu từ Frontend (Dải ngày, Lớp học)
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     class_name = request.args.get('class_name')
     
-    # Filter submissions
     filtered_submissions = []
     for s in submissions:
-        # Date filter
+        # 4.1. Lọc theo thời gian (So khớp chuỗi YYYY-MM-DD)
         s_date = s.get("timestamp", "").split(" ")[0]
         if start_date and s_date < start_date: continue
         if end_date and s_date > end_date: continue
         
-        # Class filter
+        # 4.2. Lọc theo lớp học (Yêu cầu kiểm tra chéo bảng Users để xác định lớp)
         if class_name:
             user = next((u for u in users if u["username"] == s["username"]), None)
             if not user or user.get("class_name") != class_name:
@@ -523,20 +615,20 @@ def get_stats():
                 
         filtered_submissions.append(s)
         
-    # Use filtered data for stats
+    # Ghi đè biến submissions bằng dữ liệu đã lọc để mọi tính toán phía sau đều ăn theo filter
     submissions = filtered_submissions
     
-    # Daily submissions for chart
+    # Bước 5: Tính toán biểu đồ hoạt động hàng ngày (Daily Activity Chart)
     daily_subs = {}
     for s in submissions:
         date = s.get("timestamp", "").split(" ")[0]
         if date:
             daily_subs[date] = daily_subs.get(date, 0) + 1
     
-    # Sort by date
+    # Chuyển đổi sang định dạng mảng đã sắp xếp cho Chart.js dễ xử lý
     daily_subs_sorted = sorted([{"date": k, "count": v} for k, v in daily_subs.items()], key=lambda x: x["date"])
     
-    # Status distribution
+    # Bước 6: Phân tích tỷ lệ đạt chuẩn (Pass/Fail Ratio)
     status_dist = {"passed": 0, "failed": 0}
     for s in submissions:
         if s.get("allPassed"):
@@ -544,18 +636,19 @@ def get_stats():
         else:
             status_dist["failed"] += 1
             
-    # Top students
+    # Bước 7: Vinh danh Top 5 sinh viên giải được nhiều bài tập nhất (Leaderboard)
     student_stats = {}
     for s in submissions:
         if s.get("allPassed") and s.get("username"):
             u = s["username"]
             if u not in student_stats:
                 student_stats[u] = set()
+            # Sử dụng set để chỉ đếm mỗi bài tập đúng 1 lần (tránh cày điểm bằng 1 bài)
             student_stats[u].add(s["problemId"])
             
     top_students = []
     for u, solved in student_stats.items():
-        # Get display name
+        # Lấy tên hiển thị thay vì chỉ hiển thị username (mã sinh viên)
         user_info = next((user for user in users if user["username"] == u), {})
         display_name = user_info.get("display_name", u)
         top_students.append({
@@ -564,22 +657,24 @@ def get_stats():
             "solved_count": len(solved)
         })
     
-    # Sort by solved count desc and take top 5
+    # Sắp xếp giảm dần theo số lượng bài giải được
     top_students.sort(key=lambda x: x["solved_count"], reverse=True)
     top_students = top_students[:5]
 
-    # Detailed Exam Breakdown (with permissions)
+    # Bước 8: Phân tích hiệu năng các kỳ thi (Exams Deep Analysis)
     username = session.get("username")
     role = session.get("role")
+    # Chỉ tính toán trên các kỳ thi mà Admin/Giảng viên hiện tại có quyền quản lý
     accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
     
     exam_breakdown = []
     for ex in accessible_exams:
         eid = str(ex["id"])
-        # All submissions for this specific exam
-        # Note: submissions variable here is already filtered by date/class if params provided
+        # Lọc các bài nộp thuộc về kỳ thi này
         ex_subs = [s for s in filtered_submissions if str(s.get("examId")) == eid]
+        # Thống kê lượng tài khoản duy nhất (Unique users) tham gia
         ex_students = set([s["username"] for s in ex_subs])
+        # Tính toán tỷ lệ đỗ (Pass rate)
         ex_passed = len([s for s in ex_subs if s.get("allPassed")])
         
         exam_breakdown.append({
@@ -591,10 +686,11 @@ def get_stats():
             "isActive": ex.get("isActive", True)
         })
 
+    # Bước 9: Trả về kết quả JSON tổng hợp cuối cùng
     return jsonify({
         "problem_count": len(problems),
         "student_count": len([u for u in users if u["role"] == "student"]),
-        "submission_count": len(filtered_submissions), # Use filtered count
+        "submission_count": len(filtered_submissions),
         "total_hits": hits.get("total_hits", 0),
         "student_logins": hits.get("student_logins", 0),
         "languages": langs,
@@ -603,9 +699,8 @@ def get_stats():
         "active_exam_count": len(active_exams),
         "exam_submission_count": len(exam_subs),
         "recent_exam_activity": recent_exam_subs,
-        "exam_breakdown": exam_breakdown, # New
-        # New stats
-        "daily_submissions": daily_subs_sorted, # Return all in range
+        "exam_breakdown": exam_breakdown,
+        "daily_submissions": daily_subs_sorted,
         "status_distribution": status_dist,
         "top_students": top_students
     })
@@ -614,6 +709,7 @@ def get_stats():
 @login_required
 @instructor_required
 def get_classes():
+    """API lấy danh sách các lớp học hiện có của sinh viên"""
     users = load_json("users.json")
     classes = set()
     for u in users:
@@ -621,9 +717,15 @@ def get_classes():
             classes.add(u["class_name"])
     return jsonify(list(sorted(classes)))
 
-# Middleware-like function for traffic tracking
+# --- Middleware Hệ thống: Theo dõi Lưu lượng (Traffic Tracker) ---
 @app.before_request
 def track_traffic():
+    """
+    Hook chạy trước mỗi Request (ngoại trừ file tĩnh và API xác thực).
+    Mục đích: Đếm tổng số lượt tải trang và thống kê lượng truy cập hàng ngày.
+    Dữ liệu này được dùng để vẽ biểu đồ line-chart trong Dashboard Admin.
+    """
+    # Không đếm các file CSS/JS/Hình ảnh hoặc các API tự động (keep-alive)
     if request.path.startswith('/static') or request.path.startswith('/api/auth/me'):
         return
     
@@ -631,6 +733,7 @@ def track_traffic():
         hits = load_json("hits.json")
         hits["total_hits"] = hits.get("total_hits", 0) + 1
         
+        # Thống kê theo dải ngày để biết ngày nào hệ thống bận rộn nhất
         today = time.strftime("%Y-%m-%d")
         daily = hits.get("daily_hits", {})
         daily[today] = daily.get(today, 0) + 1
@@ -638,16 +741,18 @@ def track_traffic():
         
         save_json("hits.json", hits)
     except Exception as e:
+        # In lỗi ra console nếu không ghi được file nhưng không làm sập Request của User
         print(f"Error tracking traffic: {e}")
 
-# Administrative APIs - Problems
+# --- API Quản trị - Quản lý Bài tập ---
 @app.route("/api/admin/problems", methods=["POST"])
 @login_required
 @permission_required("manage_problems")
 def add_problem():
+    """API thêm một bài tập mới"""
     new_prob = request.json
     problems = load_json("problems.json")
-    # Generate ID
+    # Tự động tạo ID tăng dần
     new_prob["id"] = max([p["id"] for p in problems], default=0) + 1
     problems.append(new_prob)
     save_json("problems.json", problems)
@@ -657,6 +762,7 @@ def add_problem():
 @login_required
 @instructor_required
 def get_all_students_for_selection():
+    """API lấy danh sách sinh viên phục vụ việc chọn lựa trong trang admin"""
     users = load_json("users.json")
     students = [{
         "username": u["username"],
@@ -669,6 +775,7 @@ def get_all_students_for_selection():
 @login_required
 @permission_required("manage_problems")
 def manage_problem(pid):
+    """API cập nhật hoặc xóa một bài tập"""
     problems = load_json("problems.json")
     if request.method == "DELETE":
         problems = [p for p in problems if p["id"] != pid]
@@ -683,32 +790,36 @@ def manage_problem(pid):
         save_json("problems.json", problems)
         return jsonify({"status": "success"})
 
-# Administrative APIs - Exams
+# --- API Quản trị - Quản lý Kỳ thi ---
 @app.route("/api/admin/exams", methods=["GET", "POST"])
 @login_required
 @permission_required("manage_exams")
 def manage_exams():
+    """API lấy danh sách kỳ thi hoặc tạo kỳ thi mới"""
     if request.method == "GET":
         exams = load_json("tests.json")
         username = session.get("username")
         role = session.get("role")
         
-        # Filter exams based on ownership/sharing
+        # Lọc danh sách kỳ thi dựa trên quyền sở hữu hoặc chia sẻ
         accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
         return jsonify(accessible_exams)
     
+    # Bước 1: Trích xuất thông tin kỳ thi mới từ Request
     new_exam = request.json
     exams = load_json("tests.json")
     
-    # Generate ID and starting metadata
+    # Bước 2: Khởi tạo ID tự động tăng và thiết lập thời gian bắt đầu mặc định
     new_exam["id"] = max([e["id"] for e in exams], default=0) + 1
     if "startTime" not in new_exam:
         new_exam["startTime"] = time.strftime("%Y-%m-%d %H:%M:%S")
     
-    # Ownership metadata
+    # Bước 3: Ghi nhận thông tin quyền sở hữu (Created_by)
+    # Kỳ thi sẽ thuộc quyền quản lý của người tạo ra nó
     new_exam["created_by"] = session.get("username")
     new_exam["shared_with"] = new_exam.get("shared_with", [])
     
+    # Bước 4: Lưu vào cơ sở dữ liệu JSON
     exams.append(new_exam)
     save_json("tests.json", exams)
     return jsonify({"status": "success", "id": new_exam["id"]})
@@ -717,26 +828,27 @@ def manage_exams():
 @login_required
 @permission_required("manage_exams")
 def manage_single_exam(eid):
+    """API quản lý chi tiết một kỳ thi (lấy thông tin, cập nhật, xóa)"""
     exams = load_json("tests.json")
     exam_idx = next((i for i, e in enumerate(exams) if e["id"] == eid), -1)
     
     if exam_idx == -1:
-        return jsonify({"error": "Exam not found"}), 404
+        return jsonify({"error": "Không tìm thấy kỳ thi"}), 404
     
     exam = exams[exam_idx]
     username = session.get("username")
     role = session.get("role")
     
-    # Permission check for all operations
+    # Kiểm tra quyền hạn của người thực hiện
     if not can_access_resource(exam, username, role):
-        return jsonify({"error": "Bạn không có quyền truy cập kỳ thi này."}), 403
+        return jsonify({"error": "Bạn không có quyền quản lý kỳ thi này."}), 403
         
     if request.method == "GET":
         return jsonify(exam)
         
     if request.method == "PUT":
         updated_data = request.json
-        # Maintain ID
+        # Giữ nguyên ID kỳ thi
         updated_data["id"] = eid
         exams[exam_idx] = updated_data
         save_json("tests.json", exams)
@@ -750,95 +862,103 @@ def manage_single_exam(eid):
 @app.route("/api/exams/active")
 @login_required
 def get_active_exams():
+    """API lấy danh sách các kỳ thi đang diễn ra (dành cho sinh viên)"""
+    # Bước 1: Nạp danh sách kỳ thi và lọc các kỳ thi đang kích hoạt
     exams = load_json("tests.json")
     active_exams = [e for e in exams if e.get("isActive", True)]
     
-    # Filter for students
+    # Bước 2: Phân quyền truy cập dựa trên vai trò
     role = session.get("role")
     username = session.get("username")
     
-    # DEBUG LOGGING (REMOVE LATER)
-    with open("debug_log.txt", "a", encoding="utf-8") as f:
-        f.write(f"\n--- API Call: /api/exams/active ---\nUser: {username}, Role: {role}\n")
-    
+    # Sinh viên: Chỉ được thấy các kỳ thi mà họ có tên trong danh sách 'allowedStudents'
+    # Nếu danh sách allowedStudents trống -> Kỳ thi công khai cho tất cả mọi người
     if role == "student":
         filtered_exams = []
         for exam in active_exams:
             allowed = exam.get("allowedStudents", [])
             
-            # Check logic
-            can_see = True
+            # Kiểm tra xem sinh viên hiện tại có được phép tham gia không
             if allowed and username not in allowed:
-                can_see = False
-            
-            with open("debug_log.txt", "a", encoding="utf-8") as f:
-                f.write(f"Exam {exam['id']} ({exam['title']}): Allowed={allowed}, UserIn={username in allowed}, Result={can_see}\n")
-                
-            if not can_see:
                 continue
+            
             filtered_exams.append(exam)
         return jsonify(filtered_exams)
         
+    # Giảng viên/Admin: Được thấy toàn bộ danh sách kỳ thi đang hoạt động
     return jsonify(active_exams)
 
 @app.route("/api/exams/<int:eid>")
 @login_required
 def get_exam_detail(eid):
+    """API lấy thông tin chi tiết của một kỳ thi, bao gồm các bài tập và trạng thái thời gian"""
     exams = load_json("tests.json")
     exam = next((e for e in exams if e["id"] == eid), None)
     if not exam:
-        return jsonify({"error": "Exam not found"}), 404
+        return jsonify({"error": "Không tìm thấy kỳ thi"}), 404
         
-    # Access control by allowedStudents for students
-    if session.get("role") != "instructor":
-        allowed_students = exam.get("allowedStudents", [])
-        if allowed_students and session.get("username") not in allowed_students:
-            return jsonify({"error": "Bạn không có quyền tham gia kỳ thi này."}), 403
+    # Bước 1: RÀO CHẮN BẢO MẬT (Security Guard)
+    # Kiểm tra quyền truy cập dựa trên danh sách trắng (Whitelist) của sinh viên
+    allowed_students = exam.get("allowedStudents", [])
+    if allowed_students and session.get("username") not in allowed_students:
+        return jsonify({"error": "Bạn không có quyền tham gia kỳ thi này. Vui lòng liên hệ giảng viên."}), 403
 
-        from datetime import datetime
-        now = datetime.now().strftime("%Y-%m-%dT%H:%M") # Match input format
-        open_time = exam.get("openTime")
-        close_time = exam.get("closeTime")
+    # Bước 2: KIỂM TRA KHUNG GIỜ (Time Window Check)
+    # Kỳ thi chỉ cho phép truy cập nếu nằm trong khoảng OpenTime và CloseTime
+    from datetime import datetime
+    now = datetime.now().strftime("%Y-%m-%dT%H:%M") 
+    open_time = exam.get("openTime")
+    close_time = exam.get("closeTime")
+    
+    # Kiểm tra xem đề đã mở chưa?
+    if open_time and now < open_time:
+        return jsonify({"error": f"Kỳ thi chưa mở. Đề bài sẽ hiển thị vào: {open_time.replace('T', ' ')}"}), 403
+    
+    # Kiểm tra xem đề đã đóng chưa?
+    if close_time and now > close_time:
+        return jsonify({"error": f"Kỳ thi đã kết thúc vào lúc {close_time.replace('T', ' ')}. Bạn không thể vào làm bài."}), 403
         
-        if open_time and now < open_time:
-            return jsonify({"error": "Kỳ thi chưa đến thời gian thực hành. Mở lúc: " + open_time.replace("T", " ")}), 403
-        if close_time and now > close_time:
-            return jsonify({"error": "Kỳ thi đã kết thúc vào lúc: " + close_time.replace("T", " ")}), 403
-        if not exam.get("isActive", True):
-            return jsonify({"error": "Kỳ thi hiện đang đóng."}), 403
-            
-        # Manage student start time
-        starts = load_json("user_exam_starts.json") or {}
-        if not isinstance(starts, dict): starts = {}
+    # Kiểm tra trạng thái kích hoạt chung
+    if not exam.get("isActive", True):
+        return jsonify({"error": "Kỳ thi hiện đang trong trạng thái bảo trì hoặc đã bị đóng bởi quản trị viên."}), 403
         
-        key = f"{session['username']}_{eid}"
-        if key not in starts:
-            starts[key] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            save_json("user_exam_starts.json", starts)
+    # Bước 3: QUẢN LÝ THỜI GIAN LÀM BÀI CÁ NHÂN (User Timer)
+    # Mục đích: Mỗi sinh viên khi bấm vào làm bài sẽ có một đồng hồ đếm ngược riêng
+    starts = load_json("user_exam_starts.json") or {}
+    if not isinstance(starts, dict): starts = {}
+    
+    # Tạo định danh duy nhất (Username + ExamID) để lưu thời điểm bắt đầu
+    key = f"{session['username']}_{eid}"
+    if key not in starts:
+        # Ghi nhận thời điểm 'phát đề' cho sinh viên này
+        starts[key] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        save_json("user_exam_starts.json", starts)
+    
+    # Tính toán số giây (seconds) đã trôi qua để Frontend hiển thị đếm ngược (Count down)
+    start_time_str = starts[key]
+    exam["userStartTime"] = start_time_str
+    start_dt = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
+    elapsed = (datetime.now() - start_dt).total_seconds()
+    exam["timeElapsed"] = int(elapsed)
         
-        start_time_str = starts[key]
-        exam["userStartTime"] = start_time_str
-        
-        # Calculate time elapsed
-        start_dt = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
-        elapsed = (datetime.now() - start_dt).total_seconds()
-        exam["timeElapsed"] = int(elapsed)
-        
+    # Bước 4: TỐI ƯU CẤU TRÚC ĐỀ BÀI
     all_problems = load_json("problems.json")
+    # Lọc ra danh sách các bài tập thuộc kỳ thi này dựa trên mảng problemIds
     exam_problems = [p for p in all_problems if p["id"] in exam["problemIds"]]
     
-    # Attach points to each problem
+    # Gán điểm số riêng biệt cho từng bài tập trong kỳ thi (Cấu hình bởi Giảng viên)
     points_map = exam.get("problemPoints", {})
     for p in exam_problems:
         p["points"] = points_map.get(str(p["id"]), 0)
     
-    # Fetch student's latest submissions for this exam if not instructor
+    # Bước 5: TRUY VẤN TIẾN ĐỘ LÀM BÀI (Progress Recovery)
+    # Lấy mã nguồn mà sinh viên đã nộp/lưu nháp gần đây nhất để hiển thị lại vào Edittor
     last_subs = {}
     if session.get("role") != "instructor":
         submissions = load_json("submissions.json")
-        # Filter for this user and this exam
         user_exam_subs = [s for s in submissions if s["username"] == session["username"] and str(s.get("examId")) == str(eid)]
-        # Get latest code for each problem
+        
+        # Đồng bộ lại mã nguồn cho từng bài tập trong đề
         for s in sorted(user_exam_subs, key=lambda x: x.get("timestamp", "")):
             last_subs[str(s["problemId"])] = {
                 "code": s.get("code", ""),
@@ -847,12 +967,13 @@ def get_exam_detail(eid):
                 "timeRemaining": s.get("timeRemaining")
             }
 
-    # Strip sensitive info and attach last submission for students
+    # BẢO MẬT: Xóa bỏ gợi ý và code mẫu của giảng viên trước khi gửi đề cho sinh viên
     if session.get("role") != "instructor":
         for p in exam_problems:
             p.pop("hint", None)
             p.pop("solution_code", None)
             p.pop("language_hints", None)
+            # Đính kèm bài nộp gần nhất (nếu có) để sinh viên tiếp tục làm
             p["last_submission"] = last_subs.get(str(p["id"]))
             
     return jsonify({
@@ -863,38 +984,44 @@ def get_exam_detail(eid):
 @app.route("/api/submissions", methods=["POST"])
 @login_required
 def save_submission():
+    """API lưu trữ bài nộp hoặc lượt chạy thử của sinh viên"""
+    # Bước 1: Trích xuất dữ liệu từ body request và định danh người nộp
     data = request.json
     username = session.get("username")
-    submission_type = data.get("submission_type", "check") # 'check' or 'submit'
+    submission_type = data.get("submission_type", "check") # 'check' (chạy console) hoặc 'submit' (nộp đề)
     
+    # Bước 2: Chuẩn hóa đối tượng bài nộp (Submission Object)
     submission = {
         "problemId": data.get("problemId"),
         "problemTitle": data.get("problemTitle"),
         "language": data.get("language"),
         "code": data.get("code"),
-        "mode": data.get("mode", "practice"),
+        "mode": data.get("mode", "practice"), # Chế độ 'practice' (luyện tập) hoặc 'exam' (kỳ thi)
         "examId": data.get("examId"),
-        "allPassed": data.get("allPassed", False),
-        "timeRemaining": data.get("timeRemaining"),
-        "submission_type": submission_type,
-        "username": username,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        "allPassed": data.get("allPassed", False), # Trạng thái tất cả test case đã qua
+        "timeRemaining": data.get("timeRemaining"), # Thời gian còn lại của kỳ thi (nếu có)
+        "submission_type": submission_type, # Loại nộp: 'check' hay 'submit'
+        "username": username, # Tên người dùng nộp bài
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S") # Thời điểm nộp bài
     }
     
     if submission_type == "check":
-        # Save to test_attempts.json
+        # Tuyến đường A: CHẾ ĐỘ CHẠY THỬ (Console Check)
+        # Chỉ lưu vào lịch sử nháp để sinh viên xem lại, không tính điểm chính thức
         attempts = load_json("test_attempts.json")
+        # Thêm bài nộp thử vào danh sách
         attempts.append(submission)
-        # Keep only last 1000 items to avoid bloat
+        # Tự động dọn dẹp (Rotate logs) nếu số lượng bản ghi vượt quá 1000
         if len(attempts) > 1000: attempts = attempts[-1000:]
         save_json("test_attempts.json", attempts)
     else:
-        # Save or overwrite in submissions.json
+        # Tuyến đường B: CHẾ ĐỘ NỘP BÀI (Official Submit)
         submissions = load_json("submissions.json")
         
-        # Overwrite logic: if same user, same problem, and (if exam mode) same exam
-        # We want to keep only the latest submission for that context
+        # CHIẾN LƯỢC LƯU TRỮ: Mỗi người dùng chỉ có 1 bản nộp duy nhất trên 1 bài tập.
+        # Nếu nộp lại cùng một bài, hệ thống sẽ tự động ghi đè (Overwrite) bản cũ.
         if submission["mode"] == "exam":
+            # Xử lý ghi đè trong kỳ thi: Căn cứ vào (Username, ExamID, ProblemID)
             submissions = [
                 s for s in submissions 
                 if not (s["username"] == username and 
@@ -902,8 +1029,7 @@ def save_submission():
                        s["problemId"] == submission["problemId"])
             ]
         else:
-            # For practice mode, maybe we also want to overwrite? 
-            # Let's overwrite practice too as requested "Mở lại bài sẽ hiển thị code đã làm"
+            # Xóa bản cũ của cùng sinh viên, cùng bài tập (trong chế độ luyện tập)
             submissions = [
                 s for s in submissions 
                 if not (s["username"] == username and 
@@ -911,6 +1037,7 @@ def save_submission():
                        s.get("mode") != "exam")
             ]
             
+        # Thêm bản nộp mới nhất vào danh sách
         submissions.append(submission)
         save_json("submissions.json", submissions)
         
@@ -919,61 +1046,67 @@ def save_submission():
 @app.route("/api/exams/<int:eid>/cheat-logs", methods=["POST"])
 @login_required
 def report_cheat(eid):
+    """API ghi nhận các hành vi nghi ngờ gian lận (chuyển tab, mất focus, etc.)"""
+    # Bước 1: Trích xuất thông tin sự kiện từ Body
     data = request.json
     username = session.get("username")
     
-    # Load existing logs or init new list
+    # Bước 2: Tải danh sách Log cũ hoặc khởi tạo mới (nếu file chưa tồn tại)
     logs = load_json("cheat_logs.json") or []
     if not isinstance(logs, list): logs = []
     
+    # Bước 3: Cấu trúc hóa bản ghi log gian lận
     log_entry = {
         "examId": eid,
         "username": username,
-        "event": data.get("event"), # e.g., 'visibilitychange', 'blur'
-        "problemId": data.get("problemId"),
+        "event": data.get("event"),           # Hành vi: 'visibilitychange' (ẩn tab), 'blur' (mất focus)
+        "problemId": data.get("problemId"),   # Bài tập đang làm lúc đó
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "details": data.get("details", "")
+        "details": data.get("details", "")     # Chi tiết bổ sung (VD: số mili giây mất focus)
     }
     
+    # Bước 4: Lưu log vào hệ thống
     logs.append(log_entry)
     save_json("cheat_logs.json", logs)
     
     return jsonify({"status": "success"})
 
-# Student Dashboard APIs
+# --- Các API dành cho Bảng điều khiển sinh viên ---
 @app.route("/api/student/exams/summary")
 @login_required
 def get_student_exams_summary():
+    """API lấy bảng tóm tắt kết quả các kỳ thi của sinh viên hiện tại"""
+    # Bước 1: Xác định danh tính và nạp dữ liệu kỳ thi/bài nộp
     username = session.get("username")
     exams = load_json("tests.json")
     submissions = load_json("submissions.json")
     
     summary = []
+    # Lọc toàn bộ bài nộp của User hiện tại để xử lý tập trung
     user_subs = [s for s in submissions if s["username"] == username]
     
+    # Bước 2: Duyệt qua từng kỳ thi để tính toán kết quả cá nhân
     for exam in exams:
-        # Filtering by allowedStudents
+        # 2.1. Kiểm tra xem sinh viên này có thuộc đối tượng được thi không
         allowed_students = exam.get("allowedStudents", [])
         if allowed_students and username not in allowed_students:
             continue
-
-        # Calculate total possible points
+ 
+        # 2.2. Tính toán Tổng điểm của toàn bộ đề thi (Total possible)
         points_map = exam.get("problemPoints", {})
         total_possible = sum(points_map.values())
         
-        # Calculate achieved points
+        # 2.3. Tính toán Điểm số thực tế đã đạt được (Achieved score)
         achieved = 0
         solved_in_exam = []
         
-        # We only count submissions made in "exam" mode for this specific exam
-        # And only the latest/best one per problem? Actually any success counts.
-        # Wait, submissions in the current system don't seem to have a "status" field in the JSON I saw. 
-        # Ah, they are only saved if successful in the frontend's logic (usually).
-        
-        # We only count successful submissions made in "exam" mode for this specific exam
+        # Lọc các bài nộp thành công (allPassed) CHỈ TRONG kỳ thi này
         exam_subs = [s for s in user_subs if str(s.get("examId")) == str(exam["id"]) and s.get("allPassed") is True]
+        
+        # Lấy duy nhất 1 bản nộp thành công cho mỗi bài tập (Unique IDs)
         solved_ids = set([s["problemId"] for s in exam_subs])
         
+        # Tính tổng điểm tích lũy dựa trên map điểm của từng bài
         for pid in solved_ids:
             achieved += points_map.get(str(pid), 0)
             solved_in_exam.append(pid)
@@ -994,16 +1127,17 @@ def get_student_exams_summary():
 @app.route("/api/student/stats")
 @login_required
 def get_student_personal_stats():
+    """API lấy thống kê cá nhân của sinh viên (số bài đã giải, tỷ lệ thành công, thứ hạng)"""
     username = session.get("username")
     submissions = load_json("submissions.json")
     problems = load_json("problems.json")
     users = load_json("users.json")
     
     user_subs = [s for s in submissions if s["username"] == username]
-    # Practice solved (not specifically exam mode)
+    # Danh sách bài đã giải (bất kể chế độ luyện tập hay thi)
     solved_ids = set([s["problemId"] for s in user_subs])
     
-    # Calculate rank
+    # Tính toán thứ hạng dựa trên số bài đã giải
     student_stats = []
     students = [u for u in users if u["role"] == "student"]
     for s in students:
@@ -1024,12 +1158,16 @@ def get_student_personal_stats():
     })
 
 def run_single_test(language, code, user_input):
-    """Run a single test case for a given language and code."""
+    """
+    Thực thi mã nguồn với một bộ dữ liệu nhập (input) duy nhất.
+    Hàm này được sử dụng để kiểm tra tính đúng đắn của bài tập trong trang quản trị.
+    """
     config = LANGUAGE_CONFIG.get(language)
     if not config:
-        return {"error": f"Unsupported language: {language}"}
+        return {"error": f"Ngôn ngữ không được hỗ trợ: {language}"}
 
-    # Create temp directory
+    # 1. Tạo thư mục tạm thời (temp_dir) để biên dịch và thực thi
+    # Sử dụng 'temp_sessions' để tránh xung đột quyền ghi trên một số môi trường Windows
     base_temp = os.path.join(os.getcwd(), "temp_sessions")
     if not os.path.exists(base_temp):
         os.makedirs(base_temp)
@@ -1046,12 +1184,13 @@ def run_single_test(language, code, user_input):
         exe_path = None
         run_cmd_template = config['run']
         
-        # Compilation Step
+        # Bước 1: Biên dịch (Compilation Step)
         if config['compile']:
             output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
             compile_cmd_template = config['compile']
             compile_files = [code_file]
             
+            # Tắt output buffering cho C/C++ bằng cách link thêm file chứa hàm constructer setvbuf
             if language == 'c':
                 flush_file = os.path.join(temp_dir, "flush_init.c")
                 with open(flush_file, 'w', encoding='utf-8') as f: f.write(FLUSH_INIT_C)
@@ -1061,6 +1200,7 @@ def run_single_test(language, code, user_input):
                 with open(flush_file, 'w', encoding='utf-8') as f: f.write(FLUSH_INIT_CPP)
                 compile_files.append(flush_file)
             
+            # Xây dựng câu lệnh biên dịch từ template (Cấu hình trong LANGUAGE_CONFIG)
             final_compile_cmd = []
             for arg in compile_cmd_template:
                 if "{file}" in arg: final_compile_cmd.append(arg.format(file=code_file, output=output_file))
@@ -1070,29 +1210,30 @@ def run_single_test(language, code, user_input):
 
             compile_result = subprocess.run(final_compile_cmd, capture_output=True, text=True, encoding='utf-8', timeout=10)
             if compile_result.returncode != 0:
-                return {"error": f"Compilation error:\n{compile_result.stderr}", "output": ""}
+                return {"error": f"Lỗi biên dịch:\n{compile_result.stderr}", "output": ""}
             exe_path = output_file
         
-        # Run Step
+        # Bước 2: Thực thi (Run Step)
         if exe_path:
             classname = "Main" if language == "java" else None
             run_cmd = [cmd.format(output=exe_path, classname=classname) for cmd in run_cmd_template]
         else:
             run_cmd = [cmd.format(file=code_file, project_dir=temp_dir) for cmd in run_cmd_template]
 
+        # Thực thi tiến trình với giới hạn thời gian (Timeout) để tránh treo server
         process = subprocess.run(
             run_cmd,
-            input=user_input,
-            capture_output=True,
-            text=True,
+            input=user_input,   # Truyền dữ liệu nhập vào stdin
+            capture_output=True, # Thu thập stdout và stderr
+            text=True,           # Tự động giải mã bytes sang string
             encoding='utf-8',
-            timeout=5,
-            cwd=temp_dir
+            timeout=5,           # Giới hạn 5 giây cho mỗi lần chạy test
+            cwd=temp_dir        # Chạy trong thư mục tạm chứa file code
         )
         return {"output": process.stdout, "error": process.stderr if process.returncode != 0 else None}
 
     except subprocess.TimeoutExpired:
-        return {"error": "Time Limit Exceeded (5s)", "output": ""}
+        return {"error": "Lỗi: Quá thời gian thực thi (giới hạn 5 giây)", "output": ""}
     except Exception as e:
         return {"error": str(e), "output": ""}
     finally:
@@ -1104,6 +1245,7 @@ def run_single_test(language, code, user_input):
 @login_required
 @instructor_required
 def test_new_problem():
+    """API cho phép giảng viên chạy thử code mẫu đối với các bộ test case vừa tạo cho bài tập mới"""
     data = request.json
     language = data.get("language")
     code = data.get("code")
@@ -1127,18 +1269,19 @@ def test_new_problem():
 @login_required
 @instructor_required
 def manage_students():
+    """API quản lý danh sách sinh viên (lấy danh sách, thêm mới, sửa)"""
     users = load_json("users.json")
     if request.method == "GET":
         submissions = load_json("submissions.json")
         students = [u for u in users if u["role"] == "student"]
         
-        # Enrich students with stats
+        # Bổ sung các thông số thống kê cho mỗi sinh viên
         for s in students:
             user_subs = [sub for sub in submissions if sub["username"] == s["username"]]
             s["solved_count"] = len(set([sub["problemId"] for sub in user_subs]))
             s["submission_count"] = len(user_subs)
             
-            # Find main language
+            # Xác định ngôn ngữ lập trình chủ đạo của sinh viên
             if user_subs:
                 langs = {}
                 for sub in user_subs:
@@ -1148,12 +1291,13 @@ def manage_students():
             else:
                 s["main_lang"] = "--"
             
-            # Ensure class_name exists
+            # Đảm bảo trường tên lớp học luôn tồn tại
             if "class_name" not in s:
                 s["class_name"] = "--"
                 
         return jsonify(students)
     elif request.method == "POST":
+        """Thêm mới một sinh viên"""
         new_student = request.json
         new_student["role"] = "student"
         if any(u["username"] == new_student["username"] for u in users):
@@ -1162,8 +1306,10 @@ def manage_students():
         save_json("users.json", users)
         return jsonify({"status": "success"})
     elif request.method == "PUT":
+        """Cập nhật thông tin chi tiết của một sinh viên"""
         data = request.json
         username = data.get("username")
+        # Tìm kiếm sinh viên theo username và cập nhật thông tin mới nhất
         for u in users:
             if u["username"] == username:
                 u.update(data)
@@ -1175,6 +1321,8 @@ def manage_students():
 @login_required
 @instructor_required
 def get_student_stats(username):
+    """API lấy thống kê chi tiết của một sinh viên theo tên đăng nhập (dành cho Admin)"""
+    # Bước 1: Truy vấn thông tin người dùng từ ID
     users = load_json("users.json")
     submissions = load_json("submissions.json")
     
@@ -1182,10 +1330,14 @@ def get_student_stats(username):
     if not student:
         return jsonify({"status": "error", "message": "Sinh viên không tồn tại"}), 404
     
+    # Bước 2: Lọc toàn bộ lịch sử bài nộp của sinh viên này
     user_subs = [s for s in submissions if s["username"] == username]
     
-    # Aggregated stats
+    # Bước 3: Phân tích các chỉ số hiệu năng
+    # Đếm số lượng bài tập duy nhất đã từng nộp bài
     solved_problems = list(set([s["problemId"] for s in user_subs]))
+    
+    # Thống kê tần suất sử dụng các ngôn ngữ lập trình
     langs = {}
     for s in user_subs:
         lang = s["language"]
@@ -1196,6 +1348,7 @@ def get_student_stats(username):
         "solved_count": len(solved_problems),
         "total_submissions": len(user_subs),
         "languages": langs,
+        # Trả về 10 hoạt động gần đây nhất để hiển thị biểu đồ thời gian
         "recent_activity": user_subs[-10:] if user_subs else []
     })
 
@@ -1203,6 +1356,8 @@ def get_student_stats(username):
 @login_required
 @instructor_required
 def get_reports():
+    """API lấy dữ liệu báo cáo chi tiết cho giảng viên (Bảng xếp hạng sinh viên & Thống kê bài tập)"""
+    # Bước 1: Nạp toàn bộ kho dữ liệu cần thiết cho báo cáo
     users = load_json("users.json")
     problems = load_json("problems.json")
     raw_submissions = load_json("submissions.json")
@@ -1211,21 +1366,23 @@ def get_reports():
     username = session.get("username")
     role = session.get("role")
     
-    # Identify accessible exams
+    # Bước 2: THIẾT LẬP PHẠM VI DỮ LIỆU (Data Scoping)
+    # Xác định các kỳ thi mà Giảng viên hiện tại có quyền xem báo cáo
     accessible_exam_ids = [str(e["id"]) for e in exams if can_access_resource(e, username, role)]
     
-    # Filter submissions to only those belonging to accessible exams (or all if admin)
+    # Lọc bài nộp: Admin xem tất cả, Giảng viên chỉ xem các bài nộp trong kỳ thi mình quản lý
     if is_admin_role(role):
         submissions = raw_submissions
     else:
-        # For non-admins, only show submissions tied to their exams
+        # Cơ chế bảo mật: Ngăn việc giảng viên xem bài nộp của các lớp/kỳ thi khác
         submissions = [s for s in raw_submissions if str(s.get("examId")) in accessible_exam_ids]
     
-    # 1. Student Ranking
+    # Bước 3: XÂY DỰNG BÁO CÁO SINH VIÊN (Student Ranking)
     students = [u for u in users if u["role"] == "student"]
     student_report = []
     for s in students:
         user_subs = [sub for sub in submissions if sub["username"] == s["username"]]
+        # Chỉ đếm các bài tập duy nhất (tránh tính lặp điểm)
         solved = set([sub["problemId"] for sub in user_subs])
         student_report.append({
             "username": s["username"],
@@ -1233,38 +1390,31 @@ def get_reports():
             "class_name": s.get("class_name", "--"),
             "solved_count": len(solved),
             "submission_count": len(user_subs),
+            # Tính tỷ lệ thành công trung bình (Pass rate)
             "success_rate": round(len(solved) / len(user_subs) * 100, 1) if user_subs else 0
         })
         
-    # 2. Problem Statistics
+    # Bước 4: XÂY DỰNG BÁO CÁO BÀI TẬP (Problem Analytics)
+    # Giúp giảng viên biết bài tập nào quá khó hoặc quá dễ
     problem_report = []
     for p in problems:
         p_subs = [sub for sub in submissions if sub["problemId"] == p["id"]]
         p_passers = set([sub["username"] for sub in p_subs]) 
         
-        # Map English difficulty to Vietnamese for consistent UI
-        diff_map = {
-            "Easy": "Dễ",
-            "Medium": "Trung bình",
-            "Hard": "Khó"
-        }
+        # Chuyển đổi nhãn độ khó sang tiếng Việt cho giao diện người dùng
+        diff_map = { "Easy": "Dễ", "Medium": "Trung bình", "Hard": "Khó" }
         raw_diff = p.get("difficulty", "Dễ")
         
         problem_report.append({
             "id": p["id"],
             "title": p["title"],
-            "difficulty": diff_map.get(raw_diff, raw_diff), # Use mapped value or fallback to original
+            "difficulty": diff_map.get(raw_diff, raw_diff), 
             "category": p.get("category", "Chung"),
             "attempt_count": len(p_subs),
             "pass_count": len(p_passers)
         })
-
-    # 3. Exam Reports
-    exams = load_json("tests.json")
-    username = session.get("username")
-    role = session.get("role")
-    
-    # Filter exams for report based on permission
+ 
+    # Bước 5: TỔNG HỢP CÁC KỲ THI (Exams Overview)
     accessible_exams = [e for e in exams if can_access_resource(e, username, role)]
     
     exam_report = []
@@ -1273,12 +1423,12 @@ def get_reports():
         exam_id = exam["id"]
         points_map = exam.get("problemPoints", {})
         
-        # All submissions for this exam (regardless of success, to count attendees)
+        # Lấy toàn bộ bài nộp cho kỳ thi này (không phân biệt thành công, để đếm số người tham gia)
         exam_all_subs = [s for s in submissions if str(s.get("examId")) == str(exam_id)]
-        # Successful submissions for score calculation
+        # Chỉ lấy các bài nộp thành công để tính toán điểm số
         exam_pass_subs = [s for s in exam_all_subs if s.get("allPassed") is True]
         
-        # Results per student in this exam
+        # Kết quả chi tiết của từng sinh viên trong kỳ thi này
         student_results = []
         attendees = set([s["username"] for s in exam_all_subs])
         
@@ -1287,14 +1437,14 @@ def get_reports():
             if not user: continue
             
             user_exam_pass_subs = [s for s in exam_pass_subs if s["username"] == username]
-            # Consider only distinct solved problems
+            # Chỉ tính các bài tập khác nhau đã giải thành công
             solved_ids = set([s["problemId"] for s in user_exam_pass_subs])
             
             score = 0
             for pid in solved_ids:
                 score += points_map.get(str(pid), 0)
                 
-            # Count violations
+            # Đếm số lần vi phạm (gian lận)
             cheat_logs = load_json("cheat_logs.json") or []
             violation_count = len([l for l in cheat_logs if str(l.get("examId")) == str(exam_id) and l.get("username") == username])
 
@@ -1322,7 +1472,7 @@ def get_reports():
         "exams": exam_report
     })
 
-# Admin Pages Routing
+# --- Tuyến đường Giao diện Admin (Trang báo cáo) ---
 @app.route("/admin/report-students")
 @login_required
 @instructor_required
@@ -1351,34 +1501,37 @@ def admin_report_exam_detail_page():
 @login_required
 @instructor_required
 def admin_report_exam_submissions_page():
+    """Trang xem chi tiết các bài nộp của một kỳ thi cụ thể"""
     return app.send_static_file("admin/report-exam-submissions.html")
 
-# Permission Management APIs
+# --- API Quản lý Quyền hạn (Permissions) ---
 @app.route("/api/admin/permissions/config", methods=["GET"])
 @login_required
 @permission_required("manage_roles")
 def get_permissions_config():
-    """Get all roles and permissions configuration"""
+    """API lấy toàn bộ cấu hình vai trò và quyền hạn"""
     return jsonify(load_permissions())
 
 @app.route("/api/admin/roles", methods=["GET"])
 @login_required
 def get_roles():
-    """Get roles strictly lower than current user's rank"""
+    """API lấy danh sách các vai trò có cấp bậc thấp hơn người dùng hiện tại"""
+    # Bước 1: Nạp cấu hình phân quyền từ permissions.json
     perms = load_permissions()
     roles = perms.get("roles", {})
     
+    # Bước 2: Xác định cấp bậc (Rank) của người dùng hiện tại
     current_user_role = session.get("role", "student")
     current_rank = ROLE_RANK.get(current_user_role, 0)
     
-    # Filter roles: strictly lower than current user's rank
+    # Bước 3: Lọc danh sách vai trò dựa trên cấp bậc (Hierarchy Filter)
+    # QUY TẮC: Một người không được phép gán/nhìn thấy vai trò cao hơn hoặc bằng chính mình
     filtered_roles = {}
     for k, v in roles.items():
         role_rank = ROLE_RANK.get(k, 0)
+        # Chỉ lấy vai trò có rank thấp hơn, trừ trường hợp đặc biệt là Super Admin
         if role_rank < current_rank or current_user_role == "super_admin":
-            # Even super_admin shouldn't see super_admin if we want "strictly lower"
-            # BUT super_admin often needs to manage other admins. 
-            # If the requirement is "only lower", then super_admin sees everyone EXCEPT super_admin.
+            # Chặn Super Admin nhìn thấy chính mình để tránh tình trạng tự tước quyền (Self-demotion)
             if k == "super_admin" and current_user_role == "super_admin":
                 continue
             filtered_roles[k] = {**v, "rank": role_rank}
@@ -1388,7 +1541,7 @@ def get_roles():
 @app.route("/api/admin/permissions", methods=["GET"])
 @login_required
 def get_all_permissions():
-    """Get all available permissions"""
+    """API lấy danh sách tất cả các quyền hạn có sẵn trong hệ thống"""
     perms = load_permissions()
     return jsonify(perms.get("permissions", {}))
 
@@ -1396,13 +1549,15 @@ def get_all_permissions():
 @login_required
 @permission_required("manage_roles")
 def manage_user_permissions(username):
-    """Get or update user permissions"""
+    """API lấy hoặc cập nhật quyền hạn cụ thể cho từng người dùng"""
+    # Bước 1: Tìm người dùng trong database theo Username
     users = load_json("users.json")
     user = next((u for u in users if u["username"] == username), None)
     
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "Không tìm thấy người dùng"}), 404
     
+    # XỬ LÝ GET: Trả về trạng thái quyền hạn hiện tại
     if request.method == "GET":
         return jsonify({
             "username": username,
@@ -1411,20 +1566,23 @@ def manage_user_permissions(username):
             "all_permissions": get_user_permissions(username)
         })
     
-    # PUT - Update permissions
+    # XỬ LÝ PUT: Cập nhật quyền hạn/vai trò
     data = request.json
     new_role = data.get("role")
     custom_perms = data.get("custom_permissions", [])
     
-    # Prevent changing super_admin role unless current user is super_admin
+    # Bước 2: KIỂM TRA BẢO MẬT (Security Guard)
+    # Ngăn chặn việc người dùng cấp thấp sửa đổi tài khoản Super Admin
     current_user = next((u for u in users if u["username"] == session["username"]), None)
     if user.get("role") == "super_admin" and current_user.get("role") != "super_admin":
-        return jsonify({"error": "Only super admin can modify super admin accounts"}), 403
+        return jsonify({"error": "Vi phạm bảo mật: Chỉ Quản trị viên cấp cao nhất mới có quyền can thiệp vào tài khoản này."}), 403
     
+    # Bước 3: Áp dụng thay đổi
     if new_role:
         user["role"] = new_role
     user["custom_permissions"] = custom_perms
     
+    # Bước 4: Lưu dữ liệu
     save_json("users.json", users)
     return jsonify({"status": "success"})
 
@@ -1432,7 +1590,7 @@ def manage_user_permissions(username):
 @login_required
 @permission_required("manage_roles")
 def get_non_student_users():
-    """Get all non-student users for permission management, filtered by rank"""
+    """API lấy danh sách người dùng (không phải sinh viên), được lọc theo cấp bậc (rank)"""
     users = load_json("users.json")
     current_user_role = session.get("role", "student")
     current_rank = ROLE_RANK.get(current_user_role, 0)
@@ -1444,7 +1602,8 @@ def get_non_student_users():
             continue
             
         target_rank = ROLE_RANK.get(role, 0)
-        # Only show users with STRICTLY LOWER rank
+        # BẢO MẬT: Chỉ hiển thị những người dùng có cấp bậc THẤP HƠN người dùng hiện tại
+        # Điều này ngăn chặn việc giảng viên thông thường can thiệp vào tài khoản Admin
         if target_rank < current_rank:
             non_students.append({
                 "username": u["username"],
@@ -1459,7 +1618,8 @@ def get_non_student_users():
 @login_required
 @permission_required("manage_roles")
 def create_non_student_user():
-    """Create a new non-student user"""
+    """API tạo mới một tài khoản người dùng (không phải sinh viên)"""
+    # Bước 1: Trích xuất thông tin người dùng mới
     data = request.json
     username = data.get("username", "").strip()
     display_name = data.get("display_name", "").strip()
@@ -1467,28 +1627,28 @@ def create_non_student_user():
     role = data.get("role", "instructor")
     custom_permissions = data.get("custom_permissions", [])
     
-    # Validation
+    # Bước 2: KIỂM TRA TÍNH HỢP LỆ (Validation)
+    # Đảm bảo các trường bắt buộc không để trống
     if not username or not display_name or not password:
-        return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
+        return jsonify({"status": "error", "message": "Vui lòng nhập đầy đủ các trường bắt buộc"}), 400
     
+    # Độ dài tối thiểu cho tài khoản và mật khẩu
     if len(username) < 3:
         return jsonify({"status": "error", "message": "Tên đăng nhập phải có ít nhất 3 ký tự"}), 400
-    
     if len(password) < 3:
         return jsonify({"status": "error", "message": "Mật khẩu phải có ít nhất 3 ký tự"}), 400
     
-    # Check if role is valid and not student
+    # Kiểm tra xem vai trò mục tiêu có tồn tại trong hệ thống không
     perms_config = load_permissions()
     if role not in perms_config.get("roles", {}) or role == "student":
-        return jsonify({"status": "error", "message": "Vai trò không hợp lệ"}), 400
+        return jsonify({"status": "error", "message": "Vai trò (Role) không tồn tại hoặc không hợp lệ"}), 400
     
+    # Bước 3: KIỂM TRA TRÙNG LẶP (Duplication Check)
     users = load_json("users.json")
-    
-    # Check if username already exists
     if any(u["username"] == username for u in users):
-        return jsonify({"status": "error", "message": "Tên đăng nhập đã tồn tại"}), 400
+        return jsonify({"status": "error", "message": "Tên đăng nhập này đã được sử dụng"}), 400
     
-    # Create new user
+    # Bước 4: Lưu tài khoản mới vào danh sách
     new_user = {
         "username": username,
         "password": password,
@@ -1500,31 +1660,31 @@ def create_non_student_user():
     users.append(new_user)
     save_json("users.json", users)
     
-    return jsonify({"status": "success", "message": "Tạo tài khoản thành công"})
+    return jsonify({"status": "success", "message": "Tạo tài khoản quản lý thành công"})
 
-# Permission CRUD APIs
+# --- API Quản lý Quyền hạn (Permissions) CRUD ---
 @app.route("/api/admin/permissions", methods=["POST"])
 @login_required
 @permission_required("manage_roles")
 def create_permission():
-    """Create a new permission"""
+    """API tạo thêm một quyền hạn mới trong hệ thống"""
     data = request.json
     perm_key = data.get("key", "").strip()
     perm_name = data.get("name", "").strip()
     perm_desc = data.get("description", "").strip()
     
     if not perm_key or not perm_name:
-        return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
+        return jsonify({"status": "error", "message": "Vui lòng nhập đầy đủ mã và tên quyền hạn"}), 400
     
-    # Validate key format (lowercase, numbers, underscores only)
+    # Kiểm tra định dạng key (chỉ cho phép chữ thường, số và gạch dưới)
     import re
     if not re.match(r'^[a-z0-9_]+$', perm_key):
-        return jsonify({"status": "error", "message": "Permission key chỉ được chứa chữ thường, số và dấu gạch dưới"}), 400
+        return jsonify({"status": "error", "message": "Mã quyền hạn (key) chỉ được chứa chữ thường, số và dấu gạch dưới"}), 400
     
     perms_config = load_permissions()
     
     if perm_key in perms_config.get("permissions", {}):
-        return jsonify({"status": "error", "message": "Permission key đã tồn tại"}), 400
+        return jsonify({"status": "error", "message": "Mã quyền hạn này đã tồn tại trong hệ thống"}), 400
     
     perms_config.setdefault("permissions", {})[perm_key] = {
         "name": perm_name,
@@ -1532,105 +1692,117 @@ def create_permission():
     }
     
     save_json("permissions.json", perms_config)
-    return jsonify({"status": "success", "message": "Tạo permission thành công"})
+    return jsonify({"status": "success", "message": "Đã tạo quyền hạn mới thành công"})
 
 @app.route("/api/admin/permissions/<perm_key>", methods=["PUT", "DELETE"])
 @login_required
 @permission_required("manage_roles")
 def manage_permission(perm_key):
-    """Update or delete a permission"""
+    # Bước 1: Nạp cấu hình hiện tại
     perms_config = load_permissions()
     
     if perm_key not in perms_config.get("permissions", {}):
-        return jsonify({"status": "error", "message": "Permission không tồn tại"}), 404
+        return jsonify({"status": "error", "message": "Không tìm thấy mã quyền hạn (key) này"}), 404
     
+    # XỬ LÝ DELETE: Xóa bỏ quyền khỏi hệ thống
     if request.method == "DELETE":
-        # Check if permission is used in any role
+        # KIỂM TRA RÀNG BUỘC: Không cho phép xóa nếu quyền đang được một vai trò sử dụng
         for role_key, role_data in perms_config.get("roles", {}).items():
             if perm_key in role_data.get("permissions", []):
-                return jsonify({"status": "error", "message": f"Permission đang được sử dụng bởi role '{role_data.get('name', role_key)}'"}), 400
+                return jsonify({
+                    "status": "error", 
+                    "message": f"Dữ liệu đang được sử dụng: Quyền này đang được gán cho vai trò '{role_data.get('name', role_key)}'. Vui lòng gỡ quyền khỏi vai trò trước khi xóa."
+                }), 400
         
+        # Xóa thực thể khỏi Dictionary
         del perms_config["permissions"][perm_key]
         save_json("permissions.json", perms_config)
-        return jsonify({"status": "success", "message": "Xóa permission thành công"})
+        return jsonify({"status": "success", "message": "Đã xóa quyền hạn vĩnh viễn"})
     
-    # PUT - Update
+    # XỬ LÝ PUT: Cập nhật nội dung mô tả
     data = request.json
     perms_config["permissions"][perm_key] = {
         "name": data.get("name", ""),
         "description": data.get("description", "")
     }
     save_json("permissions.json", perms_config)
-    return jsonify({"status": "success", "message": "Cập nhật permission thành công"})
+    return jsonify({"status": "success", "message": "Thông tin quyền hạn đã được cập nhật"})
 
 @app.route("/api/admin/roles/<role_key>/permissions", methods=["PUT"])
 @login_required
 @permission_required("manage_roles")
 def update_role_permissions(role_key):
-    """Update permissions for a role"""
+    # Bước 1: Nạp kho quyền hạn
     perms_config = load_permissions()
     
     if role_key not in perms_config.get("roles", {}):
-        return jsonify({"status": "error", "message": "Role không tồn tại"}), 404
+        return jsonify({"status": "error", "message": "Vai trò mục tiêu không tồn tại"}), 404
     
-    # Prevent modifying super_admin
+    # BẢO MẬT TUYỆT ĐỐI: Không cho phép can thiệp vào quyền của Super Admin qua API
+    # Mục đích: Tránh việc sếp bị nhân viên (Admin cấp thấp) tước quyền thông qua chỉnh sửa role
     if role_key == "super_admin":
-        return jsonify({"status": "error", "message": "Không thể sửa quyền của super_admin"}), 403
+        return jsonify({"status": "error", "message": "Vi phạm quy tắc hệ thống: Không thể chỉnh sửa quyền hạn của Quản trị viên cấp cao nhất (Super Admin)"}), 403
     
+    # Bước 2: Trích xuất danh sách quyền mới
     data = request.json
     new_perms = data.get("permissions", [])
     
-    # Validate all permissions exist
+    # Bước 3: Kiểm tra tính toàn vẹn (Integrity Check)
+    # Đảm bảo các Key quyền hạn được gán phải thực sự tồn tại trong danh mục Permissions
     all_perms = perms_config.get("permissions", {})
     for perm in new_perms:
         if perm not in all_perms:
-            return jsonify({"status": "error", "message": f"Permission '{perm}' không tồn tại"}), 400
+            return jsonify({"status": "error", "message": f"Lỗi logic: Quyền hạn '{perm}' không tồn tại. Vui lòng kiểm tra lại danh mục quyền."}), 400
     
+    # Bước 4: Cập nhật và lưu trữ
     perms_config["roles"][role_key]["permissions"] = new_perms
     save_json("permissions.json", perms_config)
-    return jsonify({"status": "success", "message": "Cập nhật role thành công"})
+    return jsonify({"status": "success", "message": f"Đã cập nhật bộ quyền cho vai trò '{role_key}'"})
 
-# Tracking & Submissions
+# --- API Theo dõi và Bài nộp (Lưu trữ lịch sử) ---
 @app.route("/api/submissions", methods=["GET", "POST"])
 @login_required
 def handle_submissions():
+    # XỬ LÝ POST: Gửi bài nộp hoặc lưu lịch sử chạy thử
     if request.method == "POST":
         data = request.json
         data["username"] = session["username"]
         data["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
         
-        # Consistent timeRemaining and code handling
+        # Bước 1: Chuẩn hóa dữ liệu (Data Normalization)
+        # Đảm bảo trường thời gian 'timeRemaining' nhất quán giữa các phiên bản API
         if "timeRemaining" not in data and "time_remaining" in data:
             data["timeRemaining"] = data.pop("time_remaining")
         
-        # Determine which file to save to based on submission_type
-        submission_type = data.get("submission_type", "submit")  # Default to submit for backward compatibility
+        # Bước 2: Phân loại cơ sở dữ liệu đích
+        submission_type = data.get("submission_type", "submit") 
         
         if submission_type == "check":
-            # Save to test_attempts.json
+            # Tuyến đường lưu trữ CHẠY THỬ (Testing attempts)
             attempts = load_json("test_attempts.json")
             attempts.append(data)
             save_json("test_attempts.json", attempts)
         else:
-            # Save to submissions.json (final submission)
+            # Tuyến đường lưu trữ BÀI NỘP CHÍNH THỨC (Official submissions)
             submissions = load_json("submissions.json")
             submissions.append(data)
             save_json("submissions.json", submissions)
         
         return jsonify({"status": "success"})
     
-    # GET: Fetch tracking info
+    # XỬ LÝ GET: Truy vấn lịch sử (Phân quyền theo vai trò)
     submissions = load_json("submissions.json")
     test_attempts = load_json("test_attempts.json")
     
-    # Allow all non-student roles to view all data
+    # Bước 3: THIẾT LẬP CHẾ ĐỘ XEM (View Scoping)
     if session.get("role") != "student":
+        # GIẢNG VIÊN/ADMIN: Được quyền xem toàn bộ 'Big Data' của hệ thống phục vụ hậu kiểm
         return jsonify({
             "submissions": submissions,
             "test_attempts": test_attempts
         })
     else:
-        # Student only sees their own
+        # SINH VIÊN: Chỉ được phép truy cập dữ liệu cá nhân (Bảo mật riêng tư)
         user_subs = [s for s in submissions if s["username"] == session["username"]]
         user_attempts = [a for a in test_attempts if a["username"] == session["username"]]
         return jsonify({
@@ -1639,16 +1811,24 @@ def handle_submissions():
         })
 
 
-# Role hierarchy (higher value = higher privilege)
+
+# -------------------------------------------------------------------------------------------------
+# III. CÔNG CỤ HỖ TRỢ & CẤU HÌNH THỨ BẬC (HELPER TOOLS & HIERARCHY)
+# Phần này định nghĩa các quy tắc cốt lõi về phân quyền và sơ đồ dữ liệu sinh viên.
+# -------------------------------------------------------------------------------------------------
+
+# 1. Cấp bậc vai trò (Rank Hierarchy)
+# Dùng để kiểm soát quyền hạn quản lý: Rank CAO điều phối người có Rank THẤP.
 ROLE_RANK = {
-    "super_admin": 100,
-    "admin": 80,
-    "instructor": 60,
-    "teaching_assistant": 40,
-    "student": 20
+    "super_admin": 100,         # Trùm cuối: Có quyền tối thượng trên toàn hệ thống
+    "admin": 80,                # Quản trị viên: Vận hành hệ thống chung
+    "instructor": 60,           # Giảng viên: Quản lý học tập và bài tập
+    "teaching_assistant": 40,   # Trợ giảng: Hỗ trợ giảng dạy và chấm điểm bài nộp
+    "student": 20               # Sinh viên: Chỉ có quyền làm bài và xem kết quả cá nhân
 }
 
-# Detailed information fields for students
+# 2. Danh mục thông tin sinh viên (Student Profile Schema)
+# Các trường dữ liệu này sẽ được dùng để ánh xạ tự động từ Excel hoặc Form đăng ký.
 STUDENT_FIELDS = [
     "msv", "fullname", "dob", "phone", "email_school", "email_personal", 
     "ethnicity", "id_card", "major", "address", "father_name", 
@@ -1659,27 +1839,34 @@ STUDENT_FIELDS = [
 @login_required
 @permission_required("manage_users")
 def handle_admin_users():
-    """Get all visible users or create a new user"""
+    """API lấy danh sách người dùng hoặc tạo người dùng mới (có kiểm tra cấp bậc)"""
     users = load_json("users.json")
+    current_user_role = session.get("role", "student")
+    # Bước 1: Nạp toàn bộ dữ liệu người dùng
+    users = load_json("users.json")
+    
+    # Bước 2: Xác định cấp bậc (Rank) của người đang đăng nhập
     current_user_role = session.get("role", "student")
     current_rank = ROLE_RANK.get(current_user_role, 0)
     
+    # XỬ LÝ GET: Liệt kê danh sách người dùng quản lý
     if request.method == "GET":
         filtered_users = []
         for u in users:
             target_role = u.get("role", "student")
             target_rank = ROLE_RANK.get(target_role, 0)
             
-            # Only show users with STRICTLY LOWER rank
+            # KIỂM TRA BẢO MẬT: Chỉ được phép hiển thị những người dùng có rank THẤP HƠN mình
+            # Điều này ngăn sinh viên thấy admin, và admin không thể can thiệp vào super_admin
             if target_rank < current_rank:
                 user_info = {
                     "username": u["username"],
                     "display_name": u.get("display_name", u["username"]),
                     "role": target_role,
                     "class_name": u.get("class_name", "--"),
-                    "password": "******" # Mask password
+                    "password": "******" # BẢO MẬT: Tuyệt đối không gửi mật khẩu thật qua API
                 }
-                # Add student details to visibility if present
+                # Nếu là dữ liệu sinh viên, bổ sung thêm các trường thông tin chi tiết (SDT, Email, v.v.)
                 if target_role == "student":
                     for field in STUDENT_FIELDS:
                         if field in u:
@@ -1687,7 +1874,7 @@ def handle_admin_users():
                 filtered_users.append(user_info)
         return jsonify(filtered_users)
     
-    # POST - Create new user
+    # POST - Tạo một người dùng mới
     data = request.json
     username = data.get("username", "").strip()
     display_name = data.get("display_name", "").strip()
@@ -1698,7 +1885,7 @@ def handle_admin_users():
     if not username or not display_name or not password:
         return jsonify({"status": "error", "message": "Thiếu thông tin bắt buộc"}), 400
         
-    # Rank check for creation: MUST be strictly lower rank
+    # Kiểm tra cấp bậc khi tạo: MUST có rank thấp hơn rank của người thực hiện
     target_rank = ROLE_RANK.get(role, 0)
     if target_rank >= current_rank and current_user_role != "super_admin":
         return jsonify({"status": "error", "message": "Bạn chỉ có thể tạo tài khoản có cấp bậc thấp hơn"}), 403
@@ -1713,7 +1900,7 @@ def handle_admin_users():
         "role": role,
         "class_name": class_name
     }
-    # Add detailed fields if provided (mostly for students)
+    # Bổ sung các trường chi tiết nếu được cung cấp (chủ yếu dành cho sinh viên)
     for field in STUDENT_FIELDS:
         if field in data:
             new_user[field] = data[field]
@@ -1725,13 +1912,14 @@ def handle_admin_users():
 @login_required
 @permission_required("manage_users")
 def modify_user(username):
-    """Update profile or delete any user"""
+    # Bước 1: Tìm kiếm vị trí (Index) của người dùng mục tiêu trong mảng
     users = load_json("users.json")
     user_idx = next((i for i, u in enumerate(users) if u["username"] == username), -1)
     
     if user_idx == -1:
-        return jsonify({"status": "error", "message": "User not found"}), 404
+        return jsonify({"status": "error", "message": "Không tìm thấy người dùng trong hệ thống"}), 404
         
+    # Bước 2: KIỂM TRA PHÂN CẤP QUYỀN HẠN (Permission Check)
     current_user_role = session.get("role", "student")
     target_user = users[user_idx]
     target_user_role = target_user.get("role", "student")
@@ -1739,49 +1927,43 @@ def modify_user(username):
     current_rank = ROLE_RANK.get(current_user_role, 0)
     target_rank = ROLE_RANK.get(target_user_role, 0)
     
-    # Hierarchy check: current user rank must be > target user rank
-    # Note: super_admin can modify other super_admins (as before) if they are both 100
-    # but the user requested strictly lower for VISIBILITY. 
-    # For MODIFICATION, we should stick to >= or > depending on the exact intent.
-    # User said: "cấp nhỏ hơn sẽ không thấy được tài khoản cấp cao hơn và cùng cấp" -> visibility is rank_a > rank_b
+    # QUY TẮC: Rank của bạn phải LỚN HƠN rank của đối tượng bạn muốn chỉnh sửa
     if current_rank <= target_rank and current_user_role != "super_admin":
-         return jsonify({"status": "error", "message": "Bạn không có quyền chỉnh sửa tài khoản có cấp bậc tương đương hoặc cao hơn"}), 403
+         return jsonify({"status": "error", "message": "Vi phạm chính sách: Bạn không có quyền thao tác trên tài khoản có cấp bậc tương đương hoặc cao hơn."}), 403
     
-    # Extra check for super_admin modifying other super_admins
+    # QUY TẮC ĐẶC BIỆT: Chỉ Super Admin mới được can thiệp vào các Super Admin khác
     if target_user_role == "super_admin" and current_user_role != "super_admin":
-        return jsonify({"status": "error", "message": "Chỉ quản trị viên cấp cao nhất mới có thể thực hiện"}), 403
+        return jsonify({"status": "error", "message": "Thất bại: Thao tác này yêu cầu quyền Quản trị viên cấp cao nhất."}), 403
 
     if request.method == "DELETE":
         if username == session["username"]:
-            return jsonify({"status": "error", "message": "Cannot delete yourself"}), 400
+            return jsonify({"status": "error", "message": "Bạn không thể tự xóa chính mình"}), 400
         users.pop(user_idx)
         save_json("users.json", users)
         return jsonify({"status": "success"})
     
-    # PUT - Update user
+    # PUT - Cập nhật thông tin sinh viên
     data = request.json
     target_user = users[user_idx]
     
-    # Fields allowed to be updated
+    # Các trường thông tin được phép cập nhật
     if "display_name" in data: target_user["display_name"] = data["display_name"]
-    # Masked password handling: only update if not masked
+    # Xử lý mật khẩu bị ẩn: chỉ cập nhật nếu mật khẩu gửi lên không phải là chuỗi ẩn danh '******'
     if "password" in data and data["password"] != "******": 
         target_user["password"] = data["password"]
     if "class_name" in data: target_user["class_name"] = data["class_name"]
     
-    # Update student detailed fields
-    # We mainly expect these for students, but they can be applied if provided
+    # Cập nhật các trường thông tin chi tiết khác (cho sinh viên)
     for field in STUDENT_FIELDS:
         if field in data:
             target_user[field] = data[field]
     
-    # Role updates are disabled for security (requested by user)
-    # The role should be set once during creation and not changed thereafter
-    # to maintain strict permission boundaries.
+    # Việc cập nhật vai trò (role) bị vô hiệu hóa vì lý do bảo mật (theo yêu cầu)
+    # Vai trò nên được thiết lập một lần khi tạo và không thay đổi sau đó để duy trì ranh giới quyền hạn.
             
     save_json("users.json", users)
     
-    # Update session if current user updated their own info
+    # Cập nhật session nếu người dùng đang tự cập nhật thông tin của chính mình
     if username == session["username"]:
         if "display_name" in data: session["display_name"] = data["display_name"]
         
@@ -1791,10 +1973,10 @@ def modify_user(username):
 @login_required
 @permission_required("manage_users")
 def download_import_template():
-    """Serve the static template Excel file for student import"""
+    """Tải xuống file Excel mẫu để nhập danh sách sinh viên"""
     file_path = os.path.join(app.static_folder, "admin", "student_import_template.xlsx")
     if not os.path.exists(file_path):
-        return jsonify({"status": "error", "message": "Template file not found on server"}), 404
+        return jsonify({"status": "error", "message": "Không tìm thấy file mẫu trên máy chủ"}), 404
         
     return send_file(
         file_path,
@@ -1807,7 +1989,7 @@ def download_import_template():
 @login_required
 @permission_required("manage_users")
 def import_students_excel():
-    """Import students from an uploaded Excel file"""
+    """API nhập danh sách sinh viên hàng loạt từ file Excel tải lên"""
     if 'file' not in request.files:
         return jsonify({"status": "error", "message": "Không tìm thấy file"}), 400
         
@@ -1816,9 +1998,12 @@ def import_students_excel():
         return jsonify({"status": "error", "message": "Chưa chọn file"}), 400
         
     try:
+        # Bước 1: Trích xuất và nạp File từ Request
+        file = request.files['file']
         df = pd.read_excel(file)
         
-        # Column mapping
+        # Bước 2: CẤU HÌNH ÁNH XẠ (Mapping Configuration)
+        # Chuyển đổi tiêu đề cột tiếng Việt từ Excel sang các Key tương ứng trong JSON hệ thống
         mapping = {
             "Mã sinh viên": "msv",
             "Họ và tên": "fullname",
@@ -1839,35 +2024,39 @@ def import_students_excel():
             "Email mẹ": "mother_email"
         }
         
-        # Check required columns
+        # Bước 3: KIỂM TRA TÍNH TOÀN VẸN (Data Integrity)
+        # Đảm bảo các cột định danh tối thiểu phải tồn tại
         required = ["Mã sinh viên", "Họ và tên"]
         for col in required:
             if col not in df.columns:
-                return jsonify({"status": "error", "message": f"Thiếu cột bắt buộc: {col}"}), 400
+                return jsonify({"status": "error", "message": f"File Excel không đúng định dạng. Thiếu cột bắt buộc: {col}"}), 400
         
         users = load_json("users.json")
         import_count = 0
         skip_count = 0
         
+        # Bước 4: DUYỆT TỪNG DÒNG DỮ LIỆU (Row Processing)
         for _, row in df.iterrows():
             username = str(row["Mã sinh viên"]).strip()
+            # Bỏ qua các dòng trống hoặc bị lỗi NaN
             if not username or username == 'nan':
                 continue
                 
-            # Check if exists
+            # Kiểm tra trùng lặp: Nếu sinh viên đã có trong hệ thống thì bỏ qua
             if any(u["username"] == username for u in users):
                 skip_count += 1
                 continue
                 
+            # Khởi tạo đối tượng người dùng mới với mật khẩu mặc định trùng MSSV
             new_user = {
                 "username": username,
-                "password": username, # Default password is MSV
+                "password": username, 
                 "display_name": str(row["Họ và tên"]).strip(),
                 "role": "student",
                 "class_name": str(row.get("Lớp", "--")).strip()
             }
             
-            # Additional fields
+            # Áp dụng logic ánh xạ cho các trường thông tin phụ
             for excel_col, json_field in mapping.items():
                 if excel_col in df.columns and excel_col not in ["Mã sinh viên", "Họ và tên", "Lớp"]:
                     val = row[excel_col]
@@ -1877,14 +2066,16 @@ def import_students_excel():
             users.append(new_user)
             import_count += 1
             
+        # Bước 5: Lưu vĩnh viễn vào File JSON
         save_json("users.json", users)
         return jsonify({
             "status": "success", 
-            "message": f"Đã nhập thành công {import_count} sinh viên. (Bỏ qua {skip_count} do trùng lặp)"
+            "message": f"Tiến trình hoàn tất: Đã nhập {import_count} tài khoản mới. (Bỏ qua {skip_count} tài khoản đã tồn tại)"
         })
         
     except Exception as e:
-        return jsonify({"status": "error", "message": f"Lỗi xử lý file: {str(e)}"}), 500
+        # Xử lý các lỗi bất ngờ trong quá trình parse Excel (VD: file hỏng, sai định dạng date)
+        return jsonify({"status": "error", "message": f"Lỗi xử lý file Excel: {str(e)}"}), 500
 
 @app.route("/api/admin/exams/<int:eid>/submissions")
 @login_required
@@ -1905,6 +2096,7 @@ def get_exam_submissions(eid):
 @login_required
 @instructor_required
 def get_admin_exam_cheat_logs(eid):
+    """API lấy toàn bộ log nghi ngờ gian lận của một kỳ thi (dành cho Admin)"""
     logs = load_json("cheat_logs.json") or []
     exam_logs = [l for l in logs if str(l.get("examId")) == str(eid)]
     return jsonify(exam_logs)
@@ -1914,20 +2106,25 @@ from google import genai
 @app.route("/api/ai/hint", methods=["POST"])
 @login_required
 def get_ai_hint():
+    """API sử dụng Google Gemini AI để gợi ý cách sửa lỗi cho sinh viên"""
     print("👉 [1] Đã nhận được request hỏi AI từ frontend!")
+    # Bước 1: Trích xuất và Chuẩn hóa dữ liệu đầu vào
     data = request.json
-    code = data.get("code")
-    language = data.get("language")
+    code = data.get("code")             # Mã nguồn hiện tại của học sinh
+    language = data.get("language")     # Ngôn ngữ lập trình
     problem_title = data.get("problem_title")
     problem_desc = data.get("problem_desc")
-    failed_tc = data.get("failed_test_case")
-
+    failed_tc = data.get("failed_test_case") # Thông tin về Test Case bị sai (Input/Expected/Actual)
+ 
+    # Bước 2: Kiểm soát dữ liệu (Data Validation)
     if not all([code, language, problem_title, failed_tc]):
-        return jsonify({"status": "error", "message": "Thiếu thông tin dữ liệu"}), 400
-
+        return jsonify({"status": "error", "message": "Dữ liệu cung cấp không đầy đủ để AI có thể phân tích lỗi."}), 400
+ 
+    # Bước 3: THIẾT KẾ PROMPT (Prompt Engineering)
+    # Đây là phần quan trọng nhất để điều hướng AI trả về câu trả lời hữu ích nhưng không giải hộ bài hoàn toàn
     prompt = f"""
-    Bạn là một gia sư lập trình AI. Một học sinh đang giải bài tập "{problem_title}".
-    Mô tả bài toán: {problem_desc}
+    Bạn là một gia sư lập trình AI tận tâm. Một học sinh đang giải bài tập "{problem_title}".
+    Yêu cầu bài toán: {problem_desc}
 
     Học sinh đã viết đoạn code sau bằng ngôn ngữ {language}:
     ```{language}
@@ -1942,6 +2139,7 @@ def get_ai_hint():
     Nhiệm vụ của bạn:
     Hãy phân tích lý do tại sao code của học sinh lại cho ra kết quả sai ở test case này. 
     Đưa ra một gợi ý ngắn gọn, dễ hiểu để học sinh tự sửa.
+    LƯU Ý: Không được cung cấp mã nguồn đúng (solution code) ngay lập tức, chỉ đưa ra hướng dẫn logic.
     """
 
     try:
@@ -1962,17 +2160,20 @@ def get_ai_hint():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+# --- Xử lý Kết nối thời gian thực qua Socket.IO ---
 @socketio.on('connect')
 def handle_connect():
+    """Sự kiện khi một máy khách (client) kết nối thành công"""
     print(f'Client connected: {request.sid}')
     emit('connected', {'status': 'ready'})
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    """Sự kiện khi một máy khách ngắt kết nối: dọn dẹp tài nguyên temp"""
     print(f'Client disconnected: {request.sid}')
     cleanup_session(request.sid)
 
-# C code to disable buffering
+# Mã nguồn C/C++ bổ sung để vô hiệu hóa bộ đệm (buffering), giúp output hiển thị tức thì qua socket
 FLUSH_INIT_C = r"""
 #include <stdio.h>
 #include <stdlib.h>
@@ -1987,7 +2188,6 @@ void __attribute__((constructor)) flush_init() {
 }
 """
 
-# C++ code to disable buffering
 FLUSH_INIT_CPP = r"""
 #include <iostream>
 #include <stdio.h>
@@ -2007,46 +2207,49 @@ static FlushInit flush_init_obj;
 
 @socketio.on('start_session')
 def handle_start_session(data):
+    """Sự kiện khởi tạo một phiên thực thi code trực tiếp (Console Run)"""
     session_id = request.sid
     language = data.get('language')
     code = data.get('code')
     
     print(f'Starting session {session_id} for language {language}')
     
-    # Cleanup any existing session
+    # Bước 1: DỌN DẸP TIỀN TRÌNH (Sanitization)
+    # Đảm bảo không có tiến trình nào đang chạy ngầm của session này trước khi bắt đầu mới
     cleanup_session(session_id)
     
     try:
-        # Create temp directory for this session
+        # Bước 2: THIẾT LẬP MÔI TRƯỜNG CÔ LẬP (Isolation)
         config = LANGUAGE_CONFIG.get(language)
         if not config:
-            emit('error', {'message': f'Unsupported language: {language}'})
+            emit('error', {'message': f'Ngôn ngữ không được hỗ trợ: {language}'})
             return
         
-         # Use a local temp directory to avoid path/permission issues on Windows
+        # Sử dụng thư mục tạm 'temp_sessions' để quản lý tập trung các tệp thực thi
         base_temp = os.path.join(os.getcwd(), "temp_sessions")
         if not os.path.exists(base_temp):
             os.makedirs(base_temp)
             
+        # Tạo thư mục tạm duy nhất cho mỗi phiên làm việc (MKDTEMP)
         temp_dir = tempfile.mkdtemp(dir=base_temp)
         ext = config['ext']
         
-        # Java needs specific filename
+        # Ghi mã nguồn vào file vật lý trong thư mục tạm
         filename = config.get('main_file', f"code{ext}")
         code_file = os.path.join(temp_dir, filename)
         
         with open(code_file, 'w', encoding='utf-8') as f:
             f.write(code)
         
-        # Compile if needed
+        # Bước 3: QUY TRÌNH BIÊN DỊCH (Compilation Pipeline)
         if config['compile']:
+            # Xác định tên file đầu ra (.exe cho Windows)
             output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
-            
-            # Prepare compilation command
             compile_cmd_template = config['compile']
             compile_files = [code_file]
             
-            # Inject flushing code for C/C++
+            # KỸ THUẬT NÂNG CAO: Chèn code Flushing cho C/C++
+            # Mục đích: Vô hiệu hóa tính năng buffering của HDH để output nhảy lên màn hình ngay khi lệnh in được gọi
             if language == 'c':
                 flush_file = os.path.join(temp_dir, "flush_init.c")
                 with open(flush_file, 'w', encoding='utf-8') as f:
@@ -2058,31 +2261,22 @@ def handle_start_session(data):
                     f.write(FLUSH_INIT_CPP)
                 compile_files.append(flush_file)
             
-            # Construct the compile command
-            # The template usually looks like ["gcc", "-o", "{output}", "{file}"]
-            # We need to replace "{file}" with all source files
-            
-            # Simplistic approach: replace "{file}" in the template with the primary file,
-            # and append the extra files to the end of the command (before -o if possible, or just append)
-            # GCC/G++ allows input files anywhere.
-            
+            # Xây dựng lệnh biên dịch đầy đủ từ template
             final_compile_cmd = []
             for arg in compile_cmd_template:
                 if "{file}" in arg:
-                    # Replace {file} with the main code file
                     final_compile_cmd.append(arg.format(file=code_file, output=output_file))
                 elif "{output}" in arg:
                     final_compile_cmd.append(arg.format(output=output_file))
                 else:
                     final_compile_cmd.append(arg)
             
-            # Append extra source files (flushing logic)
-            # We skip the first file in compile_files because it was likely handled by {file} replacement
-            # actually we should be careful. let's just append the extra files to the command list.
+            # Đính kèm file flush (nếu có) vào lệnh biên dịch chính
             for extra_file in compile_files[1:]:
                 final_compile_cmd.append(extra_file)
-
+ 
             try:
+                # Thực hiện biên dịch (subprocess.run) - Giới hạn tối đa 10s để tránh treo server
                 compile_result = subprocess.run(
                     final_compile_cmd,
                     capture_output=True,
@@ -2091,59 +2285,61 @@ def handle_start_session(data):
                     timeout=10
                 )
                 
+                # Trả về lỗi biên dịch (Syntax Error/Linker Error) nếu có cho học sinh
                 if compile_result.returncode != 0:
-                    emit('error', {'message': f'Compilation error:\n{compile_result.stderr}'})
+                    emit('error', {'message': f'Lỗi biên dịch bài làm:\n{compile_result.stderr}'})
                     cleanup_session(session_id)
                     return
                 
-                # For compiled languages, classname/classname might still be needed (e.g. Java)
+                # Chuẩn bị lệnh thực thi sau khi đã biên dịch xong
                 classname = "Main" if language == "java" else None
                 run_cmd = [cmd.format(output=output_file, classname=classname) for cmd in config['run']]
             except FileNotFoundError:
-                emit('error', {'message': f'System error: Compiler not found for {language}. Please install it to run code locally.'})
+                emit('error', {'message': f'Lỗi hệ thống: Không tìm thấy trình biên dịch cho {language}.'})
                 cleanup_session(session_id)
                 return
         else:
-            # For interpreted languages
+            # Ngôn ngữ thông dịch (Python/JS): Run trực tiếp file nguồn
             run_cmd = [cmd.format(file=code_file, project_dir=temp_dir) for cmd in config['run']]
             
         print(f"Executing: {' '.join(run_cmd)}")
-        # Send the command to the terminal so user knows what's happening
+        # Gửi thông báo lệnh chạy thực tế lên Console của học sinh (như Terminal thực thụ)
         emit('output', {'data': f"\r\n[Lệnh chạy]: {' '.join(run_cmd)}\r\n\r\n", 'session_id': session_id})
         
-        # Start the process - Redirect stderr to stdout to see all errors
+        # Bước 4: KHỞI CHẠY TIẾN TRÌNH (Process Spawning)
+        # Sử dụng chế độ Binary (text=False) và bufsize=0 (Unbuffered) để đảm bảo dữ liệu truyền tải thời gian thực
         process = subprocess.Popen(
             run_cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=False, # Use binary mode for unbuffered I/O
-            bufsize=0,  # Unbuffered
+            stderr=subprocess.STDOUT, # Gộp Luồng lỗi vào Luồng chuẩn
+            text=False, 
+            bufsize=0,  
             cwd=temp_dir
         )
         
-        # Store session info
+        # Lưu Session vào RAM để điều khiển (Gửi Input/Kill process)
         active_sessions[session_id] = {
             'process': process,
             'temp_dir': temp_dir,
             'language': language
         }
         
-        # Start threads to read output
+        # Bước 5: KHỞI CHẠY CÁC LUỒNG THEO DÕI (Threading System)
+        # Luồng 1: Đọc và Phát Output liên tục qua Socket
         stdout_thread = threading.Thread(target=read_output, args=(session_id, process.stdout, 'stdout'), daemon=True)
         stdout_thread.start()
         
-        # Store thread in session so we can join it later
         active_sessions[session_id]['stdout_thread'] = stdout_thread
         
-        # threading.Thread(target=read_output, args=(session_id, process.stderr, 'stderr'), daemon=True).start() # Stderr is redirected to stdout
+        # Luồng 2: Giám sát vòng đời tiến trình (Wait & Timeout handling)
         threading.Thread(target=monitor_process, args=(session_id,), daemon=True).start()
         
         emit('session_started', {'status': 'running'})
         
     except Exception as e:
         print(f'Error starting session: {e}')
-        emit('error', {'message': f'Error: {str(e)}'})
+        emit('error', {'message': f'Lỗi hệ thống khi khởi tạo phiên làm việc: {str(e)}'})
         cleanup_session(session_id)
 
 @socketio.on('send_input')
@@ -2153,22 +2349,23 @@ def handle_input(data):
     
     session = active_sessions.get(session_id)
     if not session:
-        emit('error', {'message': 'No active session'})
+        emit('error', {'message': 'Không tìm thấy phiên làm việc đang hoạt động'})
         return
     
     process = session['process']
     
     try:
         if process.poll() is None:  # Process still running
-            # Encode input for binary mode
+            # Mã hóa dữ liệu nhập vào sang chế độ binary để tương thích với luồng thực thi
             process.stdin.write((user_input + '\n').encode('utf-8'))
             process.stdin.flush()
     except Exception as e:
         print(f'Error sending input: {e}')
-        emit('error', {'message': f'Error sending input: {str(e)}'})
+        emit('error', {'message': f'Lỗi khi gửi dữ liệu nhập: {str(e)}'})
 
 @socketio.on('run_test_cases')
 def handle_run_test_cases(data):
+    """Sự kiện thực thi mã nguồn đối với một danh sách các bộ test case định sẵn (Kiểm tra bài)"""
     session_id = request.sid
     language = data.get('language')
     code = data.get('code')
@@ -2176,9 +2373,8 @@ def handle_run_test_cases(data):
     
     print(f'Running test cases for session {session_id}, language {language}')
     
-    # Create temp directory
-    # Use a local temp directory to avoid path/permission issues on Windows
-    # We use a new temp dir per test run to keep things clean
+    # Bước 1: Tạo thư mục tạm thời (temp dir) mới cho mỗi lượt test
+    # Sử dụng thư mục cục bộ để tránh lỗi phân quyền (Permissions) trên Windows
     base_temp = os.path.join(os.getcwd(), "temp_sessions")
     if not os.path.exists(base_temp):
         os.makedirs(base_temp)
@@ -2187,7 +2383,7 @@ def handle_run_test_cases(data):
     try:
         config = LANGUAGE_CONFIG.get(language)
         if not config:
-            emit('error', {'message': f'Unsupported language: {language}'})
+            emit('error', {'message': f'Ngôn ngữ không được hỗ trợ: {language}'})
             return
 
         ext = config['ext']
@@ -2197,14 +2393,14 @@ def handle_run_test_cases(data):
         with open(code_file, 'w', encoding='utf-8') as f:
             f.write(code)
             
-        # Compile ONCE
+        # Bước 2: Thực hiện biên dịch DUY NHẤT MỘT LẦN cho toàn bộ test cases
         exe_path = None
         run_cmd_template = config['run']
         
         if config['compile']:
             output_file = os.path.join(temp_dir, "program.exe" if os.name == 'nt' else "program")
             
-            # Re-use the compilation logic from start_session (checking for injection)
+            # Sử dụng lại logic biên dịch từ start_session (có kiểm tra chống injection)
             compile_cmd_template = config['compile']
             compile_files = [code_file]
             
@@ -2239,20 +2435,20 @@ def handle_run_test_cases(data):
                     timeout=10
                 )
                 if compile_result.returncode != 0:
-                    emit('test_results', {'error': f'Compilation error:\n{compile_result.stderr}'})
+                    emit('test_results', {'error': f'Lỗi biên dịch bài làm:\n{compile_result.stderr}'})
                     return
                 exe_path = output_file
             except Exception as e:
-                emit('test_results', {'error': f'Compilation failed: {str(e)}'})
+                emit('test_results', {'error': f'Quá trình biên dịch thất bại: {str(e)}'})
                 return
         
-        # Prepare run command
+        # Chuẩn bị lệnh chạy
         if exe_path:
-             # For compiled
+             # Đối với ngôn ngữ biên dịch
             classname = "Main" if language == "java" else None
             run_cmd = [cmd.format(output=exe_path, classname=classname) for cmd in run_cmd_template]
         else:
-             # For interpreted
+             # Tuyến đường 2: Đối với các ngôn ngữ thông dịch (Python, Node...)
             run_cmd = [cmd.format(file=code_file, project_dir=temp_dir) for cmd in run_cmd_template]
 
         results = []
@@ -2262,7 +2458,7 @@ def handle_run_test_cases(data):
             case_expected = case.get('output', '')
             
             try:
-                # Use binary mode (text=False) for consistent behavior with our fix
+                # Sử dụng chế độ binary (text=False) để đảm bảo đồng nhất với các bản fix trước đó
                 process = subprocess.Popen(
                     run_cmd,
                     stdin=subprocess.PIPE,
@@ -2273,28 +2469,24 @@ def handle_run_test_cases(data):
                     cwd=temp_dir
                 )
                 
+                # Thực thi mã nguồn trong môi trường Subprocess an toàn
                 try:
+                    # Gửi input và thu thập kết quả (Timeout 5 giây cho mỗi lượt)
                     stdout_data, _ = process.communicate(input=(case_input + '\n').encode('utf-8'), timeout=5)
                     actual_output = stdout_data.decode('utf-8', errors='replace')
                 except subprocess.TimeoutExpired:
+                    # Ngắt tiến trình ngay lập tức nếu vượt quá thời gian cho phép
                     process.kill()
-                    actual_output = "Error: Timeout (5s)"
+                    actual_output = "Lỗi: Quá thời gian thực thi (giới hạn 5 giây)"
                 
-                # Normalize text for comparison (ignore trailing whitespace/newlines differences)
+                # Kiểm tra xem output thực tế có khớp hoàn toàn với output mong đợi hay không
+                # LƯU Ý: Trong lập trình thi đấu (CP), việc so sánh thường rất khắt khe về khoảng trắng.
+                # Tuy nhiên, phiên bản này thực hiện chuẩn hóa (normalize) để hỗ trợ tốt hơn cho việc học tập.
                 passed = normalize_text(actual_output) == normalize_text(case_expected)
                 
-                # Check if actual output merely CONTAINS the expected output (sometimes prompts are included)
-                # But for competitive programming style, typically we want clean output.
-                # However, since we forced prompts to appear immediateley, they are part of stdout.
-                # If the problem asks for "Sum: 8", but user prints "Input a: Input b: Sum: 8", we might need smarter matching.
-                # For now, let's try strict normalization, but maybe strip prompts if we could identify them?
-                # Actually, standard CP problems usually don't print prompts like "Input a:". 
-                # But this is a learning app. Users write prompts.
-                # Let's trust the logic: existing test cases in problems.json for "A+B" only show numbers.
-                # If the user code prints prompts, it will fail current test cases. 
-                # We should probably modify the usage instructions or the test cases to include prompts?
-                # Or invalid solution?
-                # Let's stick to standard strict comparison for now.
+                # Logic dự phòng: Nếu bài tập yêu cầu in ra prompt nhập (ví dụ: "Nhập a: ") thì 
+                # việc so khớp tuyệt đối có thể thất bại. Hiện tại chúng tôi mặc định bài tập 
+                # trong problems.json chỉ chứa output thuần túy là dữ liệu kết quả.
                 
                 results.append({
                     'input': case_input,
@@ -2327,37 +2519,40 @@ def handle_run_test_cases(data):
             pass
 
 def normalize_text(text):
-    """Normalize text for comparison: strip whitespace, unify newlines"""
+    """Chuẩn hóa văn bản để so sánh kết quả: loại bỏ khoảng trắng thừa đầu cuối và các dòng trống"""
     if not text: return ""
     return "\n".join([line.rstrip() for line in text.strip().splitlines() if line.strip()])
 
 
 @socketio.on('stop_session')
 def handle_stop_session():
+    """Sự kiện dừng phiên làm việc đang chạy theo yêu cầu người dùng"""
     session_id = request.sid
     cleanup_session(session_id)
     emit('session_ended', {'reason': 'stopped by user'})
 
 def read_output(session_id, stream, stream_type):
-    """Read output from process and emit to client"""
+    """Đọc dữ liệu output từ tiến trình và gửi về máy khách (client) theo thời gian thực"""
     try:
-        # Read character by character for a more interactive feel
+        # Đọc từng byte một để tạo cảm giác tương tác trực tiếp (real-time feel)
         while True:
-            # Read bytes in binary mode
+            # Đọc theo byte (binary mode) để tránh lỗi decode khi output chưa hoàn chỉnh
             byte = stream.read(1)
             if not byte:
                 break
             
-            # Note: We removed the check 'if session_id not in active_sessions'
-            # to ensure we finish reading the stream even if cleanup has started,
-            # provided the stream is still open and yielding data.
+            # Lưu ý kiến trúc: Chúng tôi đã lược bỏ việc kiểm tra 'if session_id not in active_sessions'
+            # để đảm bảo luồng đọc stream được hoàn thành trọn vẹn ngay cả khi việc dọn dẹp đã bắt đầu,
+            # miễn là stream vẫn đang mở và liên tục trả về dữ liệu.
             
-            # Decode byte to string
+            # Giải mã byte sang ký tự (Char)
             try:
                 char = byte.decode('utf-8', errors='replace')
             except:
+                # Trường hợp lỗi giải mã nghiêm trọng, dùng dấu hỏi để không làm ngắt quãng output
                 char = '?'
                 
+            # Gửi ký tự đơn lẻ về client qua kênh 'output' của đúng session_id
             socketio.emit('output', {
                 'data': char,
                 'type': stream_type
@@ -2368,7 +2563,12 @@ def read_output(session_id, stream, stream_type):
         stream.close()
 
 def monitor_process(session_id):
-    """Monitor process and cleanup when it exits"""
+    """
+    Luồng giám sát trạng thái của tiến trình thực thi code:
+    - Kiểm tra Timeout (mặc định 60 giây cho mỗi phiên).
+    - Tự động đóng luồng dữ liệu (stdout) và dọn dẹp tài nguyên khi kết thúc.
+    - Phát tín hiệu 'session_ended' về cho client để cập nhật giao diện.
+    """
     session = active_sessions.get(session_id)
     if not session:
         return
@@ -2377,21 +2577,22 @@ def monitor_process(session_id):
     stdout_thread = session.get('stdout_thread')
     
     try:
-        # Wait for process to complete (with timeout)
+        # Chờ tiến trình hoàn thành (tối đa 60 giây)
         process.wait(timeout=60)
         
-        # After process finishes, wait for the output reader to finish flushing
+        # Sau khi tiến trình kết thúc, chờ luồng đọc output hoàn tất việc đẩy dữ liệu
         if stdout_thread and stdout_thread.is_alive():
             stdout_thread.join(timeout=2)
             
     except subprocess.TimeoutExpired:
         print(f'Process timeout for session {session_id}')
+        # Cưỡng bức dừng tiến trình nếu chạy quá giờ
         process.kill()
         socketio.emit('error', {
-            'message': 'Process timeout (60s limit)'
+            'message': 'Lỗi: Quá thời gian thực thi (giới hạn 60 giây)'
         }, room=session_id)
     
-    # Emit session ended
+    # Phát sự kiện thông báo phiên làm việc đã kết thúc chính thức
     socketio.emit('session_ended', {
         'reason': 'process completed',
         'exit_code': process.returncode
@@ -2401,7 +2602,12 @@ def monitor_process(session_id):
     cleanup_session(session_id)
 
 def cleanup_session(session_id):
-    """Clean up session resources"""
+    """
+    Dọn dẹp triệt để tài nguyên sau khi kết thúc phiên:
+    1. Kiên quyết dừng (kill) tiến trình con nếu còn đang kẹt.
+    2. Đóng các luồng nhập/xuất để giải phóng tài nguyên hệ thống.
+    3. Xóa vĩnh viễn thư mục tạm thời khỏi bộ nhớ đệm (temp_sessions).
+    """
     session = active_sessions.pop(session_id, None)
     if not session:
         return
@@ -2409,7 +2615,7 @@ def cleanup_session(session_id):
     process = session['process']
     temp_dir = session['temp_dir']
     
-    # Kill process if still running
+    # Kiểm tra và dừng tiến trình con nếu vẫn còn đang chạy ngầm
     if process.poll() is None:
         try:
             process.kill()
@@ -2417,7 +2623,7 @@ def cleanup_session(session_id):
         except:
             pass
     
-    # Clean up temp directory
+    # Xóa sạch thư mục tạm thời của phiên này để giải phóng ổ đĩa
     try:
         import shutil
         if os.path.exists(temp_dir):
@@ -2427,42 +2633,50 @@ def cleanup_session(session_id):
 
 
 def cleanup_dangling_temps():
-    """Clean up any dangling temporary directories from previous runs"""
+    """
+    Dọn dẹp các thư mục tạm còn sót lại (dangling folders):
+    - Chạy khi khởi động server để đảm bảo ổ đĩa không bị đầy bởi các file rác
+    từ các phiên làm việc bị sập đột ngột ở lần chạy trước.
+    """
     try:
         current_dir = os.getcwd()
-        # Clean up temp_sessions directory content but keep the directory
+        # Bước 1: Dọn dẹp nội dung thư mục temp_sessions nhưng vẫn giữ lại thư mục cha
         temp_sessions = os.path.join(current_dir, "temp_sessions")
         if os.path.exists(temp_sessions):
             try:
                 import shutil
                 shutil.rmtree(temp_sessions)
                 os.makedirs(temp_sessions)
-                print("Cleaned up temp_sessions directory")
+                print("Đã làm sạch thư mục temp_sessions")
             except Exception as e:
-                print(f"Warning: Could not clean temp_sessions: {e}")
+                print(f"Cảnh báo: Không thể làm sạch thư mục temp_sessions: {e}")
 
-        # Clean up legacy temp_* directories in root
+        # Bước 2: Dọn dẹp các thư mục tạm thời dạng temp_* cũ còn sót lại trong thư mục gốc
         for name in os.listdir(current_dir):
             if name.startswith("temp_") and os.path.isdir(os.path.join(current_dir, name)):
                 if name == "temp_sessions": continue
                 try:
                     import shutil
                     shutil.rmtree(os.path.join(current_dir, name))
-                    print(f"Removed dangling temp dir: {name}")
+                    print(f"Đã xóa thư mục tạm thừa: {name}")
                 except Exception as e:
-                    print(f"Warning: Could not remove {name}: {e}")
+                    print(f"Cảnh báo: Không thể xóa {name}: {e}")
     except Exception as e:
-        print(f"Error during cleanup: {e}")
+        print(f"Lỗi trong quá trình dọn dẹp khởi động: {e}")
 
 if __name__ == "__main__":
+    # Khởi động ứng dụng Flask với SocketIO
+    # Cấu hình host 0.0.0.0 để cho phép truy cập từ các thiết bị khác trong mạng LAN
+    # Cấu hình port 5001 - Cần đảm bảo port này không bị chiếm dụng bởi ứng dụng khác
     print("=" * 50)
-    print("Server starting on http://localhost:5001")
-    print("Python version:", os.sys.version)
-    print("Async mode: threading")
+    print("Máy chủ đang khởi chạy tại: http://localhost:5001")
+    print("Phiên bản Python:", os.sys.version)
+    print("Chế độ Async: threading")
     
-    # Clean up temp files on startup
+    # Dọn dẹp các file tạm khi khởi động server
     cleanup_dangling_temps()
     
     print("=" * 50)
     
+    # Khởi chạy ứng dụng với SocketIO hỗ trợ đa kết nối và không giới hạn bảo mật Werkzeug (cho dev)
     socketio.run(app, host='0.0.0.0', port=5001, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
