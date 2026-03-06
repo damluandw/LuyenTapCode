@@ -24,12 +24,6 @@
     "display_name": "quản trị viên"
   },
   {
-    "username": "trogiang",
-    "password": "123",
-    "role": "teaching_assistant",
-    "display_name": "Trợ giảng 1"
-  },
-  {
     "username": "student",
     "password": "123",
     "role": "student",
@@ -112,5 +106,33 @@
     "role": "student",
     "display_name": "Nguyễn Văn B",
     "class_name": "64CNTT1"
+  },
+  {
+    "username": "SV0001",
+    "password": "SV0001",
+    "display_name": "Nguyễn Văn A",
+    "role": "student",
+    "class_name": "UDPM24",
+    "major": "Công nghệ thông tin",
+    "dob": "2002-01-01",
+    "phone": "987654321",
+    "email_school": "a.nv@school.edu.vn",
+    "email_personal": "vana@gmail.com",
+    "id_card": "123456789",
+    "ethnicity": "Kinh",
+    "address": "Hà Nội",
+    "father_name": "Nguyễn Văn B",
+    "father_phone": "912345678",
+    "father_email": "b.nv@gmail.com",
+    "mother_name": "Lê Thị C",
+    "mother_phone": "921345678",
+    "mother_email": "c.lt@gmail.com"
+  },
+  {
+    "username": "trogiang",
+    "password": "123",
+    "role": "teaching_assistant",
+    "display_name": "Trợ giảng",
+    "custom_permissions": []
   }
 ]
