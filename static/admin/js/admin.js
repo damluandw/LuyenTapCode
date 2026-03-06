@@ -981,14 +981,15 @@ async function loadExamSubmissions(eid, username) {
       const subs = problems[pid];
       const latest = subs[subs.length - 1];
       const globalIndex = allExamSubmissions.indexOf(latest);
+      const langClass = latest.language === 'c' ? 'language-c' : (latest.language === 'cpp' ? 'language-cpp' : 'language-clike');
 
       html += `
-                <div class="list-group-item border-secondary p-4 mb-3 rounded shadow-sm">
+                <div class="submission-card p-4 mb-4 shadow-sm border-0">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h5 class="mb-1 text-accent">${latest.problemTitle}</h5>
+                            <h5 class="mb-1 text-accent fw-bold">${latest.problemTitle}</h5>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-secondary">${latest.language.toUpperCase()}</span>
+                                <span class="badge bg-secondary bg-opacity-75">${latest.language.toUpperCase()}</span>
                                 <span class="small text-muted"><i class="bi bi-clock me-1"></i>${latest.timestamp}</span>
                             </div>
                         </div>
@@ -998,7 +999,7 @@ async function loadExamSubmissions(eid, username) {
                     </div>
                     
                     <div class="code-preview-container mb-3">
-                        <div class="d-flex justify-content-between align-items-center bg-light-subtle p-2 rounded-top border border-secondary border-bottom-0">
+                        <div class="code-preview-header">
                             <span class="small text-muted font-monospace">Mã nguồn (Lần nộp cuối)</span>
                             <button class="btn btn-sm btn-link text-accent text-decoration-none p-0" type="button" 
                                     data-bs-toggle="collapse" data-bs-target="#code-collapse-${pid}">
@@ -1006,14 +1007,14 @@ async function loadExamSubmissions(eid, username) {
                             </button>
                         </div>
                         <div class="collapse show" id="code-collapse-${pid}">
-                                 style="max-height: 300px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; background: var(--glass-bg); color: var(--text-main);">${document.createTextNode(latest.code || "// Không có mã nguồn").wholeText}</pre>
+                             <pre class="${langClass}"><code class="${langClass}">${latest.code ? latest.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : "// Không có mã nguồn"}</code></pre>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex gap-2">
                            <button class="btn btn-sm btn-outline-accent" onclick="showSpecificCode(${globalIndex})">
-                               <i class="bi bi-arrows-fullscreen me-1"></i>Xem toàn màn hình
+                               <i class="bi bi-arrows-fullscreen me-1"></i>Xem chi tiết
                            </button>
                         </div>
                         ${subs.length > 1 ? `<small class="text-muted"><i class="bi bi-history me-1"></i>Có ${subs.length} lần nộp</small>` : ''}
@@ -1022,6 +1023,11 @@ async function loadExamSubmissions(eid, username) {
             `;
     }
     list.innerHTML = html;
+    
+    // Trigger Prism highlighting
+    if (window.Prism) {
+        setTimeout(() => Prism.highlightAll(), 50);
+    }
 
     // Update the "Chi tiết kỳ thi" breadcrumb link title if possible
     const ex = state.originalExamsReportData.find(e => e.id == eid);
@@ -1054,21 +1060,28 @@ function showCodeDetail(s) {
     return;
   }
 
+  const langClass = s.language === 'c' ? 'language-c' : (s.language === 'cpp' ? 'language-cpp' : 'language-clike');
   modalBody.innerHTML = `
-         <div class="p-3 border-bottom border-secondary bg-light-subtle">
-            <div class="row">
+         <div class="p-3 border-bottom border-secondary bg-dark bg-opacity-50">
+            <div class="row align-items-center">
                <div class="col-md-6">
-                  <div class="small text-muted">Sinh viên</div>
-                  <div class="fw-bold">${s.username}</div>
+                  <div class="small text-muted mb-1">Sinh viên</div>
+                  <div class="fw-bold text-accent">${s.username}</div>
                </div>
                <div class="col-md-6 text-md-end">
-                  <div class="small text-muted">Bài tập</div>
-                  <div class="fw-bold">${s.problemTitle} (${s.language})</div>
+                  <div class="small text-muted mb-1">Bài tập</div>
+                  <div class="fw-bold">${s.problemTitle} <span class="badge bg-secondary ms-1">${s.language.toUpperCase()}</span></div>
                </div>
             </div>
          </div>
-         <pre id="code-display" class="m-0 p-3" style="max-height: 600px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; background: var(--glass-bg); color: var(--text-main);">${document.createTextNode(s.code || "// Không có mã nguồn").wholeText}</pre>
+         <div style="max-height: 600px; overflow-y: auto; background: #1e1e1e;">
+            <pre class="${langClass} m-0" style="border-radius:0 !important;"><code class="${langClass}">${s.code ? s.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : "// Không có mã nguồn"}</code></pre>
+         </div>
     `;
+
+  if (window.Prism) {
+    setTimeout(() => Prism.highlightElement(modalBody.querySelector('code')), 50);
+  }
 
   const tsEl = document.getElementById("code-timestamp");
   if (tsEl) tsEl.textContent = "Nộp lúc: " + s.timestamp;
