@@ -587,7 +587,8 @@ def get_stats():
     # Lấy Top 10 hoạt động nộp bài trong kỳ thi mới nhất để hiển thị feed
     recent_exam_subs = []
     for s in exam_subs[-10:]:
-        ex = next((e for e in exams if e["id"] == s.get("examId")), {"title": "Unknown"})
+        sid = str(s.get("examId", "")).strip()
+        ex = next((e for e in exams if str(e.get("id", "")).strip() == sid), {"title": f"Unknown Exam (ID: {sid})"})
         recent_exam_subs.append({
             "username": s["username"],
             "examTitle": ex["title"],
@@ -669,9 +670,9 @@ def get_stats():
     
     exam_breakdown = []
     for ex in accessible_exams:
-        eid = str(ex["id"])
+        eid = str(ex.get("id", "")).strip()
         # Lọc các bài nộp thuộc về kỳ thi này
-        ex_subs = [s for s in filtered_submissions if str(s.get("examId")) == eid]
+        ex_subs = [s for s in filtered_submissions if str(s.get("examId", "")).strip() == eid]
         # Thống kê lượng tài khoản duy nhất (Unique users) tham gia
         ex_students = set([s["username"] for s in ex_subs])
         # Tính toán tỷ lệ đỗ (Pass rate)

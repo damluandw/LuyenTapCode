@@ -124,10 +124,10 @@
     "mode": "exam",
     "examId": "1",
     "allPassed": true,
-    "timeRemaining": 1789,
+    "timeRemaining": 410,
     "submission_type": "submit",
     "username": "sv01",
-    "timestamp": "2026-03-06 20:23:20"
+    "timestamp": "2026-03-06 20:46:20"
   },
   {
     "problemId": 4,
@@ -137,9 +137,9 @@
     "mode": "exam",
     "examId": "1",
     "allPassed": true,
-    "timeRemaining": 1771,
+    "timeRemaining": 403,
     "submission_type": "submit",
     "username": "sv01",
-    "timestamp": "2026-03-06 20:23:39"
+    "timestamp": "2026-03-06 20:46:26"
   }
 ]
