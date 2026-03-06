@@ -44,5 +44,18 @@
     "submission_type": "check",
     "username": "sv03",
     "timestamp": "2026-02-10 09:43:57"
+  },
+  {
+    "problemId": 1,
+    "problemTitle": "Tính diện tích hình chữ nhật",
+    "language": "c",
+    "code": "#include <stdio.h>\n\nint main() {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\", a * b);\n    return 0;\n}",
+    "mode": "practice",
+    "examId": null,
+    "allPassed": true,
+    "timeRemaining": null,
+    "submission_type": "check",
+    "username": "sv01",
+    "timestamp": "2026-03-06 20:21:33"
   }
 ]

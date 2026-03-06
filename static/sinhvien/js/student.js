@@ -565,7 +565,7 @@ function renderResults(results) {
         code: editor.getValue(),
         mode: 'practice',
         allPassed: true,
-        submission_type: 'submit'
+        submission_type: 'check'
       })
     });
   }
