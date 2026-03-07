@@ -1,6 +1,6 @@
 [
   {
-    "title": "Kỳ thi 1",
+    "title": "Kỳ thi 4",
     "duration": 30,
     "problemIds": [
       3,
@@ -92,7 +92,7 @@
     },
     "isActive": true,
     "openTime": "2026-02-10T12:10",
-    "closeTime": "2026-03-03T12:10",
+    "closeTime": "2026-03-09T12:10",
     "allowedLanguages": [
       "c"
     ],
@@ -118,5 +118,58 @@
     ],
     "antiCheatEnabled": true,
     "id": 3
+  },
+  {
+    "title": "Kỳ thi 1",
+    "duration": 60,
+    "problemIds": [
+      37,
+      4,
+      3,
+      22,
+      17,
+      20,
+      41,
+      19,
+      23
+    ],
+    "problemPoints": {
+      "3": 10,
+      "4": 10,
+      "17": 10,
+      "19": 10,
+      "20": 10,
+      "22": 10,
+      "23": 10,
+      "37": 10,
+      "41": 10
+    },
+    "isActive": true,
+    "openTime": "",
+    "closeTime": "",
+    "allowedLanguages": [
+      "csharp"
+    ],
+    "allowedStudents": [
+      "sv04",
+      "sv05",
+      "sv01",
+      "sv02",
+      "sv03",
+      "sv06",
+      "sv07",
+      "sv08",
+      "sv09",
+      "sv10",
+      "sv11"
+    ],
+    "shared_with": [
+      "gv01",
+      "trogiang"
+    ],
+    "antiCheatEnabled": true,
+    "id": 4,
+    "startTime": "2026-03-07 09:20:41",
+    "created_by": "admin"
   }
 ]

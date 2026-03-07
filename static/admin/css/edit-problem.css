@@ -3,14 +3,14 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: #0d1117;
-    color: #c9d1d9;
+    background: var(--bg-dark);
+    color: var(--text-primary);
 }
 
 .editor-header {
-    background: #161b22;
+    background: var(--ide-panel-bg);
     padding: 0.75rem 2rem;
-    border-bottom: 1px solid #30363d;
+    border-bottom: 1px solid var(--glass-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -26,16 +26,16 @@
 
 /* Sidebar Nav */
 .editor-nav {
-    background: #161b22;
+    background: var(--ide-panel-bg);
     padding: 2rem 1rem;
-    border-right: 1px solid #30363d;
+    border-right: 1px solid var(--glass-border);
     overflow-y: auto;
 }
 
 .nav-section-title {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #484f58;
+    color: var(--text-secondary);
     margin-bottom: 0.75rem;
     margin-top: 1.5rem;
     padding-left: 1rem;
@@ -47,7 +47,7 @@
     display: block;
     padding: 0.8rem 1rem;
     border-radius: 6px;
-    color: #8b949e;
+    color: var(--text-secondary);
     text-decoration: none;
     margin-bottom: 0.25rem;
     transition: all 0.2s;
@@ -56,21 +56,25 @@
 }
 
 .nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #f0f6fc;
+    background: var(--sidebar-hover-bg);
+    color: var(--text-primary);
 }
 
 .nav-item.active {
     background: rgba(88, 166, 255, 0.1);
-    color: #58a6ff;
+    color: var(--accent);
     font-weight: 600;
+}
+
+html[data-theme="light"] .nav-item.active {
+    background: rgba(9, 105, 218, 0.1);
 }
 
 /* Main Content Area */
 .editor-main {
     padding: 0;
     overflow-y: auto;
-    background: #0d1117;
+    background: var(--bg-dark);
     scroll-behavior: smooth;
     position: relative;
 }
@@ -95,16 +99,16 @@
 .edit-section h2 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
-    color: #f0f6fc;
+    color: var(--text-primary);
 }
 
 /* Monaco Wrappers */
 .monaco-wrapper {
     height: 350px;
-    border: 1px solid #30363d;
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     overflow: hidden;
-    background: #161b22;
+    background: var(--ide-panel-bg);
 }
 
 .monaco-wrapper.mini {
@@ -113,20 +117,20 @@
 
 /* Right Preview Panel */
 .editor-preview-panel {
-    background: #0d1117;
-    border-left: 1px solid #30363d;
+    background: var(--bg-dark);
+    border-left: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .preview-header {
-    background: #161b22;
+    background: var(--ide-panel-bg);
     padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid #30363d;
+    border-bottom: 1px solid var(--glass-border);
     font-size: 0.7rem;
     font-weight: 700;
-    color: #8b949e;
+    color: var(--text-secondary);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -138,7 +142,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
-    background: #0d1117;
+    background: var(--bg-dark);
 }
 
 /* Scrollbar styling */
@@ -147,45 +151,45 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: #0d1117;
+    background: var(--bg-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #30363d;
+    background: var(--glass-border);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #484f58;
+    background: var(--text-secondary);
 }
 
 /* Markdown Override for Student View in Admin */
 .student-view-markdown {
-    color: #c9d1d9;
+    color: var(--text-primary);
     line-height: 1.6;
 }
 
-.student-view-markdown h1, 
-.student-view-markdown h2, 
+.student-view-markdown h1,
+.student-view-markdown h2,
 .student-view-markdown h3 {
-    color: #f0f6fc;
+    color: var(--text-primary);
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     font-weight: 600;
 }
 
 .student-view-markdown code {
-    background: rgba(110, 118, 129, 0.4);
+    background: var(--glass-bg);
     padding: 0.2em 0.4em;
     border-radius: 6px;
     font-size: 85%;
 }
 
 .student-view-markdown pre {
-    background: #161b22;
+    background: var(--ide-panel-bg);
     padding: 1rem;
     border-radius: 6px;
-    border: 1px solid #30363d;
+    border: 1px solid var(--glass-border);
     overflow-x: auto;
     margin-bottom: 1rem;
 }

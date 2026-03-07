@@ -18,14 +18,23 @@ require(['vs/editor/editor.main'], function () {
         { id: 'solution-csharp', lang: 'csharp' }
     ];
 
+    const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'vs' : 'vs-dark';
     langConfigs.forEach(conf => {
         editors[conf.id] = monaco.editor.create(document.getElementById(conf.id), {
             value: '',
             language: conf.lang,
-            theme: 'vs-dark',
+            theme: currentTheme,
             automaticLayout: true,
             minimap: { enabled: false },
             fontSize: 14
+        });
+    });
+
+    // Listen for theme changes to update Monaco
+    window.addEventListener('themeChanged', function (e) {
+        const newTheme = e.detail.theme === 'light' ? 'vs' : 'vs-dark';
+        Object.values(editors).forEach(editor => {
+            monaco.editor.setTheme(newTheme);
         });
     });
 
@@ -66,7 +75,7 @@ function updatePreview() {
 
     document.getElementById('pre-title').textContent = title;
     document.getElementById('pre-diff').textContent = diff;
-    
+
     // Bootstrap badge colors
     let badgeClass = 'bg-success';
     if (diff === 'Medium') badgeClass = 'bg-warning text-dark';
@@ -86,7 +95,12 @@ function updatePreview() {
 function addTestCase(input = '', output = '') {
     const container = document.getElementById('testcase-list');
     const div = document.createElement('div');
-    div.className = 'card bg-dark bg-opacity-25 border-secondary border-opacity-25 p-4 mb-3 position-relative shadow-sm testcase-item';
+    const theme = document.documentElement.getAttribute('data-theme');
+    const bgClass = theme === 'light' ? 'bg-light' : 'bg-dark bg-opacity-25';
+    const inputClass = theme === 'light' ? 'bg-white text-dark' : 'bg-dark text-light';
+    const borderClass = theme === 'light' ? 'border-light-subtle' : 'border-secondary border-opacity-25';
+
+    div.className = `card ${bgClass} ${borderClass} p-4 mb-3 position-relative shadow-sm testcase-item`;
     div.innerHTML = `
         <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 border-0" onclick="this.parentElement.remove()" title="Xóa bộ test">
             <i class="bi bi-trash"></i>
@@ -94,11 +108,11 @@ function addTestCase(input = '', output = '') {
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label-custom">Đầu vào (Input)</label>
-                <textarea class="form-control bg-dark border-secondary text-light tc-input tc-in" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${input}</textarea>
+                <textarea class="form-control ${inputClass} border-secondary tc-input tc-in" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${input}</textarea>
             </div>
             <div class="col-md-6">
                 <label class="form-label-custom">Đầu ra mong đợi (Output)</label>
-                <textarea class="form-control bg-dark border-secondary text-light tc-input tc-out" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${output}</textarea>
+                <textarea class="form-control ${inputClass} border-secondary tc-input tc-out" style="font-family: 'Fira Code', monospace; font-size: 0.85rem;" rows="3">${output}</textarea>
             </div>
         </div>
     `;
@@ -255,7 +269,11 @@ async function testSolution(lang) {
         result.results.forEach((r, i) => {
             const card = document.createElement('div');
             const statusColor = r.passed ? 'success' : 'danger';
-            card.className = `card bg-dark bg-opacity-25 border-${statusColor} border-opacity-50 border-start border-4 mb-2 p-3 shadow-sm`;
+            const theme = document.documentElement.getAttribute('data-theme');
+            const bgClass = theme === 'light' ? 'bg-light' : 'bg-dark bg-opacity-25';
+            const borderOpacity = theme === 'light' ? '' : 'border-opacity-50';
+
+            card.className = `card ${bgClass} border-${statusColor} ${borderOpacity} border-start border-4 mb-2 p-3 shadow-sm`;
 
             const inText = (r.input || "").substring(0, 15);
             const outText = (r.actual || "").substring(0, 15);

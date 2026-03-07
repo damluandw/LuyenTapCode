@@ -310,5 +310,237 @@
     "problemId": 33,
     "timestamp": "2026-02-10 15:15:05",
     "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:21:38",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:21:38",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:21:42",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:21:52",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:21:52",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:02",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:02",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:03",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:12",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:53",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:22:53",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:24:01",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:24:08",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:20",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:20",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:43",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:47",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:50",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "paste",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:52",
+    "details": "Sinh viên đã dán nội dung vào trình soạn thảo: \nhttp://127.0.0.1:5001/exams"
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:25:52",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:02",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:03",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:23",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:23",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:25",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:26:26",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:30:38",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "blur",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:30:38",
+    "details": "Sinh viên đã chuyển tiêu điểm sang cửa sổ khác."
+  },
+  {
+    "examId": 3,
+    "username": "sv01",
+    "event": "visibilitychange",
+    "problemId": 4,
+    "timestamp": "2026-03-07 09:30:38",
+    "details": "Sinh viên đã rời khỏi tab thi hoặc thu nhỏ trình duyệt."
   }
 ]
